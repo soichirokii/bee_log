@@ -33,9 +33,15 @@ function extractRichText(richTextArray: any[]): RichText[] {
 function pageToPost(page: any): Post {
   const props = page.properties;
 
+  const filesProp = props["ファイル&メディア"]?.files ?? null;
+  const imageUrl: string | null =
+  filesProp?.[0]?.file?.url ??
+  filesProp?.[0]?.external?.url ??
+  null;
+
   return {
     id: page.id,
-    slug: page.id, // NotionにSlugプロパティがないのでIDを使用
+    slug: page.id,
     title: props["タイトル"]?.title?.[0]?.plain_text ?? "Untitled",
     organizer: props["主催者"]?.rich_text?.[0]?.plain_text ?? "",
     category: props["カテゴリ"]?.select?.name ?? "",
@@ -50,6 +56,7 @@ function pageToPost(page: any): Post {
     applyUrl: props["応募URL"]?.url ?? "",
     isFeatured: props["注目"]?.checkbox ?? false,
     isPublished: props["公開"]?.checkbox ?? false,
+    imageUrl,
   };
 }
 
@@ -79,7 +86,6 @@ function rawBlockToNotionBlock(block: any): NotionBlock {
   return { id: block.id, type, richText, language, imageUrl, caption };
 }
 
-/** 公開済み記事一覧（「公開」チェックボックスがtrueのもの） */
 export async function getPublishedPosts(): Promise<Post[]> {
   const res = await fetch(
     `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
@@ -91,9 +97,7 @@ export async function getPublishedPosts(): Promise<Post[]> {
           property: "公開",
           checkbox: { equals: true },
         },
-        sorts: [
-          { property: "応募締切", direction: "ascending" },
-        ],
+        sorts: [{ property: "応募締切", direction: "ascending" }],
       }),
       next: { revalidate: 60 },
     }
@@ -104,19 +108,15 @@ export async function getPublishedPosts(): Promise<Post[]> {
   return (data.results as any[]).map(pageToPost);
 }
 
-/** IDから記事1件を取得 */
 export async function getPostById(id: string): Promise<Post | null> {
   const res = await fetch(`https://api.notion.com/v1/pages/${id}`, {
     headers: notionHeaders,
     next: { revalidate: 60 },
   });
-
   if (!res.ok) return null;
-  const page = await res.json();
-  return pageToPost(page);
+  return pageToPost(await res.json());
 }
 
-/** ページIDからブロック一覧（ページネーション対応） */
 export async function getPostBlocks(pageId: string): Promise<NotionBlock[]> {
   const blocks: NotionBlock[] = [];
   let cursor: string | undefined;
@@ -130,7 +130,6 @@ export async function getPostBlocks(pageId: string): Promise<NotionBlock[]> {
       next: { revalidate: 60 },
     });
     if (!res.ok) throw new Error(`Notion API error: ${res.status}`);
-
     const data = await res.json();
     blocks.push(...(data.results as any[]).map(rawBlockToNotionBlock));
     cursor = data.has_more ? data.next_cursor : undefined;
@@ -139,7 +138,6 @@ export async function getPostBlocks(pageId: string): Promise<NotionBlock[]> {
   return blocks;
 }
 
-/** ID から記事＋本文ブロックをまとめて取得 */
 export async function getPostWithContent(id: string): Promise<PostWithContent | null> {
   const post = await getPostById(id);
   if (!post) return null;
@@ -147,7 +145,6 @@ export async function getPostWithContent(id: string): Promise<PostWithContent | 
   return { ...post, blocks };
 }
 
-/** 静的生成用: 全公開IDを取得 */
 export async function getAllPublishedSlugs(): Promise<string[]> {
   const posts = await getPublishedPosts();
   return posts.map((p) => p.id);

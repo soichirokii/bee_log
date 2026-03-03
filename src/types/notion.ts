@@ -2,21 +2,22 @@ export type PostStatus = "Published" | "Draft";
 
 export type Post = {
   id: string;
-  slug: string;          // ※ Notionにslugがないのでpage.idを使用
+  slug: string;
   title: string;
-  organizer: string;     // 主催者
-  category: string;      // カテゴリ（select）
-  deadline: string | null;     // 応募締切（date）
-  period: string;        // 活動期間（text）
-  targetGrade: string[]; // 対象学年（multi_select）
-  format: string;        // 形式（select）
-  region: string;        // 地域（text）
-  fee: string;           // 参加費（text）
-  tags: string[];        // タグ（multi_select）
-  summary: string;       // 概要（text）
-  applyUrl: string;      // 応募URL（url）
-  isFeatured: boolean;   // 注目（checkbox）
-  isPublished: boolean;  // 公開（checkbox）
+  organizer: string;
+  category: string;
+  deadline: string | null;
+  period: string;
+  targetGrade: string[];
+  format: string;
+  region: string;
+  fee: string;
+  tags: string[];
+  summary: string;
+  applyUrl: string;
+  isFeatured: boolean;
+  isPublished: boolean;
+  imageUrl: string | null; // ← 追加
 };
 
 export type PostWithContent = Post & {
