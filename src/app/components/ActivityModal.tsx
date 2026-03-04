@@ -155,7 +155,7 @@ export default function ActivityModal({ post, onClose }: Props) {
             )}
 
             {post.applyUrl && (
-              
+              <a
                 href={post.applyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
