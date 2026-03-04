@@ -33,11 +33,17 @@ function extractRichText(richTextArray: any[]): RichText[] {
 function pageToPost(page: any): Post {
   const props = page.properties;
 
-  const filesProp = props["ファイル&メディア"]?.files ?? null;
+  // デバッグ用（確認後に消す）
+  console.log("プロパティ一覧:", Object.keys(props));
+  const filesData = props["ファイル&メディア"]?.files ?? null;
+  console.log("画像データ:", JSON.stringify(filesData, null, 2));
+
   const imageUrl: string | null =
-  filesProp?.[0]?.file?.url ??
-  filesProp?.[0]?.external?.url ??
-  null;
+    filesData?.[0]?.file?.url ??
+    filesData?.[0]?.external?.url ??
+    null;
+
+  console.log("imageUrl:", imageUrl);
 
   return {
     id: page.id,
