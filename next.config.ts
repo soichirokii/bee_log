@@ -4,6 +4,17 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  headers: async () => [
+    {
+      source: "/(.*)",
+      headers: [
+        {
+          key: "Cache-Control",
+          value: "no-store",
+        },
+      ],
+    },
+  ],
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**.notion.so" },
