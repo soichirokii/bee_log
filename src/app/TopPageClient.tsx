@@ -225,29 +225,52 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
       </div>
 
       {/* 検索バー */}
-      <div className="px-6 mb-6">
-        <div className="max-w-3xl mx-auto flex gap-2">
-          <div className="flex-1 bg-white rounded-full px-5 py-3 flex items-center gap-2">
-            <span className="text-gray-400">🔍</span>
-            <input
-              type="search"
-              placeholder="活動、主催者、キーワードで検索..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`);
-              }}
-              className="flex-1 text-sm outline-none"
-            />
-          </div>
-          <button
-            onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
-            className="bg-[#092040] text-white font-bold px-6 py-3 rounded-full text-sm hover:opacity-90 transition-opacity"
-          >
-            検索
-          </button>
-        </div>
-      </div>
+<div className="px-6 mb-8">
+  <div className="max-w-3xl mx-auto">
+    <div className="bg-white rounded-2xl px-5 py-4 flex items-center gap-3 shadow-lg mb-4">
+      <span className="text-gray-400 text-lg">🔍</span>
+      <input
+        type="search"
+        placeholder="活動名、スキル、主催者などで検索..."
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`);
+        }}
+        className="flex-1 text-sm outline-none text-[#092040] placeholder-gray-400"
+      />
+      <button
+        onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+        className="bg-[#092040] text-[#FCBC2A] font-bold px-6 py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity"
+      >
+        検索
+      </button>
+    </div>
+
+    {/* 人気のタグ */}
+<div className="flex items-center justify-center gap-3 flex-wrap mt-4">
+  <span className="text-[#092040] font-bold text-sm whitespace-nowrap">人気のタグ:</span>
+  {(() => {
+    const tagCount: Record<string, number> = {};
+    posts.forEach((p) => p.tags.forEach((t) => {
+      tagCount[t] = (tagCount[t] ?? 0) + 1;
+    }));
+    return Object.entries(tagCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([tag]) => (
+        <Link
+          key={tag}
+          href={`/search?tag=${encodeURIComponent(tag)}`}
+          className="bg-[#FCBC2A]/40 text-[#092040] font-bold text-sm px-4 py-2 rounded-xl hover:bg-white transition-colors"
+        >
+          {tag}
+        </Link>
+      ));
+  })()}
+</div>
+  </div>
+</div>
 
       {/* カテゴリボタン */}
       <div className="mb-8">

@@ -68,7 +68,7 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
   const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
 
   return (
-      <div onClick={onClick}className="bg-white rounded-2xl overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
+    <div onClick={onClick} className="bg-white rounded-2xl hover:rounded-none hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
       <div className="w-full aspect-video bg-gray-200 relative">
         {post.imageUrl ? (
           <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
@@ -156,9 +156,10 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
   const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
   const [freeOnly, setFreeOnly] = useState(false);
   const [sortOrder, setSortOrder] = useState<"newest" | "deadline">("newest");
+  const [sortOpen, setSortOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-  const [sortOpen, setSortOpen] = useState(false);
+
   const toggleItem = (list: string[], setList: (v: string[]) => void, item: string) => {
     setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
     setPage(1);
@@ -177,6 +178,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
           p.tags.some((t) => t.toLowerCase().includes(kw))
       );
     }
+
     if (selectedCategories.length > 0) {
       result = result.filter((p) => selectedCategories.includes(p.category));
     }
@@ -286,25 +288,46 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
 
         {/* メインエリア */}
         <main className="flex-1">
-          <div className="flex gap-2 mb-4">
-            <div className="flex-1 bg-white rounded-full px-5 py-3 flex items-center gap-2">
-              <span className="text-gray-400">🔍</span>
+          <div className="flex gap-2 mb-4 items-center">
+            <div className="flex-1 bg-white rounded-2xl px-5 py-4 flex items-center gap-3 shadow-lg">
+              <span className="text-gray-400 text-lg">🔍</span>
               <input
                 type="search"
-                placeholder="活動、主催者、キーワードで検索..."
+                placeholder="活動名、スキル、主催者などで検索..."
                 value={keyword}
                 onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
-                className="flex-1 text-sm outline-none"
+                className="flex-1 text-sm outline-none text-[#092040] placeholder-gray-400"
               />
             </div>
-            <select
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value as typeof sortOrder)}
-              className="bg-white rounded-full px-4 py-3 text-sm text-[#092040] font-bold outline-none cursor-pointer border-none"
-          >
-              <option value="newest">並び替え：新着順</option>
-              <option value="deadline">並び替え：締切順</option>
-            </select>
+            <div className="relative">
+              <button
+                onClick={() => setSortOpen(!sortOpen)}
+                className="bg-white rounded-full pl-5 pr-10 py-3 text-sm text-[#092040] font-bold outline-none cursor-pointer relative whitespace-nowrap shadow-lg"
+              >
+                {sortOrder === "newest" ? "新着順" : "締切順"}
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs">{sortOpen ? "▲" : "▼"}</span>
+              </button>
+              {sortOpen && (
+                <div className="absolute right-0 top-14 bg-white rounded-2xl shadow-xl z-20 overflow-hidden w-36">
+                  {[
+                    { value: "newest", label: "新着順" },
+                    { value: "deadline", label: "締切順" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => { setSortOrder(opt.value as typeof sortOrder); setSortOpen(false); }}
+                      className={`w-full text-left px-5 py-3 text-sm font-bold transition-colors ${
+                        sortOrder === opt.value
+                          ? "bg-[#092040] text-white"
+                          : "text-[#092040] hover:bg-gray-50"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <p className="text-[#092040] font-bold mb-4">{filtered.length} 件の活動が見つかりました</p>
