@@ -18,18 +18,6 @@ const CATEGORIES = [
   "宿泊イベント・キャンプ",
 ];
 
-const CATEGORY_COLORS: Record<string, string> = {
-  "コンテスト・大会": "bg-orange-400",
-  "インターンシップ": "bg-lime-400",
-  "ボランティア": "bg-blue-400",
-  "留学・国際": "bg-red-400",
-  "研究・論文": "bg-purple-400",
-  "起業・ビジネス": "bg-blue-600",
-  "奨学金": "bg-green-400",
-  "科学・理系": "bg-pink-400",
-  "宿泊イベント・キャンプ": "bg-sky-300",
-};
-
 const CATEGORY_BG: Record<string, string> = {
   "コンテスト・大会": "bg-orange-100 text-orange-700",
   "インターンシップ": "bg-lime-100 text-lime-700",
@@ -45,13 +33,13 @@ const CATEGORY_BG: Record<string, string> = {
 function Navbar() {
   const pathname = usePathname();
   return (
-    <nav className="flex items-center px-8 py-4 bg-[#FCBC2A]">
+    <nav className="flex items-center px-6 py-4 bg-[#FCBC2A]">
       <Link href="/" className="mr-10">
-        <img src="/logo.png" alt="BEE log" className="h-10 w-auto" />
+        <img src="/logo.png" alt="BEE log" className="h-16 w-auto" />
       </Link>
       <Link
         href="/"
-        className={`text-sm font-bold px-5 py-2 rounded-full mr-4 transition-colors ${
+        className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 transition-colors ${
           pathname === "/" ? "bg-white text-[#092040]" : "text-[#092040] hover:opacity-70"
         }`}
       >
@@ -59,7 +47,7 @@ function Navbar() {
       </Link>
       <Link
         href="/search"
-        className={`text-sm font-bold px-5 py-2 rounded-full transition-colors ${
+        className={`text-base font-bold px-6 py-2.5 rounded-full transition-colors ${
           pathname === "/search" ? "bg-white text-[#092040]" : "text-[#092040] hover:opacity-70"
         }`}
       >
@@ -118,7 +106,7 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
   const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
 
   return (
-    <div onClick={onClick} className="bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
+    <div onClick={onClick}className="bg-white rounded-2xl overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
       <div className="w-full aspect-video bg-gray-200 relative">
         {post.imageUrl ? (
           <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
@@ -127,7 +115,8 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
         )}
         <div className="absolute top-2 left-2 flex gap-1">
           {post.isFeatured && (
-            <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>          )}
+            <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>
+          )}
         </div>
         <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
           {(post.fee === "無料" || post.fee === "0円" || post.fee === "0") && (
@@ -150,18 +139,18 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
         <h3 className="font-bold text-[#092040] text-base mb-2 line-clamp-2">{post.title}</h3>
         {post.summary && <p className="text-sm text-gray-500 line-clamp-2 mb-3">{post.summary}</p>}
         {post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-3">
-                 {post.tags.slice(0, 3).map((tag) => (
-                    <Link
-                         key={tag}
-                         href={`/search?tag=${encodeURIComponent(tag)}`}
-                         onClick={(e) => e.stopPropagation()}
-                         className="text-xs text-gray-400 hover:text-[#092040] hover:underline"
-                    >
-                         #{tag}
-                    </Link>
+          <div className="flex flex-wrap gap-1 mb-3">
+            {post.tags.slice(0, 3).map((tag) => (
+              <Link
+                key={tag}
+                href={`/search?tag=${encodeURIComponent(tag)}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-xs text-gray-400 hover:text-[#092040] hover:underline"
+              >
+                #{tag}
+              </Link>
             ))}
-        </div>
+          </div>
         )}
         <div className="flex items-end justify-between text-xs border-t pt-2">
           {post.deadline && (
@@ -199,7 +188,7 @@ function CategorySection({ category, posts, onCardClick }: {
   return (
     <section className="mb-10">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[#092040] text-xl font-bold">{category}</h2>
+        <h2 className="text-[#092040] text-2xl font-black">{category}</h2>
         <a href={`/search?category=${encodeURIComponent(category)}`} className="text-[#092040] text-sm hover:underline opacity-60">
           すべて見る →
         </a>
@@ -228,7 +217,7 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
       <Navbar />
 
       {/* ヒーロー */}
-      <div className="px-8 pt-8 pb-6">
+      <div className="px-6 pt-8 pb-6">
         <h1 className="text-[#092040] text-4xl font-black text-center mb-6">Unlock Your Potential</h1>
         <div className="max-w-3xl mx-auto">
           <HeroSlider posts={posts} />
@@ -236,7 +225,7 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
       </div>
 
       {/* 検索バー */}
-      <div className="px-8 mb-6">
+      <div className="px-6 mb-6">
         <div className="max-w-3xl mx-auto flex gap-2">
           <div className="flex-1 bg-white rounded-full px-5 py-3 flex items-center gap-2">
             <span className="text-gray-400">🔍</span>
@@ -261,21 +250,15 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
       </div>
 
       {/* カテゴリボタン */}
-      <div className="px-8 mb-8">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-[#092040] font-bold">カテゴリから探す</span>
-          <Link href="/search" className="text-[#092040] text-sm hover:underline opacity-60">
-            すべて見る →
-          </Link>
-        </div>
-        <div className="flex flex-wrap gap-3">
+      <div className="mb-8">
+        <h2 className="text-[#092040] text-xl font-black px-6 mb-3">カテゴリから探す</h2>
+        <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide pl-6">
           {CATEGORIES.map((cat) => (
             <Link
               key={cat}
               href={`/search?category=${encodeURIComponent(cat)}`}
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold bg-white text-[#092040] border-2 border-white hover:border-[#092040] transition-all"
+              className="bg-white text-[#092040] font-bold px-6 py-3 rounded-2xl text-sm hover:shadow-lg transition-all whitespace-nowrap shrink-0"
             >
-              <span className={`w-3 h-3 rounded-full ${CATEGORY_COLORS[cat]}`} />
               {cat}
             </Link>
           ))}
@@ -283,11 +266,14 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
       </div>
 
       {/* 本文エリア */}
-      <div className="px-8 pb-16">
+      <div className="px-6 pb-16">
         {featuredPosts.length > 0 && (
           <section className="mb-10">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[#092040] text-xl font-bold">注目の活動</h2>
+              <h2 className="text-[#092040] text-2xl font-black">注目の活動</h2>
+              <Link href="/search" className="text-[#092040] text-sm hover:underline opacity-60">
+                すべて見る →
+              </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {featuredPosts.slice(0, 3).map((post) => (
@@ -302,7 +288,7 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
       </div>
 
       {/* フッター */}
-      <footer className="bg-[#FCBC2A] py-10 px-8 border-t border-[#092040]/10">
+      <footer className="bg-[#FCBC2A] py-10 px-6 border-t border-[#092040]/10">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-10">
           <div className="w-48 shrink-0">
             <img src="/logo.png" alt="BEE log" className="h-16 w-auto" />

@@ -36,13 +36,13 @@ const CATEGORY_BG: Record<string, string> = {
 function Navbar() {
   const pathname = usePathname();
   return (
-    <nav className="flex items-center px-8 py-4 bg-[#FCBC2A]">
+    <nav className="flex items-center px-6 py-4 bg-[#FCBC2A]">
       <Link href="/" className="mr-10">
-        <img src="/logo.png" alt="BEE log" className="h-10 w-auto" />
+        <img src="/logo.png" alt="BEE log" className="h-16 w-auto" />
       </Link>
       <Link
         href="/"
-        className={`text-sm font-bold px-5 py-2 rounded-full mr-4 transition-colors ${
+        className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 transition-colors ${
           pathname === "/" ? "bg-white text-[#092040]" : "text-[#092040] hover:opacity-70"
         }`}
       >
@@ -50,7 +50,7 @@ function Navbar() {
       </Link>
       <Link
         href="/search"
-        className={`text-sm font-bold px-5 py-2 rounded-full transition-colors ${
+        className={`text-base font-bold px-6 py-2.5 rounded-full transition-colors ${
           pathname === "/search" ? "bg-white text-[#092040]" : "text-[#092040] hover:opacity-70"
         }`}
       >
@@ -68,7 +68,7 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
   const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
 
   return (
-    <div onClick={onClick} className="bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-shadow cursor-pointer">
+      <div onClick={onClick}className="bg-white rounded-2xl overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
       <div className="w-full aspect-video bg-gray-200 relative">
         {post.imageUrl ? (
           <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
@@ -158,7 +158,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
   const [sortOrder, setSortOrder] = useState<"newest" | "deadline">("newest");
   const [page, setPage] = useState(1);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-
+  const [sortOpen, setSortOpen] = useState(false);
   const toggleItem = (list: string[], setList: (v: string[]) => void, item: string) => {
     setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
     setPage(1);
@@ -300,8 +300,8 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
             <select
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value as typeof sortOrder)}
-              className="bg-white rounded-full px-4 py-3 text-sm text-[#092040] outline-none cursor-pointer"
-            >
+              className="bg-white rounded-full px-4 py-3 text-sm text-[#092040] font-bold outline-none cursor-pointer border-none"
+          >
               <option value="newest">並び替え：新着順</option>
               <option value="deadline">並び替え：締切順</option>
             </select>
@@ -357,7 +357,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
         </main>
       </div>
 
-      <footer className="bg-[#FCBC2A] py-10 px-8 border-t border-[#092040]/10 mt-10">
+      <footer className="bg-[#FCBC2A] py-10 px-6 border-t border-[#092040]/10 mt-10">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-10">
           <div className="w-48 shrink-0">
             <img src="/logo.png" alt="BEE log" className="h-16 w-auto" />
