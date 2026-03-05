@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { Post } from "@/types/notion";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import ActivityModal from "../components/ActivityModal";
 
 const CATEGORIES = [
@@ -118,8 +119,12 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
 const PAGE_SIZE = 12;
 
 export default function SearchClient({ posts }: { posts: Post[] }) {
-  const [keyword, setKeyword] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const searchParams = useSearchParams();
+
+  const [keyword, setKeyword] = useState(searchParams.get("q") ?? "");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    searchParams.get("category") ? [searchParams.get("category")!] : []
+  );
   const [selectedGrades, setSelectedGrades] = useState<string[]>([]);
   const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
   const [freeOnly, setFreeOnly] = useState(false);
@@ -134,7 +139,6 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
 
   const filtered = useMemo(() => {
     let result = posts;
-
     if (keyword.trim()) {
       const kw = keyword.toLowerCase();
       result = result.filter(

@@ -247,19 +247,15 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
         </div>
         <div className="flex flex-wrap gap-3">
           {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(selectedCategory === cat ? "" : cat)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all border-2
-                ${selectedCategory === cat
-                  ? "bg-[#092040] text-white border-[#092040]"
-                  : "bg-white text-[#092040] border-white hover:border-[#092040]"
-                }`}
+            <Link
+                key={cat}
+                href={`/search?category=${encodeURIComponent(cat)}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all border-2 bg-white text-[#092040] border-white hover:border-[#092040]`}
             >
-              <span className={`w-3 h-3 rounded-full ${CATEGORY_COLORS[cat]}`} />
-              {cat}
-            </button>
-          ))}
+                <span className={`w-3 h-3 rounded-full ${CATEGORY_COLORS[cat]}`} />
+                {cat}
+            </Link>
+        ))}
         </div>
       </div>
 
