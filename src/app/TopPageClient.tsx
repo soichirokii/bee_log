@@ -150,11 +150,18 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
         <h3 className="font-bold text-[#092040] text-base mb-2 line-clamp-2">{post.title}</h3>
         {post.summary && <p className="text-sm text-gray-500 line-clamp-2 mb-3">{post.summary}</p>}
         {post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3">
-            {post.tags.slice(0, 3).map((tag) => (
-              <span key={tag} className="text-xs text-gray-400">#{tag}</span>
+            <div className="flex flex-wrap gap-1 mb-3">
+                 {post.tags.slice(0, 3).map((tag) => (
+                    <Link
+                         key={tag}
+                         href={`/search?tag=${encodeURIComponent(tag)}`}
+                         onClick={(e) => e.stopPropagation()}
+                         className="text-xs text-gray-400 hover:text-[#092040] hover:underline"
+                    >
+                         #{tag}
+                    </Link>
             ))}
-          </div>
+        </div>
         )}
         <div className="flex items-end justify-between text-xs border-t pt-2">
           {post.deadline && (

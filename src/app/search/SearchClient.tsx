@@ -103,7 +103,14 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
         {post.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
             {post.tags.slice(0, 3).map((tag) => (
-              <span key={tag} className="text-xs text-gray-400">#{tag}</span>
+              <Link
+                key={tag}
+                href={`/search?tag=${encodeURIComponent(tag)}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-xs text-gray-400 hover:text-[#092040] hover:underline"
+              >
+                #{tag}
+              </Link>
             ))}
           </div>
         )}
@@ -139,7 +146,9 @@ const PAGE_SIZE = 12;
 export default function SearchClient({ posts }: { posts: Post[] }) {
   const searchParams = useSearchParams();
 
-  const [keyword, setKeyword] = useState(searchParams.get("q") ?? "");
+  const [keyword, setKeyword] = useState(
+    searchParams.get("q") ?? searchParams.get("tag") ?? ""
+  );
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     searchParams.get("category") ? [searchParams.get("category")!] : []
   );
@@ -168,7 +177,6 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
           p.tags.some((t) => t.toLowerCase().includes(kw))
       );
     }
-
     if (selectedCategories.length > 0) {
       result = result.filter((p) => selectedCategories.includes(p.category));
     }
