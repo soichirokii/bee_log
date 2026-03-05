@@ -127,8 +127,7 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
         )}
         <div className="absolute top-2 left-2 flex gap-1">
           {post.isFeatured && (
-            <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full">おすすめ</span>
-          )}
+            <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>          )}
         </div>
         <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
           {(post.fee === "無料" || post.fee === "0円" || post.fee === "0") && (
