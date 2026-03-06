@@ -60,8 +60,7 @@ function Navbar() {
   return (
     <>
       {/* PC用 */}
-      <nav className="hidden md:flex items-center px-6 py-4 bg-[#FCBC2A]">
-        <Link href="/" className="mr-10">
+  <nav className="hidden md:flex items-center px-6 py-4 bg-[#FCBC2A] sticky top-0 z-50">        <Link href="/" className="mr-10">
           <img src="/logo.png" alt="BEE log" className="h-16 w-auto" />
         </Link>
         <Link href="/" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 transition-colors ${pathname === "/" ? "bg-white text-[#092040]" : "text-[#092040] hover:opacity-70"}`}>
@@ -72,8 +71,7 @@ function Navbar() {
         </Link>
       </nav>
       {/* モバイル用 */}
-<nav className="md:hidden flex items-center bg-[#FCBC2A] px-[5vw] py-[3vw]">
-  <div className="flex-1 flex justify-start" />
+      <nav className="md:hidden flex items-center bg-[#FCBC2A] px-[5vw] py-[3vw] sticky top-0 z-50">  <div className="flex-1 flex justify-start" />
   <Link href="/" className="flex justify-center">
     <img src="/logo.png" alt="BEE log" className="h-[10vw] w-auto" />
   </Link>

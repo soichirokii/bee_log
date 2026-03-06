@@ -106,7 +106,7 @@ function MobileSlider({ posts, onCardClick }: { posts: Post[]; onCardClick: (pos
 
 function PCNavbar() {
   return (
-    <nav className="hidden md:flex items-center px-6 py-4 bg-[#FCBC2A]">
+    <nav className="hidden md:flex items-center px-6 py-4 bg-[#FCBC2A] sticky top-0 z-50">
       <Link href="/" className="mr-10">
         <img src="/logo.png" alt="BEE log" className="h-16 w-auto" />
       </Link>
@@ -118,7 +118,7 @@ function PCNavbar() {
 
 function MobileNavbar() {
   return (
-    <nav className="md:hidden flex items-center bg-[#FCBC2A] px-[5vw] py-[3vw]">
+    <nav className="md:hidden flex items-center bg-[#FCBC2A] px-[5vw] py-[3vw] sticky top-0 z-50">
       <div className="flex-1 flex justify-start" />
       <Link href="/" className="flex justify-center">
         <img src="/logo.png" alt="BEE log" className="h-[10vw] w-auto" />
