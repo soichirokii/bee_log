@@ -30,6 +30,29 @@ const CATEGORY_BG: Record<string, string> = {
   "宿泊イベント・キャンプ": "bg-sky-100 text-sky-700",
 };
 
+const SEASON_TAGS = ["夏休み", "冬休み", "春休み"];
+
+function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
+  if (!period) return null;
+  const text = period.replace(/\s/g, "");
+  const monthMatch = text.match(/(\d+)ヶ?月/);
+  if (monthMatch) {
+    const days = parseInt(monthMatch[1]) * 30;
+    return days >= 15 ? "長期" : days >= 7 ? "中期" : "短期";
+  }
+  const weekMatch = text.match(/(\d+)週間?/);
+  if (weekMatch) {
+    const days = parseInt(weekMatch[1]) * 7;
+    return days >= 15 ? "長期" : days >= 7 ? "中期" : "短期";
+  }
+  const dayMatch = text.match(/(\d+)日/);
+  if (dayMatch) {
+    const days = parseInt(dayMatch[1]);
+    return days >= 15 ? "長期" : days >= 7 ? "中期" : "短期";
+  }
+  return null;
+}
+
 function Navbar() {
   const pathname = usePathname();
   return (
@@ -104,18 +127,26 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
     ? Math.ceil((new Date(post.deadline).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
     : null;
   const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
+  const seasonTag = post.tags.find((t) => SEASON_TAGS.includes(t));
+  const periodLabel = getPeriodLabel(post.period);
 
   return (
-    <div onClick={onClick}className="bg-white rounded-2xl overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
+    <div onClick={onClick} className="bg-white rounded-2xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
       <div className="w-full aspect-video bg-gray-200 relative">
         {post.imageUrl ? (
           <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-gray-200" />
         )}
-        <div className="absolute top-2 left-2 flex gap-1">
+        <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
           {post.isFeatured && (
             <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>
+          )}
+          {seasonTag && (
+            <span className="bg-[#F59E0B] text-white text-xs font-bold px-2 py-1 rounded-full">{seasonTag}</span>
+          )}
+          {periodLabel && (
+            <span className="bg-[#092040] text-white text-xs font-bold px-2 py-1 rounded-full">{periodLabel}</span>
           )}
         </div>
         <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
@@ -123,7 +154,7 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
             <span className="bg-[#4ADE80] text-white text-xs font-bold px-2 py-1 rounded-full">無料</span>
           )}
           {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && (
-            <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">あと{daysLeft}日</span>
+            <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>
           )}
         </div>
       </div>
@@ -156,7 +187,7 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
           {post.deadline && (
             <div>
               <div className="text-gray-400">締切日</div>
-              <div className="text-[#EF4444] font-bold">{new Date(post.deadline).toLocaleDateString("ja-JP")}</div>
+              <div className="text-[#092040] font-bold">{new Date(post.deadline).toLocaleDateString("ja-JP")}</div>
             </div>
           )}
           {post.targetGrade.length > 0 && (
@@ -225,52 +256,52 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
       </div>
 
       {/* 検索バー */}
-<div className="px-6 mb-8">
-  <div className="max-w-3xl mx-auto">
-    <div className="bg-white rounded-2xl px-5 py-4 flex items-center gap-3 shadow-lg mb-4">
-      <span className="text-gray-400 text-lg">🔍</span>
-      <input
-        type="search"
-        placeholder="活動名、スキル、主催者などで検索..."
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`);
-        }}
-        className="flex-1 text-sm outline-none text-[#092040] placeholder-gray-400"
-      />
-      <button
-        onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
-        className="bg-[#092040] text-[#FCBC2A] font-bold px-6 py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity"
-      >
-        検索
-      </button>
-    </div>
+      <div className="px-6 mb-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white rounded-2xl px-5 py-4 flex items-center gap-3 shadow-lg mb-4">
+            <span className="text-gray-400 text-lg">🔍</span>
+            <input
+              type="search"
+              placeholder="活動名、スキル、主催者などで検索..."
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`);
+              }}
+              className="flex-1 text-sm outline-none text-[#092040] placeholder-gray-400"
+            />
+            <button
+              onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+              className="bg-[#092040] text-[#FCBC2A] font-bold px-6 py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity"
+            >
+              検索
+            </button>
+          </div>
 
-    {/* 人気のタグ */}
-<div className="flex items-center justify-center gap-3 flex-wrap mt-4">
-  <span className="text-[#092040] font-bold text-sm whitespace-nowrap">人気のタグ:</span>
-  {(() => {
-    const tagCount: Record<string, number> = {};
-    posts.forEach((p) => p.tags.forEach((t) => {
-      tagCount[t] = (tagCount[t] ?? 0) + 1;
-    }));
-    return Object.entries(tagCount)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([tag]) => (
-        <Link
-          key={tag}
-          href={`/search?tag=${encodeURIComponent(tag)}`}
-          className="bg-[#FCBC2A]/40 text-[#092040] font-bold text-sm px-4 py-2 rounded-xl hover:bg-white transition-colors"
-        >
-          {tag}
-        </Link>
-      ));
-  })()}
-</div>
-  </div>
-</div>
+          {/* 人気のタグ */}
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <span className="text-[#092040] font-bold text-sm whitespace-nowrap">人気のタグ:</span>
+            {(() => {
+              const tagCount: Record<string, number> = {};
+              posts.forEach((p) => p.tags.forEach((t) => {
+                tagCount[t] = (tagCount[t] ?? 0) + 1;
+              }));
+              return Object.entries(tagCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5)
+                .map(([tag]) => (
+                  <Link
+                    key={tag}
+                    href={`/search?tag=${encodeURIComponent(tag)}`}
+                    className="bg-[#FCBC2A]/40 text-[#092040] font-bold text-sm px-4 py-2 rounded-xl hover:bg-white transition-colors"
+                  >
+                    {tag}
+                  </Link>
+                ));
+            })()}
+          </div>
+        </div>
+      </div>
 
       {/* カテゴリボタン */}
       <div className="mb-8">

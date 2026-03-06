@@ -20,6 +20,7 @@ const CATEGORIES = [
 
 const GRADES = ["中学生", "高校生", "大学生"];
 const FORMATS = ["オンライン", "対面", "ハイブリッド"];
+const SEASON_TAGS = ["夏休み", "冬休み", "春休み"];
 
 const CATEGORY_BG: Record<string, string> = {
   "コンテスト・大会": "bg-orange-100 text-orange-700",
@@ -32,6 +33,27 @@ const CATEGORY_BG: Record<string, string> = {
   "科学・理系": "bg-pink-100 text-pink-700",
   "宿泊イベント・キャンプ": "bg-sky-100 text-sky-700",
 };
+
+function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
+  if (!period) return null;
+  const text = period.replace(/\s/g, "");
+  const monthMatch = text.match(/(\d+)ヶ?月/);
+  if (monthMatch) {
+    const days = parseInt(monthMatch[1]) * 30;
+    return days >= 15 ? "長期" : days >= 7 ? "中期" : "短期";
+  }
+  const weekMatch = text.match(/(\d+)週間?/);
+  if (weekMatch) {
+    const days = parseInt(weekMatch[1]) * 7;
+    return days >= 15 ? "長期" : days >= 7 ? "中期" : "短期";
+  }
+  const dayMatch = text.match(/(\d+)日/);
+  if (dayMatch) {
+    const days = parseInt(dayMatch[1]);
+    return days >= 15 ? "長期" : days >= 7 ? "中期" : "短期";
+  }
+  return null;
+}
 
 function Navbar() {
   const pathname = usePathname();
@@ -66,18 +88,26 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
     ? Math.ceil((new Date(post.deadline).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
     : null;
   const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
+  const seasonTag = post.tags.find((t) => SEASON_TAGS.includes(t));
+  const periodLabel = getPeriodLabel(post.period);
 
   return (
-    <div onClick={onClick} className="bg-white rounded-2xl hover:rounded-none hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
+    <div onClick={onClick} className="bg-white rounded-2xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
       <div className="w-full aspect-video bg-gray-200 relative">
         {post.imageUrl ? (
           <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-gray-200" />
         )}
-        <div className="absolute top-2 left-2 flex gap-1">
+        <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
           {post.isFeatured && (
             <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>
+          )}
+          {seasonTag && (
+            <span className="bg-[#F59E0B] text-white text-xs font-bold px-2 py-1 rounded-full">{seasonTag}</span>
+          )}
+          {periodLabel && (
+            <span className="bg-[#092040] text-white text-xs font-bold px-2 py-1 rounded-full">{periodLabel}</span>
           )}
         </div>
         <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
@@ -85,7 +115,7 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
             <span className="bg-[#4ADE80] text-white text-xs font-bold px-2 py-1 rounded-full">無料</span>
           )}
           {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && (
-            <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">あと{daysLeft}日</span>
+            <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>
           )}
         </div>
       </div>
@@ -118,7 +148,7 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
           {post.deadline && (
             <div>
               <div className="text-gray-400">締切日</div>
-              <div className="text-[#EF4444] font-bold">
+              <div className="text-[#092040] font-bold">
                 {new Date(post.deadline).toLocaleDateString("ja-JP")}
               </div>
             </div>
@@ -154,6 +184,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
   );
   const [selectedGrades, setSelectedGrades] = useState<string[]>([]);
   const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
+  const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
   const [freeOnly, setFreeOnly] = useState(false);
   const [sortOrder, setSortOrder] = useState<"newest" | "deadline">("newest");
   const [sortOpen, setSortOpen] = useState(false);
@@ -191,6 +222,13 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
       result = result.filter((p) => selectedFormats.includes(p.format));
     }
 
+    if (selectedPeriods.length > 0) {
+      result = result.filter((p) => {
+        const label = getPeriodLabel(p.period);
+        return label !== null && selectedPeriods.includes(label);
+      });
+    }
+
     if (freeOnly) {
       result = result.filter((p) => p.fee === "無料" || p.fee === "0円" || p.fee === "0");
     }
@@ -204,7 +242,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
     }
 
     return result;
-  }, [posts, keyword, selectedCategories, selectedGrades, selectedFormats, freeOnly, sortOrder]);
+  }, [posts, keyword, selectedCategories, selectedGrades, selectedFormats, selectedPeriods, freeOnly, sortOrder]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -217,10 +255,10 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
 
       <Navbar />
 
-      <div className="flex gap-6 px-6 py-6">
+      <div className="flex gap-6 px-6 py-6 h-[calc(100vh-88px)] overflow-hidden">
         {/* サイドバー */}
-        <aside className="w-56 shrink-0">
-          <div className="bg-white rounded-2xl p-5 sticky top-6">
+        <aside className="w-56 shrink-0 overflow-y-auto">
+          <div className="bg-white rounded-2xl p-5">
             <h2 className="font-bold text-[#092040] text-lg mb-4">絞り込み検索</h2>
 
             <div className="mb-5">
@@ -274,6 +312,21 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
               ))}
             </div>
 
+            <div className="mb-5">
+              <h3 className="text-sm font-bold text-[#092040] mb-2">活動期間</h3>
+              {["長期", "中期", "短期"].map((period) => (
+                <label key={period} className="flex items-center gap-2 mb-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedPeriods.includes(period)}
+                    onChange={() => toggleItem(selectedPeriods, setSelectedPeriods, period)}
+                    className="accent-[#FCBC2A] w-4 h-4"
+                  />
+                  <span className="text-sm text-[#092040]">{period}</span>
+                </label>
+              ))}
+            </div>
+
             <div className="flex items-center justify-between">
               <span className="text-sm font-bold text-[#092040]">無料のみ</span>
               <button
@@ -287,7 +340,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
         </aside>
 
         {/* メインエリア */}
-        <main className="flex-1">
+        <main className="flex-1 overflow-y-auto">
           <div className="flex gap-2 mb-4 items-center">
             <div className="flex-1 bg-white rounded-2xl px-5 py-4 flex items-center gap-3 shadow-lg">
               <span className="text-gray-400 text-lg">🔍</span>
@@ -345,7 +398,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
           )}
 
           {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2">
+            <div className="flex justify-center items-center gap-2 pb-6">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
@@ -380,7 +433,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
         </main>
       </div>
 
-      <footer className="bg-[#FCBC2A] py-10 px-6 border-t border-[#092040]/10 mt-10">
+      <footer className="bg-[#FCBC2A] py-10 px-6 border-t border-[#092040]/10">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-10">
           <div className="w-48 shrink-0">
             <img src="/logo.png" alt="BEE log" className="h-16 w-auto" />
