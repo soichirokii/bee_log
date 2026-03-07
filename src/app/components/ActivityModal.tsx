@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Post } from "@/types/notion";
+import Image from "next/image";
 
 type Props = {
   post: Post;
@@ -73,7 +74,7 @@ export default function ActivityModal({ post, onClose }: Props) {
         {/* ヘッダー画像 */}
         <div className="relative w-full h-48 md:h-64 bg-gray-200 shrink-0">
           {post.imageUrl ? (
-            <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
+            <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />
           )}

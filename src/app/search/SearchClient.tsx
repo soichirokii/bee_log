@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
 import { Post } from "@/types/notion";
 import Link from "next/link";
+import Image from "next/image";
 import ActivityModal from "../components/ActivityModal";
 
 const CATEGORIES = [
@@ -60,8 +61,9 @@ function Navbar() {
   return (
     <>
       {/* PC用 */}
-  <nav className="hidden md:flex items-center px-6 py-4 bg-[#FCBC2A] sticky top-0 z-50">        <Link href="/" className="mr-10">
-          <img src="/logo.png" alt="BEE log" className="h-16 w-auto" />
+      <nav className="hidden md:flex items-center px-6 py-4 bg-[#FCBC2A] sticky top-0 z-50">
+        <Link href="/" className="mr-10">
+          <Image src="/logo.png" alt="BEE log" width={120} height={64} className="h-16 w-auto" />
         </Link>
         <Link href="/" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 transition-colors ${pathname === "/" ? "bg-white text-[#092040]" : "text-[#092040] hover:opacity-70"}`}>
           HOME
@@ -71,16 +73,17 @@ function Navbar() {
         </Link>
       </nav>
       {/* モバイル用 */}
-      <nav className="md:hidden flex items-center bg-[#FCBC2A] px-[5vw] py-[3vw] sticky top-0 z-50">  <div className="flex-1 flex justify-start" />
-  <Link href="/" className="flex justify-center">
-    <img src="/logo.png" alt="BEE log" className="h-[10vw] w-auto" />
-  </Link>
-  <div className="flex-1 flex justify-end">
-    <Link href="/" className="bg-[#092040] text-white font-bold text-[3.5vw] px-[4vw] py-[2vw] rounded-full">
-      HOME
-    </Link>
-  </div>
-</nav>
+      <nav className="md:hidden flex items-center bg-[#FCBC2A] px-[5vw] py-[3vw] sticky top-0 z-50">
+        <div className="flex-1" />
+        <Link href="/" className="flex justify-center">
+          <Image src="/logo.png" alt="BEE log" width={120} height={64} className="h-[10vw] w-auto" />
+        </Link>
+        <div className="flex-1 flex justify-end">
+          <Link href="/" className="bg-[#092040] text-white font-bold text-[3.5vw] px-[4vw] py-[2vw] rounded-full">
+            HOME
+          </Link>
+        </div>
+      </nav>
     </>
   );
 }
@@ -98,7 +101,7 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
     <div onClick={onClick} className="bg-white rounded-2xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
       <div className="w-full aspect-video bg-gray-200 relative rounded-t-2xl overflow-hidden">
         {post.imageUrl ? (
-          <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
+          <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
         ) : (
           <div className="w-full h-full bg-gray-200" />
         )}
@@ -291,7 +294,6 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
 
         {/* メインエリア */}
         <main className="flex-1 md:overflow-y-auto">
-
           {/* 検索バー */}
           <div className="flex gap-2 mb-[3vw] md:mb-4 items-center">
             <div className="flex-1 bg-white rounded-[4vw] md:rounded-2xl px-[4vw] md:px-5 py-[3.5vw] md:py-4 flex items-center gap-[3vw] md:gap-3 shadow-lg">
@@ -329,9 +331,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
             <button onClick={() => setFilterOpen(true)}
               className="flex-1 bg-white rounded-[3vw] py-[3vw] flex items-center justify-center gap-[2vw] shadow-md">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">
-                <line x1="4" y1="6" x2="20" y2="6"/>
-                <line x1="8" y1="12" x2="16" y2="12"/>
-                <line x1="11" y1="18" x2="13" y2="18"/>
+                <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
               </svg>
               <span className="text-[#092040] font-bold text-[3.5vw]">絞り込み</span>
               {activeFilterCount > 0 && (
@@ -399,9 +399,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
       <footer className="bg-[#FCBC2A] py-10 px-6 border-t border-[#092040]/10">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-10">
           <div className="w-48 shrink-0">
-            <Link href="/">
-              <img src="/logo.png" alt="BEE log" className="h-16 w-auto" />
-            </Link>
+            <Link href="/"><Image src="/logo.png" alt="BEE log" width={120} height={64} className="h-16 w-auto" /></Link>
           </div>
           <div className="flex-1">
             <h3 className="text-[#092040] font-bold mb-4">プラットフォーム</h3>
