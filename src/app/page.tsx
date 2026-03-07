@@ -1,15 +1,7 @@
 import { getPublishedPosts } from "@/lib/notion";
-import { Post } from "@/types/notion";
 import TopPageClient from "./TopPageClient";
 
-export const revalidate = 60;
-
-export default async function TopPage() {
-  let posts: Post[] = [];
-  try {
-    posts = await getPublishedPosts();
-  } catch (e) {
-    console.error(e);
-  }
+export default async function Home() {
+  const posts = await getPublishedPosts();
   return <TopPageClient posts={posts} />;
 }

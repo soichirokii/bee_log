@@ -16,7 +16,6 @@ const CATEGORIES = [
   "起業・ビジネス",
   "奨学金",
   "科学・理系",
-  "宿泊イベント・キャンプ",
 ];
 
 const CATEGORY_BG: Record<string, string> = {
@@ -28,7 +27,6 @@ const CATEGORY_BG: Record<string, string> = {
   "起業・ビジネス": "bg-blue-100 text-blue-700",
   "奨学金": "bg-green-100 text-green-700",
   "科学・理系": "bg-pink-100 text-pink-700",
-  "宿泊イベント・キャンプ": "bg-sky-100 text-sky-700",
 };
 
 const SEASON_TAGS = ["夏休み", "冬休み", "春休み"];
@@ -56,17 +54,28 @@ function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
 
 function MobileSlider({ posts, onCardClick }: { posts: Post[]; onCardClick: (post: Post) => void }) {
   const [index, setIndex] = useState(0);
+  const [animating, setAnimating] = useState(false);
   const featured = posts.slice(0, 5);
   if (featured.length === 0) return null;
 
-  const prev = () => setIndex((i) => (i - 1 + featured.length) % featured.length);
-  const next = () => setIndex((i) => (i + 1) % featured.length);
+  const goTo = (next: number) => {
+    if (animating) return;
+    setAnimating(true);
+    setTimeout(() => {
+      setIndex(next);
+      setAnimating(false);
+    }, 300);
+  };
+
+  const prev = () => goTo((index - 1 + featured.length) % featured.length);
+  const next = () => goTo((index + 1) % featured.length);
   const current = featured[index];
 
   return (
     <div className="relative">
+      {/* スライダー本体 */}
       <div className="overflow-hidden rounded-[4vw]" onClick={() => onCardClick(current)}>
-        <div className="relative w-full aspect-video">
+        <div className={`relative w-full aspect-video transition-opacity duration-300 ${animating ? "opacity-0" : "opacity-100"}`}>
           {current.imageUrl ? (
             <Image src={current.imageUrl} alt={current.title} fill className="object-cover" />
           ) : (
@@ -95,9 +104,11 @@ function MobileSlider({ posts, onCardClick }: { posts: Post[]; onCardClick: (pos
           )}
         </div>
       </div>
+
+      {/* ドットインジケーター（写真の外・下） */}
       <div className="flex justify-center gap-[2vw] mt-[3vw]">
         {featured.map((_, i) => (
-          <button key={i} onClick={() => setIndex(i)}
+          <button key={i} onClick={() => goTo(i)}
             className={`rounded-full transition-all duration-300 ${i === index ? "bg-[#092040] w-[4vw] h-[2vw]" : "bg-[#092040]/30 w-[2vw] h-[2vw]"}`} />
         ))}
       </div>
@@ -107,7 +118,7 @@ function MobileSlider({ posts, onCardClick }: { posts: Post[]; onCardClick: (pos
 
 function PCNavbar() {
   return (
-    <nav className="hidden md:flex items-center px-6 py-4 bg-[#FCBC2A] sticky top-0 z-50">
+    <nav className="hidden md:flex items-center px-16 py-4 bg-[#FCBC2A] sticky top-0 z-50">
       <Link href="/" className="mr-10">
         <Image src="/logo.png" alt="BEE log" width={120} height={64} className="h-16 w-auto" />
       </Link>
@@ -263,14 +274,14 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
       {/* モバイル用 */}
       <div className="md:hidden px-[5vw] pb-[10vw]">
         <div className="pt-[6vw] pb-[4vw]">
-          <h1 className="text-[#092040] text-[8vw] font-black leading-tight">
-            Unlock Your<br />Potential
-          </h1>
+          <h1 className="text-[#092040] text-[8vw] font-black leading-tight text-center w-full">
+  Unlock Your<br />Potential
+</h1>
         </div>
 
         <div className="mb-[5vw]">
           <div className="bg-white rounded-[4vw] px-[4vw] py-[4vw] flex items-center gap-[3vw] shadow-lg">
-            <span className="text-gray-400 text-[5vw]">🔍</span>
+            <Image src="/icons/Magnifying Glass.svg" alt="" width={20} height={20} className="opacity-40 shrink-0" />
             <input
               type="search"
               placeholder="活動名、主催者などで検索..."
@@ -304,17 +315,17 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
 
       {/* PC用 */}
       <div className="hidden md:block">
-        <div className="px-6 pt-8 pb-6">
+        <div className="px-16 pt-8 pb-6">
           <h1 className="text-[#092040] text-4xl font-black text-center mb-6">Unlock Your Potential</h1>
           <div className="max-w-3xl mx-auto">
             <HeroSlider posts={posts} />
           </div>
         </div>
 
-        <div className="px-6 mb-8">
+        <div className="px-16 mb-8">
           <div className="max-w-3xl mx-auto">
             <div className="bg-white rounded-2xl px-5 py-4 flex items-center gap-3 shadow-lg mb-4">
-              <span className="text-gray-400 text-lg">🔍</span>
+              <Image src="/icons/Magnifying Glass.svg" alt="" width={20} height={20} className="opacity-40 shrink-0" />
               <input
                 type="search"
                 placeholder="活動名、スキル、主催者などで検索..."
@@ -337,7 +348,7 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
                 posts.forEach((p) => p.tags.forEach((t) => { tagCount[t] = (tagCount[t] ?? 0) + 1; }));
                 return Object.entries(tagCount).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([tag]) => (
                   <Link key={tag} href={`/search?tag=${encodeURIComponent(tag)}`}
-                    className="bg-[#FCBC2A]/40 text-[#092040] font-bold text-sm px-4 py-2 rounded-xl hover:bg-white transition-colors">
+                    className="bg-white/60 text-[#092040] font-bold text-sm px-4 py-2 rounded-xl hover:bg-white transition-colors">
                     {tag}
                   </Link>
                 ));
@@ -347,8 +358,8 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
         </div>
 
         <div className="mb-8">
-          <h2 className="text-[#092040] text-xl font-black px-6 mb-3">カテゴリから探す</h2>
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide pl-6">
+          <h2 className="text-[#092040] text-xl font-black px-16 mb-3">カテゴリから探す</h2>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide pl-16">
             {CATEGORIES.map((cat) => (
               <Link key={cat} href={`/search?category=${encodeURIComponent(cat)}`}
                 className="bg-white text-[#092040] font-bold px-6 py-3 rounded-2xl text-sm hover:shadow-lg transition-all whitespace-nowrap shrink-0">
@@ -358,7 +369,7 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
           </div>
         </div>
 
-        <div className="px-6 pb-16">
+        <div className="px-16 pb-16">
           {featuredPosts.length > 0 && (
             <section className="mb-10">
               <div className="flex items-center justify-between mb-4">
@@ -378,7 +389,7 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
         </div>
       </div>
 
-      <footer className="bg-[#FCBC2A] py-10 px-6 border-t border-[#092040]/10">
+      <footer className="bg-[#FCBC2A] py-10 px-16 border-t border-[#092040]/10">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-10">
           <div className="w-48 shrink-0">
             <Link href="/"><Image src="/logo.png" alt="BEE log" width={120} height={64} className="h-16 w-auto" /></Link>

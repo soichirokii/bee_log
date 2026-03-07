@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://beelog-firstbee.vercel.app";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://beelog-eight.vercel.app";
+
 export const metadata: Metadata = {
   title: { default: "BEE log", template: "%s | BEE log" },
-  description: "中高生のための探究メディア",
+  description: "10代のための探究メディア",
   metadataBase: new URL(BASE_URL),
   openGraph: {
     type: "website",
     url: BASE_URL,
     siteName: "BEE log",
     title: "BEE log",
-    description: "中高生のための探究メディア",
+    description: "10代のための探究メディア",
     images: [
       {
         url: "/ogp.png",
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "BEE log",
-    description: "中高生のための探究メディア",
+    description: "10代のための探究メディア",
     images: ["/ogp.png"],
   },
 };

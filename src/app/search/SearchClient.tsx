@@ -16,7 +16,6 @@ const CATEGORIES = [
   "起業・ビジネス",
   "奨学金",
   "科学・理系",
-  "宿泊イベント・キャンプ",
 ];
 
 const GRADES = ["中学生", "高校生", "大学生"];
@@ -32,7 +31,6 @@ const CATEGORY_BG: Record<string, string> = {
   "起業・ビジネス": "bg-blue-100 text-blue-700",
   "奨学金": "bg-green-100 text-green-700",
   "科学・理系": "bg-pink-100 text-pink-700",
-  "宿泊イベント・キャンプ": "bg-sky-100 text-sky-700",
 };
 
 function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
@@ -60,7 +58,6 @@ function Navbar() {
   const pathname = usePathname();
   return (
     <>
-      {/* PC用 */}
       <nav className="hidden md:flex items-center px-6 py-4 bg-[#FCBC2A] sticky top-0 z-50">
         <Link href="/" className="mr-10">
           <Image src="/logo.png" alt="BEE log" width={120} height={64} className="h-16 w-auto" />
@@ -72,7 +69,6 @@ function Navbar() {
           活動を探す
         </Link>
       </nav>
-      {/* モバイル用 */}
       <nav className="md:hidden flex items-center bg-[#FCBC2A] px-[5vw] py-[3vw] sticky top-0 z-50">
         <div className="flex-1" />
         <Link href="/" className="flex justify-center">
@@ -118,35 +114,35 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
       <div className="p-4">
         <div className="flex items-center gap-2 text-xs mb-1 flex-wrap">
           {post.category && <span className={`px-2 py-0.5 rounded-full font-medium text-xs whitespace-nowrap ${categoryStyle}`}>{post.category}</span>}
-          {post.organizer && <span className="text-gray-400">{post.organizer}</span>}
+          {post.organizer && <span className="text-[#092040]/60">{post.organizer}</span>}
         </div>
         <h3 className="font-bold text-[#092040] text-base mb-2 line-clamp-2">{post.title}</h3>
-        {post.summary && <p className="text-sm text-gray-500 line-clamp-2 mb-3">{post.summary}</p>}
+        {post.summary && <p className="text-sm text-[#092040]/70 line-clamp-2 mb-3">{post.summary}</p>}
         {post.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
             {post.tags.slice(0, 3).map((tag) => (
-              <Link key={tag} href={`/search?tag=${encodeURIComponent(tag)}`} onClick={(e) => e.stopPropagation()} className="text-xs text-gray-400 hover:text-[#092040] hover:underline">
+              <Link key={tag} href={`/search?tag=${encodeURIComponent(tag)}`} onClick={(e) => e.stopPropagation()} className="text-xs text-[#092040]/50 hover:text-[#092040] hover:underline">
                 #{tag}
               </Link>
             ))}
           </div>
         )}
-        <div className="flex items-end justify-between text-xs border-t pt-2">
+        <div className="flex items-end justify-between text-xs border-t border-[#092040]/10 pt-2">
           {post.deadline && (
             <div>
-              <div className="text-gray-400">締切日</div>
+              <div className="text-[#092040]/50">締切日</div>
               <div className="text-[#092040] font-bold">{new Date(post.deadline).toLocaleDateString("ja-JP")}</div>
             </div>
           )}
           {post.targetGrade.length > 0 && (
             <div className="text-right">
-              <div className="text-gray-400">対象</div>
+              <div className="text-[#092040]/50">対象</div>
               <div className="font-medium text-[#092040]">{post.targetGrade.join("・")}</div>
             </div>
           )}
           {post.format && (
             <div className="text-right">
-              <div className="text-gray-400">形式</div>
+              <div className="text-[#092040]/50">形式</div>
               <div className="font-medium text-[#092040]">{post.format}</div>
             </div>
           )}
@@ -216,7 +212,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
         <h3 className="text-sm font-bold text-[#092040] mb-2">カテゴリ</h3>
         {CATEGORIES.map((cat) => (
           <label key={cat} className="flex items-center gap-2 mb-2 cursor-pointer">
-            <input type="checkbox" checked={selectedCategories.includes(cat)} onChange={() => toggleItem(selectedCategories, setSelectedCategories, cat)} className="accent-[#FCBC2A] w-4 h-4" />
+            <input type="checkbox" checked={selectedCategories.includes(cat)} onChange={() => toggleItem(selectedCategories, setSelectedCategories, cat)} className="accent-[#092040] w-4 h-4" />
             <span className="text-sm text-[#092040]">{cat}</span>
           </label>
         ))}
@@ -226,7 +222,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
         <div className="flex flex-wrap gap-2">
           {GRADES.map((grade) => (
             <button key={grade} onClick={() => toggleItem(selectedGrades, setSelectedGrades, grade)}
-              className={`px-3 py-1 rounded-full text-sm font-medium border transition-colors ${selectedGrades.includes(grade) ? "bg-[#FCBC2A] border-[#FCBC2A] text-[#092040]" : "border-gray-300 text-gray-500 hover:border-[#FCBC2A]"}`}>
+              className={`px-3 py-1 rounded-full text-sm font-medium border transition-colors ${selectedGrades.includes(grade) ? "bg-[#092040] border-[#092040] text-white" : "border-[#092040]/30 text-[#092040] hover:border-[#092040]"}`}>
               {grade}
             </button>
           ))}
@@ -239,7 +235,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
             <input type="radio" name="format" checked={selectedFormats.includes(fmt)}
               onChange={() => setSelectedFormats(selectedFormats.includes(fmt) ? [] : [fmt])}
               onClick={() => { if (selectedFormats.includes(fmt)) setSelectedFormats([]); }}
-              className="accent-[#FCBC2A] w-4 h-4" />
+              className="accent-[#092040] w-4 h-4" />
             <span className="text-sm text-[#092040]">{fmt}</span>
           </label>
         ))}
@@ -248,7 +244,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
         <h3 className="text-sm font-bold text-[#092040] mb-2">活動期間</h3>
         {["長期", "中期", "短期"].map((period) => (
           <label key={period} className="flex items-center gap-2 mb-2 cursor-pointer">
-            <input type="checkbox" checked={selectedPeriods.includes(period)} onChange={() => toggleItem(selectedPeriods, setSelectedPeriods, period)} className="accent-[#FCBC2A] w-4 h-4" />
+            <input type="checkbox" checked={selectedPeriods.includes(period)} onChange={() => toggleItem(selectedPeriods, setSelectedPeriods, period)} className="accent-[#092040] w-4 h-4" />
             <span className="text-sm text-[#092040]">{period}</span>
           </label>
         ))}
@@ -256,7 +252,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
       <div className="flex items-center justify-between">
         <span className="text-sm font-bold text-[#092040]">無料のみ</span>
         <button onClick={() => { setFreeOnly(!freeOnly); setPage(1); }}
-          className={`w-12 h-6 rounded-full transition-colors relative ${freeOnly ? "bg-[#FCBC2A]" : "bg-gray-300"}`}>
+          className={`w-12 h-6 rounded-full transition-colors relative ${freeOnly ? "bg-[#092040]" : "bg-[#092040]/20"}`}>
           <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${freeOnly ? "left-7" : "left-1"}`} />
         </button>
       </div>
@@ -271,7 +267,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
       {filterOpen && (
         <div className="fixed inset-0 z-40 md:hidden" onClick={() => setFilterOpen(false)}>
           <div className="absolute inset-0 bg-black/50" />
-          <div className="absolute bottom-0 left-0 right-0 bg-[#FCBC2A] rounded-t-3xl p-4 max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl p-4 max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <span className="font-black text-[#092040] text-lg">絞り込み</span>
               <button onClick={() => setFilterOpen(false)} className="text-[#092040] text-2xl">×</button>
@@ -296,20 +292,20 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
         <main className="flex-1 md:overflow-y-auto">
           {/* 検索バー */}
           <div className="flex gap-2 mb-[3vw] md:mb-4 items-center">
-            <div className="flex-1 bg-white rounded-[4vw] md:rounded-2xl px-[4vw] md:px-5 py-[3.5vw] md:py-4 flex items-center gap-[3vw] md:gap-3 shadow-lg">
-              <span className="text-gray-400 text-[5vw] md:text-lg">🔍</span>
+            <div className="flex-1 bg-[#FCBC2A] rounded-[4vw] md:rounded-2xl px-[4vw] md:px-5 py-[3.5vw] md:py-4 flex items-center gap-[3vw] md:gap-3 shadow-lg">
+              <Image src="/icons/Magnifying Glass.svg" alt="" width={20} height={20} className="opacity-60 shrink-0" />
               <input
                 type="search"
                 placeholder="活動名、スキル、主催者などで検索..."
                 value={keyword}
                 onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
-                className="flex-1 text-[3.5vw] md:text-sm outline-none text-[#092040] placeholder-gray-400"
+                className="flex-1 text-[3.5vw] md:text-sm outline-none text-[#092040] placeholder-[#092040]/40 bg-transparent"
               />
             </div>
             {/* PC用並び替え */}
             <div className="relative hidden md:block">
               <button onClick={() => setSortOpen(!sortOpen)}
-                className="bg-white rounded-full pl-5 pr-10 py-3 text-sm text-[#092040] font-bold outline-none cursor-pointer relative whitespace-nowrap shadow-lg">
+                className="bg-[#FCBC2A] rounded-full pl-5 pr-10 py-3 text-sm text-[#092040] font-bold outline-none cursor-pointer relative whitespace-nowrap shadow-lg">
                 {sortOrder === "newest" ? "新着順" : "締切順"}
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs">{sortOpen ? "▲" : "▼"}</span>
               </button>
@@ -329,7 +325,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
           {/* モバイル用フィルター・ソートバー */}
           <div className="md:hidden flex gap-[2vw] mb-[4vw]">
             <button onClick={() => setFilterOpen(true)}
-              className="flex-1 bg-white rounded-[3vw] py-[3vw] flex items-center justify-center gap-[2vw] shadow-md">
+              className="flex-1 bg-[#FCBC2A] rounded-[3vw] py-[3vw] flex items-center justify-center gap-[2vw] shadow-md">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">
                 <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
               </svg>
@@ -342,7 +338,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
             </button>
             <div className="relative flex-1">
               <button onClick={() => setSortOpen(!sortOpen)}
-                className="w-full bg-white rounded-[3vw] py-[3vw] flex items-center justify-center gap-[2vw] shadow-md">
+                className="w-full bg-[#FCBC2A] rounded-[3vw] py-[3vw] flex items-center justify-center gap-[2vw] shadow-md">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">
                   <path d="M3 6h18M7 12h10M11 18h2"/>
                 </svg>
@@ -366,7 +362,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
           <p className="text-[#092040] font-bold mb-[3vw] md:mb-4 text-[3.5vw] md:text-base">{filtered.length} 件の活動が見つかりました</p>
 
           {paginated.length === 0 ? (
-            <div className="bg-white rounded-2xl p-10 text-center text-gray-400">条件に一致する活動がありません</div>
+            <div className="bg-[#FCBC2A] rounded-2xl p-10 text-center text-[#092040]/50">条件に一致する活動がありません</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-[4vw] md:gap-4 mb-6">
               {paginated.map((post) => (
@@ -378,19 +374,19 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
           {totalPages > 1 && (
             <div className="flex justify-center items-center gap-2 pb-6">
               <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-                className="w-10 h-10 rounded-full bg-white text-[#092040] font-bold disabled:opacity-30 hover:bg-[#092040] hover:text-white transition-colors">‹</button>
+                className="w-10 h-10 rounded-full bg-[#FCBC2A] text-[#092040] font-bold disabled:opacity-30 hover:bg-[#092040] hover:text-white transition-colors">‹</button>
               {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                 const p = i + 1;
                 return (
                   <button key={p} onClick={() => setPage(p)}
-                    className={`w-10 h-10 rounded-full font-bold transition-colors ${page === p ? "bg-[#092040] text-white" : "bg-white text-[#092040] hover:bg-[#092040] hover:text-white"}`}>
+                    className={`w-10 h-10 rounded-full font-bold transition-colors ${page === p ? "bg-[#092040] text-white" : "bg-[#FCBC2A] text-[#092040] hover:bg-[#092040] hover:text-white"}`}>
                     {p}
                   </button>
                 );
               })}
               {totalPages > 5 && <span className="text-[#092040] font-bold">...</span>}
               <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                className="w-10 h-10 rounded-full bg-white text-[#092040] font-bold disabled:opacity-30 hover:bg-[#092040] hover:text-white transition-colors">›</button>
+                className="w-10 h-10 rounded-full bg-[#FCBC2A] text-[#092040] font-bold disabled:opacity-30 hover:bg-[#092040] hover:text-white transition-colors">›</button>
             </div>
           )}
         </main>

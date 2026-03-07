@@ -18,7 +18,6 @@ const CATEGORY_BG: Record<string, string> = {
   "起業・ビジネス": "bg-blue-100 text-blue-700",
   "奨学金": "bg-green-100 text-green-700",
   "科学・理系": "bg-pink-100 text-pink-700",
-  "宿泊イベント・キャンプ": "bg-sky-100 text-sky-700",
 };
 
 export default function ActivityModal({ post, onClose }: Props) {
@@ -50,23 +49,23 @@ export default function ActivityModal({ post, onClose }: Props) {
   const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
 
   const infoItems = [
-    post.deadline ? { icon: "📅", label: "応募締切", value: new Date(post.deadline).toLocaleDateString("ja-JP"), highlight: daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 } : null,
-    post.period ? { icon: "⏱️", label: "活動期間", value: post.period, highlight: false } : null,
-    post.targetGrade.length > 0 ? { icon: "🎓", label: "対象学年", value: post.targetGrade.join("・"), highlight: false } : null,
-    post.format ? { icon: "💻", label: "形式", value: post.format, highlight: false } : null,
-    post.region ? { icon: "📍", label: "地域", value: post.region, highlight: false } : null,
-    post.fee ? { icon: "💰", label: "参加費", value: post.fee, highlight: false } : null,
+    post.deadline ? { icon: "/icons/Calendar.svg", label: "応募締切", value: new Date(post.deadline).toLocaleDateString("ja-JP"), highlight: daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 } : null,
+    post.period ? { icon: "/icons/Clock.svg", label: "活動期間", value: post.period, highlight: false } : null,
+    post.targetGrade.length > 0 ? { icon: "/icons/Graduation Cap.svg", label: "対象学年", value: post.targetGrade.join("・"), highlight: false } : null,
+    post.format ? { icon: "/icons/PC.svg", label: "形式", value: post.format, highlight: false } : null,
+    post.region ? { icon: "/icons/Pin.svg", label: "地域", value: post.region, highlight: false } : null,
+    post.fee ? { icon: "/icons/Dollar Bag.svg", label: "参加費", value: post.fee, highlight: false } : null,
   ].filter(Boolean) as { icon: string; label: string; value: string; highlight: boolean }[];
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-end md:items-center justify-center transition-all duration-300 ${
+      className={`fixed inset-0 z-[100] flex items-end md:items-center justify-center transition-all duration-300 ${
         visible ? "bg-black/60" : "bg-black/0"
       }`}
       onClick={handleClose}
     >
       <div
-        className={`bg-white w-full md:max-w-3xl md:rounded-3xl rounded-t-3xl max-h-[92vh] overflow-hidden flex flex-col transition-all duration-300 ${
+        className={`bg-[#FCBC2A] w-full md:max-w-3xl md:rounded-3xl rounded-t-3xl max-h-[92vh] overflow-hidden flex flex-col transition-all duration-300 ${
           visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -116,7 +115,6 @@ export default function ActivityModal({ post, onClose }: Props) {
             <div className="flex-1 p-6">
               {post.organizer && (
                 <div className="flex items-center gap-2 mb-5">
-                  <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm">🏢</div>
                   <span className="text-sm font-bold text-[#092040]">{post.organizer}</span>
                 </div>
               )}
@@ -125,11 +123,12 @@ export default function ActivityModal({ post, onClose }: Props) {
                 {infoItems.map((item) => (
                   <div
                     key={item.label}
-                    className={`rounded-2xl p-3 ${item.highlight ? "bg-red-50 border border-red-200" : "bg-gray-50"}`}
+                    className={`rounded-2xl p-3 ${item.highlight ? "bg-red-50 border border-red-200" : "bg-white/60"}`}
                   >
-                    <div className="text-xs text-gray-400 mb-1">{item.label}</div>
-                    <div className={`text-sm font-bold ${item.highlight ? "text-[#EF4444]" : "text-[#092040]"}`}>
-                      {item.icon} {item.value}
+                    <div className="text-xs text-gray-500 mb-1">{item.label}</div>
+                    <div className={`text-sm font-bold flex items-center gap-1.5 ${item.highlight ? "text-[#EF4444]" : "text-[#092040]"}`}>
+                      <Image src={item.icon} alt="" width={16} height={16} />
+                      {item.value}
                     </div>
                   </div>
                 ))}
@@ -138,22 +137,22 @@ export default function ActivityModal({ post, onClose }: Props) {
               {post.summary && (
                 <div className="mb-6">
                   <h2 className="text-[#092040] font-black text-base mb-3 flex items-center gap-2">
-                    <span className="w-1 h-5 bg-[#FCBC2A] rounded-full inline-block" />
+                    <span className="w-1 h-5 bg-white rounded-full inline-block" />
                     プログラム詳細
                   </h2>
-                  <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{post.summary}</p>
+                  <p className="text-sm text-[#092040] leading-relaxed whitespace-pre-wrap">{post.summary}</p>
                 </div>
               )}
 
               {post.tags.length > 0 && (
                 <div>
                   <h2 className="text-[#092040] font-black text-base mb-3 flex items-center gap-2">
-                    <span className="w-1 h-5 bg-[#FCBC2A] rounded-full inline-block" />
+                    <span className="w-1 h-5 bg-white rounded-full inline-block" />
                     タグ
                   </h2>
                   <div className="flex flex-wrap gap-2">
                     {post.tags.map((tag) => (
-                      <span key={tag} className="bg-[#FCBC2A]/20 text-[#092040] text-xs font-bold px-3 py-1 rounded-full">
+                      <span key={tag} className="bg-white/60 text-[#092040] text-xs font-bold px-3 py-1 rounded-full">
                         #{tag}
                       </span>
                     ))}
@@ -163,7 +162,7 @@ export default function ActivityModal({ post, onClose }: Props) {
             </div>
 
             {/* 右：応募 */}
-            <div className="md:w-60 shrink-0 p-6 md:border-l border-t md:border-t-0 border-gray-100">
+            <div className="md:w-60 shrink-0 p-6 md:border-l border-t md:border-t-0 border-[#092040]/10">
               {post.applyUrl ? (
                 <a
                   href={post.applyUrl}
@@ -174,15 +173,15 @@ export default function ActivityModal({ post, onClose }: Props) {
                   応募する →
                 </a>
               ) : (
-                <div className="w-full bg-gray-100 text-gray-400 text-sm font-bold text-center py-4 rounded-2xl mb-3">
+                <div className="w-full bg-white/40 text-[#092040]/40 text-sm font-bold text-center py-4 rounded-2xl mb-3">
                   応募URLなし
                 </div>
               )}
-              <p className="text-xs text-gray-400 text-center mb-6">※ 外部サイトへ移動します</p>
+              <p className="text-xs text-[#092040]/50 text-center mb-6">※ 外部サイトへ移動します</p>
 
               {daysLeft !== null && daysLeft >= 0 && (
-                <div className={`rounded-2xl p-4 text-center mb-4 ${daysLeft <= 7 ? "bg-red-50" : "bg-gray-50"}`}>
-                  <div className="text-xs text-gray-400 mb-1">締切まで</div>
+                <div className={`rounded-2xl p-4 text-center mb-4 ${daysLeft <= 7 ? "bg-red-50" : "bg-white/60"}`}>
+                  <div className="text-xs text-gray-500 mb-1">締切まで</div>
                   <div className={`text-3xl font-black ${daysLeft <= 7 ? "text-[#EF4444]" : "text-[#092040]"}`}>
                     {daysLeft}<span className="text-sm font-bold ml-1">日</span>
                   </div>
