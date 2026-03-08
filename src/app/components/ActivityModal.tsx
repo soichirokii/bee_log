@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Post } from "@/types/notion";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 type Props = {
   post: Post;
@@ -22,6 +23,7 @@ const CATEGORY_BG: Record<string, string> = {
 
 export default function ActivityModal({ post, onClose }: Props) {
   const [visible, setVisible] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true));
@@ -30,9 +32,7 @@ export default function ActivityModal({ post, onClose }: Props) {
   }, []);
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose();
-    };
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") handleClose(); };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, []);
@@ -41,6 +41,11 @@ export default function ActivityModal({ post, onClose }: Props) {
     setVisible(false);
     setTimeout(onClose, 300);
   };
+
+  const handleTagClick = (tag: string) => {
+  onClose();
+  router.push(`/search?q=${encodeURIComponent(tag)}`);
+};
 
   const now = new Date();
   const daysLeft = post.deadline
@@ -59,15 +64,11 @@ export default function ActivityModal({ post, onClose }: Props) {
 
   return (
     <div
-      className={`fixed inset-0 z-[100] flex items-end md:items-center justify-center transition-all duration-300 ${
-        visible ? "bg-black/60" : "bg-black/0"
-      }`}
+      className={`fixed inset-0 z-[100] flex items-end md:items-center justify-center transition-all duration-300 ${visible ? "bg-black/60" : "bg-black/0"}`}
       onClick={handleClose}
     >
       <div
-        className={`bg-[#FCBC2A] w-full md:max-w-3xl md:rounded-3xl rounded-t-3xl max-h-[92vh] overflow-hidden flex flex-col transition-all duration-300 ${
-          visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-        }`}
+        className={`bg-white w-full md:max-w-3xl md:rounded-3xl rounded-t-3xl max-h-[92vh] overflow-hidden flex flex-col transition-all duration-300 ${visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* ヘッダー画像 */}
@@ -82,27 +83,17 @@ export default function ActivityModal({ post, onClose }: Props) {
           <button
             onClick={handleClose}
             className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/40 transition-colors text-lg"
-          >
-            ×
-          </button>
+          >×</button>
 
           <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
-            {post.isFeatured && (
-              <span className="bg-white text-[#092040] text-xs font-bold px-3 py-1 rounded-full">おすすめ</span>
-            )}
-            {(post.fee === "無料" || post.fee === "0円" || post.fee === "0") && (
-              <span className="bg-[#4ADE80] text-white text-xs font-bold px-3 py-1 rounded-full">無料</span>
-            )}
-            {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && (
-              <span className="bg-[#EF4444] text-white text-xs font-bold px-3 py-1 rounded-full">締切間近</span>
-            )}
+            {post.isFeatured && <span className="bg-white text-[#092040] text-xs font-bold px-3 py-1 rounded-full">おすすめ</span>}
+            {(post.fee === "無料" || post.fee === "0円" || post.fee === "0") && <span className="bg-[#4ADE80] text-white text-xs font-bold px-3 py-1 rounded-full">無料</span>}
+            {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && <span className="bg-[#EF4444] text-white text-xs font-bold px-3 py-1 rounded-full">締切間近</span>}
           </div>
 
           <div className="absolute bottom-4 left-5 right-5">
             {post.category && (
-              <span className={`text-xs font-bold px-3 py-1 rounded-full mb-2 inline-block ${categoryStyle}`}>
-                {post.category}
-              </span>
+              <span className={`text-xs font-bold px-3 py-1 rounded-full mb-2 inline-block ${categoryStyle}`}>{post.category}</span>
             )}
             <h1 className="text-white text-xl md:text-2xl font-black leading-tight drop-shadow">{post.title}</h1>
           </div>
@@ -121,11 +112,9 @@ export default function ActivityModal({ post, onClose }: Props) {
 
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
                 {infoItems.map((item) => (
-                  <div
-                    key={item.label}
-                    className={`rounded-2xl p-3 ${item.highlight ? "bg-red-50 border border-red-200" : "bg-white/60"}`}
-                  >
-                    <div className="text-xs text-gray-500 mb-1">{item.label}</div>
+                  <div key={item.label}
+                    className={`rounded-2xl p-3 border ${item.highlight ? "bg-red-50 border-red-200" : "bg-gray-50 border-gray-100"}`}>
+                    <div className="text-xs text-gray-400 mb-1">{item.label}</div>
                     <div className={`text-sm font-bold flex items-center gap-1.5 ${item.highlight ? "text-[#EF4444]" : "text-[#092040]"}`}>
                       <Image src={item.icon} alt="" width={16} height={16} />
                       {item.value}
@@ -137,51 +126,48 @@ export default function ActivityModal({ post, onClose }: Props) {
               {post.summary && (
                 <div className="mb-6">
                   <h2 className="text-[#092040] font-black text-base mb-3 flex items-center gap-2">
-                    <span className="w-1 h-5 bg-white rounded-full inline-block" />
+                    <span className="w-1 h-5 bg-[#FCBC2A] rounded-full inline-block" />
                     プログラム詳細
                   </h2>
-                  <p className="text-sm text-[#092040] leading-relaxed whitespace-pre-wrap">{post.summary}</p>
+                  <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{post.summary}</p>
                 </div>
               )}
 
               {post.tags.length > 0 && (
                 <div>
                   <h2 className="text-[#092040] font-black text-base mb-3 flex items-center gap-2">
-                    <span className="w-1 h-5 bg-white rounded-full inline-block" />
+                    <span className="w-1 h-5 bg-[#FCBC2A] rounded-full inline-block" />
                     タグ
                   </h2>
                   <div className="flex flex-wrap gap-2">
                     {post.tags.map((tag) => (
-                      <span key={tag} className="bg-white/60 text-[#092040] text-xs font-bold px-3 py-1 rounded-full">
-                        #{tag}
-                      </span>
-                    ))}
+  <button key={tag} onClick={() => handleTagClick(tag)}
+    className="bg-[#FCBC2A]/20 text-[#092040] text-xs font-bold px-3 py-1 rounded-full hover:bg-[#FCBC2A] transition-colors cursor-pointer">
+    #{tag}
+  </button>
+))}
                   </div>
                 </div>
               )}
             </div>
 
             {/* 右：応募 */}
-            <div className="md:w-60 shrink-0 p-6 md:border-l border-t md:border-t-0 border-[#092040]/10">
+            <div className="md:w-60 shrink-0 p-6 md:border-l border-t md:border-t-0 border-gray-100">
               {post.applyUrl ? (
-                <a
-                  href={post.applyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full bg-[#092040] text-white text-sm font-bold text-center py-4 rounded-2xl hover:opacity-90 transition-opacity mb-3"
-                >
+                <a href={post.applyUrl} target="_blank" rel="noopener noreferrer"
+                  className="block w-full bg-[#092040] text-white text-sm font-bold text-center py-4 rounded-2xl hover:opacity-90 transition-opacity mb-3">
                   応募する →
                 </a>
               ) : (
-                <div className="w-full bg-white/40 text-[#092040]/40 text-sm font-bold text-center py-4 rounded-2xl mb-3">
+                <div className="w-full bg-gray-100 text-gray-400 text-sm font-bold text-center py-4 rounded-2xl mb-3">
                   応募URLなし
                 </div>
               )}
-              <p className="text-xs text-[#092040]/50 text-center mb-6">※ 外部サイトへ移動します</p>
+              <p className="text-xs text-gray-400 text-center mb-6">※ 外部サイトへ移動します</p>
 
               {daysLeft !== null && daysLeft >= 0 && (
-                <div className={`rounded-2xl p-4 text-center mb-4 ${daysLeft <= 7 ? "bg-red-50" : "bg-white/60"}`}>
-                  <div className="text-xs text-gray-500 mb-1">締切まで</div>
+                <div className={`rounded-2xl p-4 text-center mb-4 border ${daysLeft <= 7 ? "bg-red-50 border-red-200" : "bg-gray-50 border-gray-100"}`}>
+                  <div className="text-xs text-gray-400 mb-1">締切まで</div>
                   <div className={`text-3xl font-black ${daysLeft <= 7 ? "text-[#EF4444]" : "text-[#092040]"}`}>
                     {daysLeft}<span className="text-sm font-bold ml-1">日</span>
                   </div>

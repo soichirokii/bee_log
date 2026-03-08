@@ -13,14 +13,7 @@ export const metadata: Metadata = {
     siteName: "BEE log",
     title: "BEE log",
     description: "10代のための探究メディア",
-    images: [
-      {
-        url: "/ogp.png",
-        width: 1200,
-        height: 630,
-        alt: "BEE log",
-      },
-    ],
+    images: [{ url: "/ogp.png", width: 1200, height: 630, alt: "BEE log" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -33,7 +26,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
-      <body className="bg-[#FCBC2A] font-sans">
+      <body className="bg-[#FFFFF0] font-sans">
         {children}
       </body>
     </html>
