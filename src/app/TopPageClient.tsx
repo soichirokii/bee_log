@@ -88,8 +88,7 @@ function ActivityCard({ post }: { post: Post }) {
         </div>
         <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
           {(post.fee === "無料" || post.fee === "0円" || post.fee === "0") && <span className="bg-[#4ADE80] text-white text-xs font-bold px-2 py-1 rounded-full">無料</span>}
-          {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>}
-        </div>
+{daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full animate-blink">締切間近</span>}        </div>
       </div>
       <div className="p-4">
         <div className="flex items-center gap-2 text-xs mb-1 flex-wrap">

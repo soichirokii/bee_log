@@ -86,7 +86,7 @@ function ActivityCard({ post }: { post: Post }) {
         </div>
         <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
           {(post.fee === "無料" || post.fee === "0円" || post.fee === "0") && <span className="bg-[#4ADE80] text-white text-xs font-bold px-2 py-1 rounded-full">無料</span>}
-          {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>}
+          {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full animate-blink">締切間近</span>}
         </div>
       </div>
       <div className="p-4">
@@ -143,8 +143,17 @@ const [freeOnly, setFreeOnly] = useState(false);
   const [page, setPage] = useState(1);
   const [filterOpen, setFilterOpen] = useState(false);
 
-  const toggleItem = (list: string[], setList: (v: string[]) => void, item: string) => {
-    setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
+const router2 = useRouter();
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (keyword) params.set("q", keyword);
+    if (selectedCategories.length > 0) params.set("category", selectedCategories[0]);
+    if (featuredOnly) params.set("featured", "true");
+    const newUrl = `/search${params.toString() ? `?${params.toString()}` : ""}`;
+    window.history.replaceState(null, "", newUrl);
+  }, [keyword, selectedCategories, featuredOnly]);
+
+  const toggleItem = (list: string[], setList: (v: string[]) => void, item: string) => {    setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
     setPage(1);
   };
 
@@ -317,9 +326,17 @@ if (freeOnly) result = result.filter((p) => p.fee === "無料" || p.fee === "0�
           <p className="text-[#092040] font-bold mb-[3vw] md:mb-4 text-[3.5vw] md:text-base">{filtered.length} 件の活動が見つかりました</p>
 
           {paginated.length === 0 ? (
-            <div className="bg-white rounded-2xl p-10 text-center text-gray-400 border-2 border-[#092040]">条件に一致する活動がありません</div>
+            <div className="bg-[#FFFFF0] rounded-2xl p-10 text-center border-2 border-[#092040]/10">
+              <div className="text-4xl mb-4">🔍</div>
+              <p className="text-[#092040] font-black text-lg mb-2">活動が見つかりませんでした</p>
+              <p className="text-gray-400 text-sm mb-6">検索条件を変えて、もう一度試してみてください。</p>
+              <button onClick={() => { setKeyword(""); setSelectedCategories([]); setSelectedGrades([]); setSelectedFormats([]); setSelectedPeriods([]); setFreeOnly(false); setFeaturedOnly(false); setPage(1); }}
+                className="bg-[#092040] text-white font-bold px-6 py-3 rounded-2xl text-sm hover:opacity-90 transition-opacity">
+                絞り込みをリセット
+              </button>
+            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-[4vw] md:gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-[3vw] md:gap-4 mb-6">
               {paginated.map((post) => (
                 <ActivityCard key={post.id} post={post} />
               ))}

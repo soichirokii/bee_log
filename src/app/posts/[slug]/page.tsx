@@ -5,6 +5,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import ShareButton from "@/app/components/ShareButton";
+import MobileApplyButton from "@/app/components/MobileApplyButton";
+
 
 export async function generateStaticParams() {
   const slugs = await getAllPublishedSlugs();
@@ -308,8 +310,8 @@ export default async function PostDetailPage({
           {/* 右：応募サイドバー */}
           <div className="md:w-64 shrink-0">
             <div className="bg-[#FFFFF0] rounded-3xl p-6 sticky top-24">              {post.applyUrl ? (
-                <a href={post.applyUrl} target="_blank" rel="noopener noreferrer"
-                  className="block w-full bg-[#092040] text-white font-bold text-center py-4 rounded-2xl hover:opacity-90 transition-opacity mb-3">
+                <a id="apply-button-sidebar" href={post.applyUrl} target="_blank" rel="noopener noreferrer"
+                  className="block w-full bg-[#092040] text-white font-bold text-center py-4 rounded-2xl transition-all duration-200 hover:bg-[#FCBC2A] hover:text-[#092040] hover:scale-[1.02] active:scale-95 mb-3">
                   応募する →
                 </a>
               ) : (
@@ -339,6 +341,9 @@ export default async function PostDetailPage({
 
         </div>
       </div>
+
+    <MobileApplyButton applyUrl={post.applyUrl} daysLeft={daysLeft} />
+      <div className="md:hidden h-24" />
     </div>
   );
 }

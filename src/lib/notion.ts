@@ -96,11 +96,18 @@ export async function getPublishedPosts(): Promise<Post[]> {
       method: "POST",
       headers: notionHeaders,
       body: JSON.stringify({
-        filter: {
-          property: "公開",
-          checkbox: { equals: true },
-        },
         sorts: [{ property: "応募締切", direction: "ascending" }],
+      filter: {
+        and: [
+          { property: "公開", checkbox: { equals: true } },
+          {
+            or: [
+              { property: "応募締切", date: { on_or_after: new Date().toISOString().split("T")[0] } },
+              { property: "応募締切", date: { is_empty: true } },
+            ],
+          },
+        ],
+      },
       }),
       next: { revalidate: 60 },
     }
