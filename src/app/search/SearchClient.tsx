@@ -1,16 +1,15 @@
 "use client";
 
 import { useState, useMemo, Suspense, useEffect } from "react";
-import { useSearchParams, usePathname } from "next/navigation";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { Post } from "@/types/notion";
 import Link from "next/link";
 import Image from "next/image";
-import ActivityModal from "../components/ActivityModal";
 import Footer from "../components/Footer";
 
 const CATEGORIES = [
   "コンテスト・大会", "インターンシップ", "ボランティア", "留学・国際",
-  "研究・論文", "起業・ビジネス", "奨学金", "科学・理系",
+  "研究・論文", "起業・ビジネス", "奨学金", "科学・テクノロジー",
 ];
 
 const GRADES = ["中学生", "高校生", "大学生"];
@@ -25,7 +24,7 @@ const CATEGORY_BG: Record<string, string> = {
   "研究・論文": "bg-purple-100 text-purple-700",
   "起業・ビジネス": "bg-blue-100 text-blue-700",
   "奨学金": "bg-green-100 text-green-700",
-  "科学・理系": "bg-pink-100 text-pink-700",
+  "科学・テクノロジー": "bg-pink-100 text-pink-700",
 };
 
 function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
@@ -64,7 +63,8 @@ function Navbar() {
   );
 }
 
-function ActivityCard({ post, onClick, onTagClick }: { post: Post; onClick: () => void; onTagClick?: (tag: string) => void }) {
+function ActivityCard({ post }: { post: Post }) {
+  const router = useRouter();
   const now = new Date();
   const daysLeft = post.deadline ? Math.ceil((new Date(post.deadline).getTime() - now.getTime()) / 86400000) : null;
   const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
@@ -72,7 +72,7 @@ function ActivityCard({ post, onClick, onTagClick }: { post: Post; onClick: () =
   const periodLabel = getPeriodLabel(post.period);
 
   return (
-    <div onClick={onClick} className="bg-[#F8F7F4] rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
+    <div onClick={() => router.push(`/posts/${post.id}`)} className="bg-[#F8F7F4] rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
       <div className="w-full aspect-video bg-gray-200 relative rounded-t-2xl overflow-hidden">
         {post.imageUrl ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-200" />}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
@@ -95,12 +95,12 @@ function ActivityCard({ post, onClick, onTagClick }: { post: Post; onClick: () =
         {post.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
 {post.tags.slice(0, 3).map((tag) => (
-  <button key={tag}
-    onClick={(e) => { e.stopPropagation(); onTagClick?.(tag); }}
-
-    className="text-xs text-gray-400 hover:text-[#092040] hover:underline cursor-pointer">
+  <Link key={tag}
+    href={`/search?tag=${encodeURIComponent(tag)}`}
+    onClick={(e) => e.stopPropagation()}
+    className="text-xs text-gray-400 hover:text-[#092040] hover:underline">
     #{tag}
-  </button>
+  </Link>
 ))}
           </div>
         )}
@@ -137,7 +137,6 @@ const [selectedCategories, setSelectedCategories] = useState<string[]>(
   const [sortOrder, setSortOrder] = useState<"newest" | "deadline">("newest");
   const [sortOpen, setSortOpen] = useState(false);
   const [page, setPage] = useState(1);
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
 
   const toggleItem = (list: string[], setList: (v: string[]) => void, item: string) => {
@@ -175,7 +174,7 @@ const [selectedCategories, setSelectedCategories] = useState<string[]>(
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const FilterPanel = () => (
-    <div className="bg-[#FFFFF0] rounded-2xl p-5 shadow-md">
+      <div className="bg-[#FFFFF0] rounded-2xl p-5">
       <h2 className="font-bold text-[#092040] text-lg mb-4">絞り込み検索</h2>
       <div className="mb-5">
         <h3 className="text-sm font-bold text-[#092040] mb-2">カテゴリ</h3>
@@ -230,8 +229,6 @@ const [selectedCategories, setSelectedCategories] = useState<string[]>(
 
   return (
     <div className="min-h-screen bg-[#FFFFF0]">
-      {selectedPost && <ActivityModal post={selectedPost} onClose={() => setSelectedPost(null)} />}
-
       {filterOpen && (
         <div className="fixed inset-0 z-40 md:hidden" onClick={() => setFilterOpen(false)}>
           <div className="absolute inset-0 bg-black/50" />
@@ -314,7 +311,7 @@ const [selectedCategories, setSelectedCategories] = useState<string[]>(
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-[4vw] md:gap-4 mb-6">
               {paginated.map((post) => (
-                <ActivityCard key={post.id} post={post} onClick={() => setSelectedPost(post)} onTagClick={(tag) => { setKeyword(tag); setPage(1); }} />
+                <ActivityCard key={post.id} post={post} />
               ))}
             </div>
           )}

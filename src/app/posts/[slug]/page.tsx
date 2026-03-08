@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import ShareButton from "@/app/components/ShareButton";
 
 export async function generateStaticParams() {
   const slugs = await getAllPublishedSlugs();
@@ -31,8 +32,7 @@ const CATEGORY_BG: Record<string, string> = {
   "研究・論文": "bg-purple-100 text-purple-700",
   "起業・ビジネス": "bg-blue-100 text-blue-700",
   "奨学金": "bg-green-100 text-green-700",
-  "科学・理系": "bg-pink-100 text-pink-700",
-  "宿泊イベント・キャンプ": "bg-sky-100 text-sky-700",
+  "科学・テクノロジー": "bg-pink-100 text-pink-700",
 };
 
 function RichTextRenderer({ items }: { items: RichText[] }) {
@@ -142,16 +142,24 @@ export default async function PostDetailPage({
 
   return (
     <div className="min-h-screen bg-[#FFFFF0]">
-      {/* Navbar */}
-      <nav className="flex items-center bg-white border-b-2 border-[#092040] px-[5vw] py-[3vw] md:px-6 md:py-4 sticky top-0 z-50">
+
+      {/* PC Navbar */}
+      <nav className="hidden md:flex items-center px-16 py-4 bg-[#FFFFF0] border-b-2 border-[#092040] sticky top-0 z-50">
+        <Link href="/" className="mr-10">
+          <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-12 w-auto" />
+        </Link>
+        <Link href="/" className="text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] hover:bg-gray-100 transition-colors">HOME</Link>
+        <Link href="/search" className="text-base font-bold px-6 py-2.5 rounded-full bg-[#FCBC2A] text-[#092040]">活動を探す</Link>
+      </nav>
+
+      {/* Mobile Navbar */}
+      <nav className="md:hidden flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw] sticky top-0 z-50">
         <div className="flex-1" />
-        <Link href="/">
-          <Image src="/Logo.svg" alt="BEE log" width={120} height={64} className="h-[10vw] md:h-16 w-auto" />
+        <Link href="/" className="flex justify-center">
+          <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-[10vw] w-auto" />
         </Link>
         <div className="flex-1 flex justify-end">
-          <Link href="/search" className="bg-[#FCBC2A] text-[#092040] font-bold text-[3.5vw] md:text-sm px-[4vw] md:px-6 py-[2vw] md:py-2.5 rounded-full">
-            活動を探す
-          </Link>
+          <Link href="/search" className="bg-[#FCBC2A] text-[#092040] font-bold text-[3.5vw] px-[4vw] py-[2vw] rounded-full">探す</Link>
         </div>
       </nav>
 
@@ -170,12 +178,12 @@ export default async function PostDetailPage({
             </span>
           )}
           <h1 className="text-white text-2xl md:text-4xl font-black leading-tight drop-shadow">{post.title}</h1>
-          {post.organizer && <p className="text-white/70 text-sm mt-2">🏢 {post.organizer}</p>}
+          {post.organizer && <p className="text-white/70 text-sm mt-2">{post.organizer}</p>}
         </div>
       </div>
 
       {/* メインコンテンツ */}
-      <div className="max-w-4xl mx-auto px-6 py-8">
+      <div className="px-[5vw] md:px-16 py-8">
         <div className="flex flex-col md:flex-row gap-8">
 
           {/* 左：本文 */}
@@ -184,39 +192,55 @@ export default async function PostDetailPage({
               {post.deadline && (
                 <div className={`rounded-2xl p-3 ${daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? "bg-red-50 border border-red-200" : "bg-gray-50"}`}>
                   <div className="text-xs text-gray-400 mb-1">応募締切</div>
-                  <div className={`text-sm font-bold ${daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? "text-[#EF4444]" : "text-[#092040]"}`}>
-                    📅 {new Date(post.deadline).toLocaleDateString("ja-JP")}
+                  <div className={`text-sm font-bold flex items-center gap-1.5 ${daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? "text-[#EF4444]" : "text-[#092040]"}`}>
+                    <Image src="/icons/Calendar.svg" alt="" width={16} height={16} />
+                    {new Date(post.deadline).toLocaleDateString("ja-JP")}
                   </div>
                 </div>
               )}
               {post.period && (
                 <div className="rounded-2xl p-3 bg-gray-50">
                   <div className="text-xs text-gray-400 mb-1">活動期間</div>
-                  <div className="text-sm font-bold text-[#092040]">⏱️ {post.period}</div>
+                  <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
+                    <Image src="/icons/Clock.svg" alt="" width={16} height={16} />
+                    {post.period}
+                  </div>
                 </div>
               )}
               {post.targetGrade.length > 0 && (
                 <div className="rounded-2xl p-3 bg-gray-50">
                   <div className="text-xs text-gray-400 mb-1">対象学年</div>
-                  <div className="text-sm font-bold text-[#092040]">🎓 {post.targetGrade.join("・")}</div>
+                  <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
+                    <Image src="/icons/Graduation Cap.svg" alt="" width={16} height={16} />
+                    {post.targetGrade.join("・")}
+                  </div>
                 </div>
               )}
               {post.format && (
                 <div className="rounded-2xl p-3 bg-gray-50">
                   <div className="text-xs text-gray-400 mb-1">形式</div>
-                  <div className="text-sm font-bold text-[#092040]">💻 {post.format}</div>
+                  <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
+                    <Image src="/icons/PC.svg" alt="" width={16} height={16} />
+                    {post.format}
+                  </div>
                 </div>
               )}
               {post.region && (
                 <div className="rounded-2xl p-3 bg-gray-50">
                   <div className="text-xs text-gray-400 mb-1">地域</div>
-                  <div className="text-sm font-bold text-[#092040]">📍 {post.region}</div>
+                  <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
+                    <Image src="/icons/Pin.svg" alt="" width={16} height={16} />
+                    {post.region}
+                  </div>
                 </div>
               )}
               {post.fee && (
                 <div className="rounded-2xl p-3 bg-gray-50">
                   <div className="text-xs text-gray-400 mb-1">参加費</div>
-                  <div className="text-sm font-bold text-[#092040]">💰 {post.fee}</div>
+                  <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
+                    <Image src="/icons/Dollar Bag.svg" alt="" width={16} height={16} />
+                    {post.fee}
+                  </div>
                 </div>
               )}
             </div>
@@ -237,11 +261,11 @@ export default async function PostDetailPage({
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {post.tags.map((tag) => (
-  <Link key={tag} href={`/search?q=${encodeURIComponent(tag)}`}
-    className="bg-[#FCBC2A]/20 text-[#092040] text-xs font-bold px-3 py-1 rounded-full hover:bg-[#FCBC2A] transition-colors">
-    #{tag}
-  </Link>
-))}
+                    <Link key={tag} href={`/search?q=${encodeURIComponent(tag)}`}
+                      className="bg-[#FCBC2A]/20 text-[#092040] text-xs font-bold px-3 py-1 rounded-full hover:bg-[#FCBC2A] transition-colors">
+                      #{tag}
+                    </Link>
+                  ))}
                 </div>
               </div>
             )}
@@ -281,15 +305,16 @@ export default async function PostDetailPage({
               )}
 
               <Link href="/search"
-                className="block w-full border-2 border-[#092040] text-[#092040] font-bold text-center py-3 rounded-2xl hover:bg-[#092040] hover:text-white transition-colors text-sm">
+                className="block w-full border-2 border-[#092040] text-[#092040] font-bold text-center py-3 rounded-2xl hover:bg-[#092040] hover:text-white transition-colors text-sm mb-3">
                 ← 活動一覧に戻る
               </Link>
+
+              <ShareButton slug={slug} title={post.title} />
             </div>
           </div>
+
         </div>
       </div>
-
-      
     </div>
   );
 }

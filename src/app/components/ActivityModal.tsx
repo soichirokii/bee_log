@@ -18,7 +18,7 @@ const CATEGORY_BG: Record<string, string> = {
   "研究・論文": "bg-purple-100 text-purple-700",
   "起業・ビジネス": "bg-blue-100 text-blue-700",
   "奨学金": "bg-green-100 text-green-700",
-  "科学・理系": "bg-pink-100 text-pink-700",
+  "科学・テクノロジー": "bg-pink-100 text-pink-700",
 };
 
 export default function ActivityModal({ post, onClose }: Props) {

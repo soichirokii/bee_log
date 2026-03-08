@@ -170,7 +170,7 @@ export default function PostListClient({ posts }: Props) {
     "研究・論文",
     "起業・ビジネス",
     "奨学金",
-    "科学・理系",
+    "科学・テクノロジー",
   ].map((cat) => (
     <button
       key={cat}

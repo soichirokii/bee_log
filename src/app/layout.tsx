@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import PageTransition from "./components/PageTransition";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://beelog-eight.vercel.app";
 
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja">
       <body className="bg-[#FFFFF0] font-sans">
+        <PageTransition />
         {children}
       </body>
     </html>

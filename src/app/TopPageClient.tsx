@@ -1,16 +1,15 @@
 "use client";
 
-import { useState, useMemo, Suspense } from "react";
+import { useState, useMemo, Suspense, useEffect } from "react";
 import { Post } from "@/types/notion";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import ActivityModal from "./components/ActivityModal";
 import Footer from "./components/Footer";
 
 const CATEGORIES = [
   "コンテスト・大会", "インターンシップ", "ボランティア", "留学・国際",
-  "研究・論文", "起業・ビジネス", "奨学金", "科学・理系",
+  "研究・論文", "起業・ビジネス", "奨学金", "科学・テクノロジー",
 ];
 
 const CATEGORY_BG: Record<string, string> = {
@@ -21,7 +20,7 @@ const CATEGORY_BG: Record<string, string> = {
   "研究・論文": "bg-purple-100 text-purple-700",
   "起業・ビジネス": "bg-blue-100 text-blue-700",
   "奨学金": "bg-green-100 text-green-700",
-  "科学・理系": "bg-pink-100 text-pink-700",
+  "科学・テクノロジー": "bg-pink-100 text-pink-700",
 };
 
 const SEASON_TAGS = ["夏休み", "冬休み", "春休み"];
@@ -64,7 +63,8 @@ function MobileNavbar() {
   );
 }
 
-function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
+function ActivityCard({ post }: { post: Post }) {
+  const router = useRouter();
   const now = new Date();
   const daysLeft = post.deadline ? Math.ceil((new Date(post.deadline).getTime() - now.getTime()) / 86400000) : null;
   const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
@@ -72,7 +72,7 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
   const periodLabel = getPeriodLabel(post.period);
 
   return (
-    <div onClick={onClick} className="bg-[#F8F7F4] rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
+    <div onClick={() => router.push(`/posts/${post.id}`)} className="bg-[#F8F7F4] rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
       <div className="w-full aspect-video bg-gray-200 relative rounded-t-2xl overflow-hidden">
         {post.imageUrl ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-200" />}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
@@ -95,7 +95,9 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
         {post.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-3">
             {post.tags.slice(0, 3).map((tag) => (
-              <Link key={tag} href={`/search?tag=${encodeURIComponent(tag)}`} onClick={(e) => e.stopPropagation()} className="text-xs text-gray-400 hover:text-[#092040] hover:underline">#{tag}</Link>
+              <Link key={tag} href={`/search?tag=${encodeURIComponent(tag)}`} onClick={(e) => e.stopPropagation()} className="text-xs text-gray-400 hover:text-[#092040] hover:underline">
+                #{tag}
+              </Link>
             ))}
           </div>
         )}
@@ -109,9 +111,10 @@ function ActivityCard({ post, onClick }: { post: Post; onClick: () => void }) {
   );
 }
 
-function MobileSlider({ posts, onCardClick }: { posts: Post[]; onCardClick: (post: Post) => void }) {
+function MobileSlider({ posts }: { posts: Post[] }) {
   const [index, setIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
+  const router = useRouter();
   const featured = posts.slice(0, 5);
   if (featured.length === 0) return null;
 
@@ -124,9 +127,16 @@ function MobileSlider({ posts, onCardClick }: { posts: Post[]; onCardClick: (pos
   const next = () => goTo((index + 1) % featured.length);
   const current = featured[index];
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      goTo((index + 1) % featured.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [index, featured.length]);
+
   return (
     <div className="relative">
-      <div className="overflow-hidden rounded-[4vw]" onClick={() => onCardClick(current)}>
+      <div className="overflow-hidden rounded-[4vw]" onClick={() => router.push(`/posts/${current.id}`)}>
         <div className={`relative w-full aspect-video transition-opacity duration-300 ${animating ? "opacity-0" : "opacity-100"}`}>
           {current.imageUrl ? <Image src={current.imageUrl} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -157,11 +167,21 @@ function MobileSlider({ posts, onCardClick }: { posts: Post[]; onCardClick: (pos
 
 function HeroSlider({ posts }: { posts: Post[] }) {
   const [index, setIndex] = useState(0);
+  const router = useRouter();
   const featured = posts.filter((p) => p.isFeatured);
   if (featured.length === 0) return <div className="w-full aspect-video bg-gray-100 rounded-2xl" />;
   const current = featured[index];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((i) => (i + 1) % featured.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [featured.length]);
+
   return (
-    <div className="relative w-full aspect-video rounded-2xl overflow-hidden">
+    <div className="relative w-full aspect-video rounded-2xl overflow-hidden cursor-pointer"
+      onClick={() => router.push(`/posts/${current.slug}`)}>
       {current.imageUrl ? <Image src={current.imageUrl} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-100" />}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
       <div className="absolute bottom-4 left-4 right-4">
@@ -169,11 +189,11 @@ function HeroSlider({ posts }: { posts: Post[] }) {
       </div>
       {featured.length > 1 && (
         <>
-          <button onClick={() => setIndex((i) => (i - 1 + featured.length) % featured.length)} className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/30 text-white text-2xl w-10 h-10 rounded-full flex items-center justify-center">‹</button>
-          <button onClick={() => setIndex((i) => (i + 1) % featured.length)} className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/30 text-white text-2xl w-10 h-10 rounded-full flex items-center justify-center">›</button>
+          <button onClick={(e) => { e.stopPropagation(); setIndex((i) => (i - 1 + featured.length) % featured.length); }} className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/30 text-white text-2xl w-10 h-10 rounded-full flex items-center justify-center">‹</button>
+          <button onClick={(e) => { e.stopPropagation(); setIndex((i) => (i + 1) % featured.length); }} className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/30 text-white text-2xl w-10 h-10 rounded-full flex items-center justify-center">›</button>
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
             {featured.map((_, i) => (
-              <button key={i} onClick={() => setIndex(i)} className={`w-2 h-2 rounded-full transition-colors ${i === index ? "bg-white" : "bg-white/40"}`} />
+              <button key={i} onClick={(e) => { e.stopPropagation(); setIndex(i); }} className={`w-2 h-2 rounded-full transition-colors ${i === index ? "bg-white" : "bg-white/40"}`} />
             ))}
           </div>
         </>
@@ -184,14 +204,11 @@ function HeroSlider({ posts }: { posts: Post[] }) {
 
 function TopPageInner({ posts }: { posts: Post[] }) {
   const [keyword, setKeyword] = useState("");
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const router = useRouter();
   const featuredPosts = useMemo(() => posts.filter((p) => p.isFeatured), [posts]);
 
   return (
     <div className="min-h-screen bg-[#FFFFF0]">
-      {selectedPost && <ActivityModal post={selectedPost} onClose={() => setSelectedPost(null)} />}
-
       {/* モバイル */}
       <div className="md:hidden px-[5vw] pb-[10vw]">
         <div className="pt-[6vw] pb-[4vw]">
@@ -201,26 +218,26 @@ function TopPageInner({ posts }: { posts: Post[] }) {
         </div>
         <div className="mb-[5vw]">
           <div className="flex flex-col gap-2">
-  <div className="bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 flex items-center gap-2">
-    <Image src="/icons/Magnifying Glass.svg" alt="" width={18} height={18} className="opacity-40 shrink-0" />
-    <input type="search" placeholder="活動名、主催者などで検索..." value={keyword}
-      onChange={(e) => setKeyword(e.target.value)}
-      onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-      className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
-  </div>
-  <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
-  className="mx-auto block bg-[#092040] text-white font-bold text-sm px-8 py-2.5 rounded-2xl">検索</button>
-</div>
+            <div className="bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 flex items-center gap-2">
+              <Image src="/icons/Magnifying Glass.svg" alt="" width={18} height={18} className="opacity-40 shrink-0" />
+              <input type="search" placeholder="活動名、主催者などで検索..." value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
+                className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
+            </div>
+            <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+              className="mx-auto block bg-[#092040] text-white font-bold text-sm px-8 py-2.5 rounded-2xl">検索</button>
+          </div>
         </div>
         <div className="mb-[6vw]">
           <div className="flex items-center justify-between mb-[3vw]">
             <h2 className="text-[#092040] text-[5vw] font-black">おすすめの活動</h2>
             <Link href="/search" className="text-[#092040] text-[3vw] opacity-60">すべて見る →</Link>
           </div>
-          <MobileSlider posts={featuredPosts} onCardClick={setSelectedPost} />
+          <MobileSlider posts={featuredPosts} />
           <div className="flex flex-col gap-[4vw] mt-[4vw]">
             {posts.slice(0, 4).map((post) => (
-              <ActivityCard key={post.id} post={post} onClick={() => setSelectedPost(post)} />
+              <ActivityCard key={post.id} post={post} />
             ))}
           </div>
         </div>
@@ -238,14 +255,14 @@ function TopPageInner({ posts }: { posts: Post[] }) {
         <div className="px-16 py-8 bg-[#FFFFF0] border-b border-gray-100">
           <div className="max-w-3xl mx-auto">
             <div className="bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-5 py-4 flex items-center gap-3 mb-4">
-  <Image src="/icons/Magnifying Glass.svg" alt="" width={18} height={18} className="opacity-40 shrink-0" />
-  <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
-    onChange={(e) => setKeyword(e.target.value)}
-    onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-    className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
-  <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
-    className="bg-[#092040] text-white font-bold px-6 py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity">検索</button>
-</div>
+              <Image src="/icons/Magnifying Glass.svg" alt="" width={18} height={18} className="opacity-40 shrink-0" />
+              <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
+                className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
+              <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+                className="bg-[#092040] text-white font-bold px-6 py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity">検索</button>
+            </div>
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <span className="text-[#092040] font-bold text-sm">人気のタグ:</span>
               {(() => {
@@ -264,9 +281,9 @@ function TopPageInner({ posts }: { posts: Post[] }) {
           <h2 className="text-[#092040] text-xl font-black px-16 mb-3">カテゴリから探す</h2>
           <div className="flex gap-3 overflow-x-auto pb-2 pl-16">
             {CATEGORIES.map((cat) => (
-  <Link key={cat} href={`/search?category=${encodeURIComponent(cat)}`}
-    className={`font-bold px-6 py-3 rounded-2xl text-sm transition-all whitespace-nowrap shrink-0 hover:opacity-80 ${CATEGORY_BG[cat] ?? "bg-gray-100 text-gray-700"}`}>{cat}</Link>
-))}
+              <Link key={cat} href={`/search?category=${encodeURIComponent(cat)}`}
+                className={`font-bold px-6 py-3 rounded-2xl text-sm transition-all whitespace-nowrap shrink-0 hover:opacity-80 ${CATEGORY_BG[cat] ?? "bg-gray-100 text-gray-700"}`}>{cat}</Link>
+            ))}
           </div>
         </div>
 
@@ -279,7 +296,7 @@ function TopPageInner({ posts }: { posts: Post[] }) {
               </div>
               <div className="grid grid-cols-3 gap-4">
                 {featuredPosts.slice(0, 3).map((post) => (
-                  <ActivityCard key={post.id} post={post} onClick={() => setSelectedPost(post)} />
+                  <ActivityCard key={post.id} post={post} />
                 ))}
               </div>
             </section>
@@ -295,7 +312,7 @@ function TopPageInner({ posts }: { posts: Post[] }) {
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   {filtered.map((post) => (
-                    <ActivityCard key={post.id} post={post} onClick={() => setSelectedPost(post)} />
+                    <ActivityCard key={post.id} post={post} />
                   ))}
                 </div>
               </section>
