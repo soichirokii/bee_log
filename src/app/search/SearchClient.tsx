@@ -5,6 +5,7 @@ import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { Post } from "@/types/notion";
 import Link from "next/link";
 import Image from "next/image";
+import FadeInCard from "@/app/components/FadeInCard";
 import Footer from "../components/Footer";
 
 const CATEGORIES = [
@@ -337,8 +338,10 @@ if (freeOnly) result = result.filter((p) => p.fee === "無料" || p.fee === "0�
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-[3vw] md:gap-4 mb-6">
-              {paginated.map((post) => (
-                <ActivityCard key={post.id} post={post} />
+              {paginated.map((post, i) => (
+                <FadeInCard key={post.id} delay={i * 60}>
+                  <ActivityCard post={post} />
+                </FadeInCard>
               ))}
             </div>
           )}

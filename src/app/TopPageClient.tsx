@@ -4,6 +4,8 @@ import { useState, useMemo, Suspense, useEffect } from "react";
 import { Post } from "@/types/notion";
 import Link from "next/link";
 import Image from "next/image";
+import FadeInCard from "@/app/components/FadeInCard";
+import FadeInSection from "@/app/components/FadeInSection";
 import { useRouter } from "next/navigation";
 import Footer from "./components/Footer";
 
@@ -336,6 +338,7 @@ function TopPageInner({ posts }: { posts: Post[] }) {
         <div className="px-16 pb-16 pt-8">
           {featuredPosts.length > 0 && (
             <section className="mb-10">
+              <FadeInSection direction="left">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[#092040] text-2xl font-black">注目の活動</h2>
                 <Link href="/search?featured=true" className="text-[#092040] text-sm hover:underline opacity-60">すべて見る →</Link>
@@ -347,7 +350,8 @@ function TopPageInner({ posts }: { posts: Post[] }) {
                   </div>
                 ))}
               </div>
-            </section>
+          </FadeInSection>
+          </section>
           )}
           {CATEGORIES.map((cat) => {
             const filtered = posts.filter((p) => p.category === cat).slice(0, 3);
@@ -359,10 +363,12 @@ function TopPageInner({ posts }: { posts: Post[] }) {
                   <Link href={`/search?category=${encodeURIComponent(cat)}`} className="text-[#092040] text-sm hover:underline opacity-60">すべて見る →</Link>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
-                  {filtered.map((post) => (
-                    <ActivityCard key={post.id} post={post} />
-                  ))}
-                </div>
+                {featuredPosts.slice(0, 3).map((post, i) => (
+                  <FadeInCard key={post.id} delay={i * 80}>
+                    <ActivityCard post={post} />
+                  </FadeInCard>
+                ))}
+              </div>
               </section>
             );
           })}
