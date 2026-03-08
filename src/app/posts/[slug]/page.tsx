@@ -18,7 +18,26 @@ export async function generateMetadata(props: {
   try {
     const post = await getPostWithContent(slug);
     if (!post) return { title: "Not Found" };
-    return { title: post.title, description: post.summary };
+
+    const ogImage = post.imageUrl ?? "https://www.beelog-jp.com/ogp.png";
+
+    return {
+      title: post.title,
+      description: post.summary,
+      openGraph: {
+        type: "article",
+        url: `https://www.beelog-jp.com/posts/${slug}`,
+        title: post.title,
+        description: post.summary,
+        images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: post.title,
+        description: post.summary,
+        images: [ogImage],
+      },
+    };
   } catch {
     return { title: "Error" };
   }
@@ -145,11 +164,17 @@ export default async function PostDetailPage({
 
       {/* PC Navbar */}
       <nav className="hidden md:flex items-center px-16 py-4 bg-[#FFFFF0] border-b-2 border-[#092040] sticky top-0 z-50">
-        <Link href="/" className="mr-10">
+        <Link href="/" className="mr-10 transition-opacity duration-200 hover:opacity-70">
           <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-12 w-auto" />
         </Link>
-        <Link href="/" className="text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] hover:bg-gray-100 transition-colors">HOME</Link>
-        <Link href="/search" className="text-base font-bold px-6 py-2.5 rounded-full bg-[#FCBC2A] text-[#092040]">活動を探す</Link>
+        <Link href="/"
+          className="text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] transition-all duration-200 hover:bg-[#FCBC2A] hover:text-[#092040]">
+          HOME
+        </Link>
+        <Link href="/search"
+          className="text-base font-bold px-6 py-2.5 rounded-full bg-[#FCBC2A] text-[#092040] transition-all duration-200 hover:bg-[#092040] hover:text-white">
+          活動を探す
+        </Link>
       </nav>
 
       {/* Mobile Navbar */}
@@ -187,7 +212,7 @@ export default async function PostDetailPage({
         <div className="flex flex-col md:flex-row gap-8">
 
           {/* 左：本文 */}
-          <div className="flex-1 bg-white rounded-3xl p-6 md:p-8">
+          <div className="flex-1 bg-[#FFFFF0] rounded-3xl p-6 md:p-8">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
               {post.deadline && (
                 <div className={`rounded-2xl p-3 ${daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? "bg-red-50 border border-red-200" : "bg-gray-50"}`}>
@@ -282,8 +307,7 @@ export default async function PostDetailPage({
 
           {/* 右：応募サイドバー */}
           <div className="md:w-64 shrink-0">
-            <div className="bg-white rounded-3xl p-6 sticky top-24">
-              {post.applyUrl ? (
+            <div className="bg-[#FFFFF0] rounded-3xl p-6 sticky top-24">              {post.applyUrl ? (
                 <a href={post.applyUrl} target="_blank" rel="noopener noreferrer"
                   className="block w-full bg-[#092040] text-white font-bold text-center py-4 rounded-2xl hover:opacity-90 transition-opacity mb-3">
                   応募する →

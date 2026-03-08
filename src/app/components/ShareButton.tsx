@@ -5,7 +5,7 @@ export default function ShareButton({ slug, title }: { slug: string; title: stri
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
-    const url = `https://beelog-eight.vercel.app/posts/${slug}`;
+    const url = `https://www.beelog-jp.com/posts/${slug}`;
     await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

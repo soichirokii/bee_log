@@ -12,8 +12,7 @@ const CATEGORIES = [
   "研究・論文", "起業・ビジネス", "奨学金", "科学・テクノロジー",
 ];
 
-const GRADES = ["中学生", "高校生", "大学生"];
-const FORMATS = ["オンライン", "対面", "ハイブリッド"];
+const GRADES = ["中学生", "高校生", "大学生", "ギャップイヤー生"];const FORMATS = ["オンライン", "対面", "ハイブリッド"];
 const SEASON_TAGS = ["夏休み", "冬休み", "春休み"];
 
 const CATEGORY_BG: Record<string, string> = {
@@ -44,11 +43,17 @@ function Navbar() {
   return (
     <>
       <nav className="hidden md:flex items-center px-16 py-4 bg-[#FFFFF0] border-b-2 border-[#092040] sticky top-0 z-50">
-        <Link href="/" className="mr-10">
+        <Link href="/" className="mr-10 transition-opacity duration-200 hover:opacity-70">
           <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-12 w-auto" />
         </Link>
-        <Link href="/" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 transition-colors ${pathname === "/" ? "bg-[#FCBC2A] text-[#092040]" : "text-[#092040] hover:bg-gray-100"}`}>HOME</Link>
-        <Link href="/search" className={`text-base font-bold px-6 py-2.5 rounded-full transition-colors ${pathname === "/search" ? "bg-[#FCBC2A] text-[#092040]" : "text-[#092040] hover:bg-gray-100"}`}>活動を探す</Link>
+        <Link href="/"
+          className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 transition-all duration-200 ${pathname === "/" ? "bg-[#FCBC2A] text-[#092040] hover:bg-[#092040] hover:text-white" : "text-[#092040] hover:bg-[#FCBC2A] hover:text-[#092040]"}`}>
+          HOME
+        </Link>
+        <Link href="/search"
+          className={`text-base font-bold px-6 py-2.5 rounded-full transition-all duration-200 ${pathname === "/search" ? "bg-[#FCBC2A] text-[#092040] hover:bg-[#092040] hover:text-white" : "text-[#092040] hover:bg-[#FCBC2A] hover:text-[#092040]"}`}>
+          活動を探す
+        </Link>
       </nav>
       <nav className="md:hidden flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw] sticky top-0 z-50">
         <div className="flex-1" />
@@ -72,10 +77,9 @@ function ActivityCard({ post }: { post: Post }) {
   const periodLabel = getPeriodLabel(post.period);
 
   return (
-    <div onClick={() => router.push(`/posts/${post.id}`)} className="bg-[#F8F7F4] rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
+    <div onClick={() => router.push(`/posts/${post.id}`)} className="bg-[#F8F7F4] rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">
       <div className="w-full aspect-video bg-gray-200 relative rounded-t-2xl overflow-hidden">
-        {post.imageUrl ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-200" />}
-        <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
+{post.imageUrl ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" /> : <div className="w-full h-full bg-gray-200" />}        <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
           {post.isFeatured && <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>}
           {seasonTag && <span className="bg-[#F59E0B] text-white text-xs font-bold px-2 py-1 rounded-full">{seasonTag}</span>}
           {periodLabel && <span className="bg-[#092040] text-white text-xs font-bold px-2 py-1 rounded-full">{periodLabel}</span>}
@@ -133,8 +137,8 @@ const [selectedCategories, setSelectedCategories] = useState<string[]>(
   const [selectedGrades, setSelectedGrades] = useState<string[]>([]);
   const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
-  const [freeOnly, setFreeOnly] = useState(false);
-  const [sortOrder, setSortOrder] = useState<"newest" | "deadline">("newest");
+const [freeOnly, setFreeOnly] = useState(false);
+  const [featuredOnly, setFeaturedOnly] = useState(searchParams.get("featured") === "true");const [sortOrder, setSortOrder] = useState<"newest" | "deadline">("newest");
   const [sortOpen, setSortOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -144,8 +148,7 @@ const [selectedCategories, setSelectedCategories] = useState<string[]>(
     setPage(1);
   };
 
-  const activeFilterCount = selectedCategories.length + selectedGrades.length + selectedFormats.length + selectedPeriods.length + (freeOnly ? 1 : 0);
-
+  const activeFilterCount = selectedCategories.length + selectedGrades.length + selectedFormats.length + selectedPeriods.length + (freeOnly ? 1 : 0) + (featuredOnly ? 1 : 0);
   const filtered = useMemo(() => {
     let result = posts;
     if (keyword.trim()) {
@@ -159,8 +162,8 @@ const [selectedCategories, setSelectedCategories] = useState<string[]>(
     if (selectedGrades.length > 0) result = result.filter((p) => p.targetGrade.some((g) => selectedGrades.includes(g)));
     if (selectedFormats.length > 0) result = result.filter((p) => selectedFormats.includes(p.format));
     if (selectedPeriods.length > 0) result = result.filter((p) => { const l = getPeriodLabel(p.period); return l !== null && selectedPeriods.includes(l); });
-    if (freeOnly) result = result.filter((p) => p.fee === "無料" || p.fee === "0円" || p.fee === "0");
-    if (sortOrder === "deadline") {
+if (freeOnly) result = result.filter((p) => p.fee === "無料" || p.fee === "0円" || p.fee === "0");
+    if (featuredOnly) result = result.filter((p) => p.isFeatured);    if (featuredOnly) result = result.filter((p) => p.isFeatured);    if (sortOrder === "deadline") {
       result = [...result].sort((a, b) => {
         if (!a.deadline) return 1;
         if (!b.deadline) return -1;
@@ -217,11 +220,18 @@ const [selectedCategories, setSelectedCategories] = useState<string[]>(
           </label>
         ))}
       </div>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-4">
         <span className="text-sm font-bold text-[#092040]">無料のみ</span>
         <button onClick={() => { setFreeOnly(!freeOnly); setPage(1); }}
           className={`w-12 h-6 rounded-full transition-colors relative ${freeOnly ? "bg-[#092040]" : "bg-[#092040]/30"}`}>
           <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${freeOnly ? "left-7" : "left-1"}`} />
+        </button>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-bold text-[#092040]">おすすめのみ</span>
+        <button onClick={() => { setFeaturedOnly(!featuredOnly); setPage(1); }}
+          className={`w-12 h-6 rounded-full transition-colors relative ${featuredOnly ? "bg-[#FCBC2A]" : "bg-[#092040]/30"}`}>
+          <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${featuredOnly ? "left-7" : "left-1"}`} />
         </button>
       </div>
     </div>

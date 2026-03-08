@@ -40,11 +40,18 @@ function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
 function PCNavbar() {
   return (
     <nav className="hidden md:flex items-center px-16 py-4 bg-[#FFFFF0] border-b-2 border-[#092040] sticky top-0 z-50">
-      <Link href="/" className="mr-10">
+      <Link href="/" className="mr-10 transition-opacity duration-200 hover:opacity-70">
         <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-12 w-auto" />
       </Link>
-      <Link href="/" className="text-base font-bold px-6 py-2.5 rounded-full mr-3 bg-[#FCBC2A] text-[#092040]">HOME</Link>
-      <Link href="/search" className="text-base font-bold px-6 py-2.5 rounded-full text-[#092040] hover:bg-gray-100 transition-colors">活動を探す</Link>
+      <Link href="/"
+        className="text-base font-bold px-6 py-2.5 rounded-full mr-3 bg-[#FCBC2A] text-[#092040] transition-all duration-200 hover:bg-[#092040] hover:text-white">
+        HOME
+      </Link>
+      <Link href="/search"
+        className="text-base font-bold px-6 py-2.5 rounded-full text-[#092040] transition-all duration-200 hover:bg-[#FCBC2A] hover:text-[#092040]">
+        活動を探す
+      </Link>
+      <div className="flex-1" />
     </nav>
   );
 }
@@ -72,9 +79,8 @@ function ActivityCard({ post }: { post: Post }) {
   const periodLabel = getPeriodLabel(post.period);
 
   return (
-    <div onClick={() => router.push(`/posts/${post.id}`)} className="bg-[#F8F7F4] rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
-      <div className="w-full aspect-video bg-gray-200 relative rounded-t-2xl overflow-hidden">
-        {post.imageUrl ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-200" />}
+<div onClick={() => router.push(`/posts/${post.id}`)} className="bg-[#F8F7F4] rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 cursor-pointer group">      <div className="w-full aspect-video bg-gray-200 relative rounded-t-2xl overflow-hidden">
+        {post.imageUrl ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" /> : <div className="w-full h-full bg-gray-200" />}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
           {post.isFeatured && <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>}
           {seasonTag && <span className="bg-[#F59E0B] text-white text-xs font-bold px-2 py-1 rounded-full">{seasonTag}</span>}
@@ -167,9 +173,11 @@ function MobileSlider({ posts }: { posts: Post[] }) {
 
 function HeroSlider({ posts }: { posts: Post[] }) {
   const [index, setIndex] = useState(0);
+  const [hoveredLeft, setHoveredLeft] = useState(false);
+  const [hoveredRight, setHoveredRight] = useState(false);
   const router = useRouter();
   const featured = posts.filter((p) => p.isFeatured);
-  if (featured.length === 0) return <div className="w-full aspect-video bg-gray-100 rounded-2xl" />;
+  if (featured.length === 0) return <div className="w-full h-full bg-gray-100" />;
   const current = featured[index];
 
   useEffect(() => {
@@ -180,21 +188,53 @@ function HeroSlider({ posts }: { posts: Post[] }) {
   }, [featured.length]);
 
   return (
-    <div className="relative w-full aspect-video rounded-2xl overflow-hidden cursor-pointer"
+    <div className="relative w-full h-full cursor-pointer group"
       onClick={() => router.push(`/posts/${current.slug}`)}>
-      {current.imageUrl ? <Image src={current.imageUrl} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-100" />}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-      <div className="absolute bottom-4 left-4 right-4">
-        <h3 className="text-white font-black text-lg line-clamp-2">{current.title}</h3>
+      {current.imageUrl
+        ? <Image src={current.imageUrl} alt={current.title} fill className="object-cover transition-transform duration-700" />
+        : <div className="w-full h-full bg-gray-100" />}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+      {/* タイトル */}
+      <div className="absolute bottom-8 left-8 right-8">
+        <h3 className="text-white font-black text-2xl line-clamp-2 drop-shadow-lg">{current.title}</h3>
+        {current.organizer && <p className="text-white/70 text-sm mt-1">{current.organizer}</p>}
       </div>
+
+      {/* ドット */}
+      {featured.length > 1 && (
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+          {featured.map((_, i) => (
+            <button key={i} onClick={(e) => { e.stopPropagation(); setIndex(i); }}
+              className={`rounded-full transition-all duration-300 ${i === index ? "bg-white w-5 h-2" : "bg-white/40 w-2 h-2"}`} />
+          ))}
+        </div>
+      )}
+
+      {/* 左ホバーゾーン */}
       {featured.length > 1 && (
         <>
-          <button onClick={(e) => { e.stopPropagation(); setIndex((i) => (i - 1 + featured.length) % featured.length); }} className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/30 text-white text-2xl w-10 h-10 rounded-full flex items-center justify-center">‹</button>
-          <button onClick={(e) => { e.stopPropagation(); setIndex((i) => (i + 1) % featured.length); }} className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/30 text-white text-2xl w-10 h-10 rounded-full flex items-center justify-center">›</button>
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-            {featured.map((_, i) => (
-              <button key={i} onClick={(e) => { e.stopPropagation(); setIndex(i); }} className={`w-2 h-2 rounded-full transition-colors ${i === index ? "bg-white" : "bg-white/40"}`} />
-            ))}
+          <div
+            className="absolute left-0 top-0 w-1/4 h-full z-10"
+            onMouseEnter={() => setHoveredLeft(true)}
+            onMouseLeave={() => setHoveredLeft(false)}
+            onClick={(e) => { e.stopPropagation(); setIndex((i) => (i - 1 + featured.length) % featured.length); }}
+          >
+            <div className={`absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white text-2xl font-bold transition-all duration-300 ${hoveredLeft ? "opacity-100 scale-110" : "opacity-0 scale-90"}`}>
+              ‹
+            </div>
+          </div>
+
+          {/* 右ホバーゾーン */}
+          <div
+            className="absolute right-0 top-0 w-1/4 h-full z-10"
+            onMouseEnter={() => setHoveredRight(true)}
+            onMouseLeave={() => setHoveredRight(false)}
+            onClick={(e) => { e.stopPropagation(); setIndex((i) => (i + 1) % featured.length); }}
+          >
+            <div className={`absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white text-2xl font-bold transition-all duration-300 ${hoveredRight ? "opacity-100 scale-110" : "opacity-0 scale-90"}`}>
+              ›
+            </div>
           </div>
         </>
       )}
@@ -245,11 +285,18 @@ function TopPageInner({ posts }: { posts: Post[] }) {
 
       {/* PC */}
       <div className="hidden md:block">
-        <div className="bg-[#FFFFF0] px-16 pt-12 pb-10 border-b border-gray-100">
-          <h1 className="text-[#092040] text-5xl font-black text-center mb-8">Unlock Your Potential</h1>
-          <div className="max-w-3xl mx-auto">
-            <HeroSlider posts={posts} />
+        <div className="relative w-full h-[85vh] overflow-hidden">
+          <HeroSlider posts={posts} />
+          <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center pointer-events-none">
+        <h1 className="text-white text-6xl font-black text-center drop-shadow-lg">Unlock Your Potential</h1>
+        <p className="text-white/80 text-xl mt-4 font-bold drop-shadow">10代のための探究メディア</p>
+        <div className="mt-12 flex flex-col items-center gap-2">
+          <span className="text-white/50 text-[10px] font-bold tracking-[0.4em] uppercase">Scroll</span>
+          <div className="relative w-px h-16 bg-white/20 overflow-hidden rounded-full">
+            <div className="absolute top-0 left-0 w-full bg-white/80 rounded-full" style={{ height: "40%", animation: "scrollDrop 1.8s ease-in-out infinite" }} />
           </div>
+        </div>
+      </div>
         </div>
 
         <div className="px-16 py-8 bg-[#FFFFF0] border-b border-gray-100">
@@ -292,11 +339,13 @@ function TopPageInner({ posts }: { posts: Post[] }) {
             <section className="mb-10">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[#092040] text-2xl font-black">注目の活動</h2>
-                <Link href="/search" className="text-[#092040] text-sm hover:underline opacity-60">すべて見る →</Link>
+                <Link href="/search?featured=true" className="text-[#092040] text-sm hover:underline opacity-60">すべて見る →</Link>
               </div>
-              <div className="grid grid-cols-3 gap-4">
-                {featuredPosts.slice(0, 3).map((post) => (
-                  <ActivityCard key={post.id} post={post} />
+              <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                {featuredPosts.map((post) => (
+                  <div key={post.id} className="shrink-0 w-80">
+                    <ActivityCard post={post} />
+                  </div>
                 ))}
               </div>
             </section>
@@ -328,12 +377,12 @@ function TopPageInner({ posts }: { posts: Post[] }) {
 
 export default function TopPageClient({ posts }: { posts: Post[] }) {
   return (
-    <>
+    <div className="flex flex-col">
       <PCNavbar />
       <MobileNavbar />
       <Suspense fallback={<div className="min-h-screen bg-white" />}>
         <TopPageInner posts={posts} />
       </Suspense>
-    </>
+    </div>
   );
 }
