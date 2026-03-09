@@ -10,8 +10,9 @@ import { useRouter } from "next/navigation";
 import Footer from "./components/Footer";
 
 const CATEGORIES = [
-  "コンテスト・大会", "インターンシップ", "ボランティア", "留学・国際",
-  "研究・論文", "起業・ビジネス", "奨学金", "科学・テクノロジー",
+  "コンテスト・大会", "科学・テクノロジー", "留学・国際", "イベント",
+  "政治", "インターンシップ", "ボランティア", "研究・論文",
+  "起業・ビジネス", "奨学金",
 ];
 
 const CATEGORY_BG: Record<string, string> = {
@@ -20,9 +21,11 @@ const CATEGORY_BG: Record<string, string> = {
   "ボランティア": "bg-blue-100 text-blue-700",
   "留学・国際": "bg-red-100 text-red-700",
   "研究・論文": "bg-purple-100 text-purple-700",
-  "起業・ビジネス": "bg-blue-100 text-blue-700",
+  "起業・ビジネス": "bg-sky-100 text-sky-700",
   "奨学金": "bg-green-100 text-green-700",
   "科学・テクノロジー": "bg-pink-100 text-pink-700",
+  "イベント": "bg-yellow-100 text-yellow-700",
+  "政治": "bg-indigo-100 text-indigo-700",
 };
 
 const SEASON_TAGS = ["夏休み", "冬休み", "春休み"];
@@ -244,6 +247,7 @@ function HeroSlider({ posts }: { posts: Post[] }) {
 }
 
 function TopPageInner({ posts }: { posts: Post[] }) {
+    console.log("全カテゴリ:", [...new Set(posts.map(p => p.category))]);
   const [keyword, setKeyword] = useState("");
   const router = useRouter();
   const featuredPosts = useMemo(() => posts.filter((p) => p.isFeatured), [posts]);
@@ -336,6 +340,34 @@ function TopPageInner({ posts }: { posts: Post[] }) {
         </div>
 
         <div className="px-16 pb-16 pt-8">
+          {(() => {
+            const urgent = posts.filter((p) => {
+              if (!p.deadline) return false;
+              const d = Math.ceil((new Date(p.deadline).getTime() - Date.now()) / 86400000);
+              return d >= 0 && d <= 7;
+            });
+            if (urgent.length === 0) return null;
+            return (
+              <section className="mb-10">
+                <FadeInSection direction="left">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-[#092040] text-2xl font-black flex items-center gap-2">
+                    <span className="animate-blink">🔥</span> 締切間近ピックアップ
+                  </h2>
+                  <Link href="/search" className="text-[#092040] text-sm hover:underline opacity-60">すべて見る →</Link>
+                </div>
+                </FadeInSection>
+                <div className="grid grid-cols-3 gap-4">
+                  {urgent.slice(0, 3).map((post, i) => (
+                    <FadeInCard key={post.id} delay={i * 80}>
+                      <ActivityCard post={post} />
+                    </FadeInCard>
+                  ))}
+                </div>
+              </section>
+            );
+          })()}
+
           {featuredPosts.length > 0 && (
             <section className="mb-10">
               <FadeInSection direction="left">
@@ -363,12 +395,12 @@ function TopPageInner({ posts }: { posts: Post[] }) {
                   <Link href={`/search?category=${encodeURIComponent(cat)}`} className="text-[#092040] text-sm hover:underline opacity-60">すべて見る →</Link>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
-                {featuredPosts.slice(0, 3).map((post, i) => (
-                  <FadeInCard key={post.id} delay={i * 80}>
-                    <ActivityCard post={post} />
-                  </FadeInCard>
-                ))}
-              </div>
+                  {filtered.map((post, i) => (
+                    <FadeInCard key={post.id} delay={i * 80}>
+                      <ActivityCard post={post} />
+                    </FadeInCard>
+                  ))}
+                </div>
               </section>
             );
           })}

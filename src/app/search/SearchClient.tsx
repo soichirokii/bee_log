@@ -9,8 +9,9 @@ import FadeInCard from "@/app/components/FadeInCard";
 import Footer from "../components/Footer";
 
 const CATEGORIES = [
-  "コンテスト・大会", "インターンシップ", "ボランティア", "留学・国際",
-  "研究・論文", "起業・ビジネス", "奨学金", "科学・テクノロジー",
+  "コンテスト・大会", "科学・テクノロジー", "留学・国際", "イベント",
+  "政治", "インターンシップ", "ボランティア", "研究・論文",
+  "起業・ビジネス", "奨学金",
 ];
 
 const GRADES = ["中学生", "高校生", "大学生", "ギャップイヤー生"];const FORMATS = ["オンライン", "対面", "ハイブリッド"];
@@ -22,9 +23,11 @@ const CATEGORY_BG: Record<string, string> = {
   "ボランティア": "bg-blue-100 text-blue-700",
   "留学・国際": "bg-red-100 text-red-700",
   "研究・論文": "bg-purple-100 text-purple-700",
-  "起業・ビジネス": "bg-blue-100 text-blue-700",
+  "起業・ビジネス": "bg-sky-100 text-sky-700",
   "奨学金": "bg-green-100 text-green-700",
   "科学・テクノロジー": "bg-pink-100 text-pink-700",
+  "イベント": "bg-yellow-100 text-yellow-700",
+  "政治": "bg-indigo-100 text-indigo-700",
 };
 
 function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
@@ -324,6 +327,100 @@ if (freeOnly) result = result.filter((p) => p.fee === "無料" || p.fee === "0�
   </div>
 </div>
 
+          {/* アクティブフィルタータグ */}
+          {(selectedCategories.length > 0 || selectedGrades.length > 0 || selectedFormats.length > 0 || selectedPeriods.length > 0 || freeOnly || featuredOnly || keyword) && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {keyword && (
+                <button onClick={() => setKeyword("")}
+                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity">
+                  🔍 {keyword} <span className="ml-1 text-white/70">×</span>
+                </button>
+              )}
+              {selectedCategories.map((c) => (
+                <button key={c} onClick={() => setSelectedCategories((prev) => prev.filter((x) => x !== c))}
+                  className="flex items-center gap-1 bg-[#FCBC2A] text-[#092040] text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity">
+                  {c} <span className="ml-1 opacity-60">×</span>
+                </button>
+              ))}
+              {selectedGrades.map((g) => (
+                <button key={g} onClick={() => setSelectedGrades((prev) => prev.filter((x) => x !== g))}
+                  className="flex items-center gap-1 bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity">
+                  {g} <span className="ml-1 opacity-60">×</span>
+                </button>
+              ))}
+              {selectedFormats.map((f) => (
+                <button key={f} onClick={() => setSelectedFormats((prev) => prev.filter((x) => x !== f))}
+                  className="flex items-center gap-1 bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity">
+                  {f} <span className="ml-1 opacity-60">×</span>
+                </button>
+              ))}
+              {selectedPeriods.map((p) => (
+                <button key={p} onClick={() => setSelectedPeriods((prev) => prev.filter((x) => x !== p))}
+                  className="flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity">
+                  {p} <span className="ml-1 opacity-60">×</span>
+                </button>
+              ))}
+              {freeOnly && (
+                <button onClick={() => setFreeOnly(false)}
+                  className="flex items-center gap-1 bg-[#4ADE80]/20 text-green-700 text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity">
+                  無料のみ <span className="ml-1 opacity-60">×</span>
+                </button>
+              )}
+              {featuredOnly && (
+                <button onClick={() => setFeaturedOnly(false)}
+                  className="flex items-center gap-1 bg-[#FCBC2A]/20 text-[#092040] text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity">
+                  おすすめのみ <span className="ml-1 opacity-60">×</span>
+                </button>
+              )}
+            </div>
+          )}
+          {/* アクティブフィルタータグ */}
+          {(selectedCategories.length > 0 || selectedGrades.length > 0 || selectedFormats.length > 0 || selectedPeriods.length > 0 || freeOnly || featuredOnly || keyword) && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {keyword && (
+                <button onClick={() => setKeyword("")}
+                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity">
+                  🔍 {keyword} <span className="ml-1 text-white/70">×</span>
+                </button>
+              )}
+              {selectedCategories.map((c) => (
+                <button key={c} onClick={() => setSelectedCategories((prev) => prev.filter((x) => x !== c))}
+                  className="flex items-center gap-1 bg-[#FCBC2A] text-[#092040] text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity">
+                  {c} <span className="ml-1 opacity-60">×</span>
+                </button>
+              ))}
+              {selectedGrades.map((g) => (
+                <button key={g} onClick={() => setSelectedGrades((prev) => prev.filter((x) => x !== g))}
+                  className="flex items-center gap-1 bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity">
+                  {g} <span className="ml-1 opacity-60">×</span>
+                </button>
+              ))}
+              {selectedFormats.map((f) => (
+                <button key={f} onClick={() => setSelectedFormats((prev) => prev.filter((x) => x !== f))}
+                  className="flex items-center gap-1 bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity">
+                  {f} <span className="ml-1 opacity-60">×</span>
+                </button>
+              ))}
+              {selectedPeriods.map((p) => (
+                <button key={p} onClick={() => setSelectedPeriods((prev) => prev.filter((x) => x !== p))}
+                  className="flex items-center gap-1 bg-green-100 text-green-700 text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity">
+                  {p} <span className="ml-1 opacity-60">×</span>
+                </button>
+              ))}
+              {freeOnly && (
+                <button onClick={() => setFreeOnly(false)}
+                  className="flex items-center gap-1 bg-[#4ADE80]/20 text-green-700 text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity">
+                  無料のみ <span className="ml-1 opacity-60">×</span>
+                </button>
+              )}
+              {featuredOnly && (
+                <button onClick={() => setFeaturedOnly(false)}
+                  className="flex items-center gap-1 bg-[#FCBC2A]/20 text-[#092040] text-xs font-bold px-3 py-1.5 rounded-full hover:opacity-80 transition-opacity">
+                  おすすめのみ <span className="ml-1 opacity-60">×</span>
+                </button>
+              )}
+            </div>
+          )}
           <p className="text-[#092040] font-bold mb-[3vw] md:mb-4 text-[3.5vw] md:text-base">{filtered.length} 件の活動が見つかりました</p>
 
           {paginated.length === 0 ? (
