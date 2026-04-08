@@ -4,44 +4,63 @@ import PageTransition from "./components/PageTransition";
 import { Analytics } from "@vercel/analytics/react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.beelog-jp.com";
+
 export const metadata: Metadata = {
-  title: { default: "BEE log", template: "%s | BEE log" },
-  description: "10代のための探究メディア",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "BEE log | 10代のための探究メディア",
+    template: "%s | BEE log",
+  },
+  description:
+    "BEE logは、10代のための探究・課外活動メディアです。コンテスト、インターン、留学、イベントなどの挑戦の機会を見つけ、自分の興味や可能性を広げるきっかけを届けます。",
   verification: {
     google: "ZH1OcT_VNklTaZEHfcloZ-MN-K_RjwZ21yedcNFRoU4",
   },
   icons: {
-    icon: [
-      { url: "/beelog.svg", type: "image/svg+xml" },
-    ],
+    icon: [{ url: "/beelog.svg", type: "image/svg+xml" }],
     shortcut: "/beelog.svg",
     apple: "/beelog.svg",
   },
-  metadataBase: new URL(BASE_URL),
   openGraph: {
     type: "website",
     url: BASE_URL,
     siteName: "BEE log",
-    title: "BEE log",
-    description: "10代のための探究メディア",
-    images: [{ url: "/ogp.png", width: 1200, height: 630, alt: "BEE log" }],
+    title: "BEE log | 10代のための探究メディア",
+    description:
+      "10代のための探究・課外活動メディア。コンテスト、インターン、留学、イベントなど、興味を広げる挑戦の機会が見つかる。",
+    images: [
+      {
+        url: "/ogp.png",
+        width: 1200,
+        height: 630,
+        alt: "BEE log",
+      },
+    ],
+    locale: "ja_JP",
   },
   twitter: {
     card: "summary_large_image",
-    title: "BEE log",
-    description: "10代のための探究メディア",
+    title: "BEE log | 10代のための探究メディア",
+    description:
+      "10代のための探究・課外活動メディア。コンテスト、インターン、留学、イベントなどの挑戦の機会を届けます。",
     images: ["/ogp.png"],
+  },
+  alternates: {
+    canonical: BASE_URL,
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="ja">
       <body className="bg-[#FFFFF0] font-sans">
         <PageTransition />
         {children}
         <Analytics />
-
       </body>
     </html>
   );

@@ -44,7 +44,7 @@ export default function Footer() {
 
       {/* 下部 */}
       <div className="border-t border-gray-200 px-8 md:px-16 py-4">
-        <p className="text-gray-400 text-xs">©2023-2026 BEE log</p>
+        <p className="text-gray-400 text-xs">©-2026 BEE log</p>
       </div>
     </footer>
   );

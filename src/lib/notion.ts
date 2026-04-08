@@ -34,17 +34,17 @@ function pageToPost(page: any): Post {
   const props = page.properties;
 
    const filesData = props["ファイル&メディア"]?.files ?? null;
+   console.log("filesData:", JSON.stringify(filesData));
 
   const imageUrl: string | null =
     filesData?.[0]?.file?.url ??
     filesData?.[0]?.external?.url ??
     null;
 
-  console.log("imageUrl:", imageUrl);
 
   return {
     id: page.id,
-    slug: page.id,
+    slug: props["slug"]?.rich_text?.[0]?.plain_text || page.id,
     title: props["タイトル"]?.title?.[0]?.plain_text ?? "Untitled",
     organizer: props["主催者"]?.rich_text?.[0]?.plain_text ?? "",
     category: props["カテゴリ"]?.select?.name ?? "",
@@ -60,6 +60,7 @@ function pageToPost(page: any): Post {
     isFeatured: props["注目"]?.checkbox ?? false,
     isPublished: props["公開"]?.checkbox ?? false,
     imageUrl,
+    
   };
 }
 
@@ -109,7 +110,7 @@ export async function getPublishedPosts(): Promise<Post[]> {
         ],
       },
       }),
-      next: { revalidate: 60 },
+      next: { revalidate: 0 },
     }
   );
 
@@ -121,7 +122,7 @@ export async function getPublishedPosts(): Promise<Post[]> {
 export async function getPostById(id: string): Promise<Post | null> {
   const res = await fetch(`https://api.notion.com/v1/pages/${id}`, {
     headers: notionHeaders,
-    next: { revalidate: 60 },
+    next: { revalidate: 0 },
   });
   if (!res.ok) return null;
   return pageToPost(await res.json());
@@ -137,7 +138,7 @@ export async function getPostBlocks(pageId: string): Promise<NotionBlock[]> {
     }`;
     const res = await fetch(url, {
       headers: notionHeaders,
-      next: { revalidate: 60 },
+      next: { revalidate: 0 },
     });
     if (!res.ok) throw new Error(`Notion API error: ${res.status}`);
     const data = await res.json();
@@ -157,5 +158,17 @@ export async function getPostWithContent(id: string): Promise<PostWithContent | 
 
 export async function getAllPublishedSlugs(): Promise<string[]> {
   const posts = await getPublishedPosts();
-  return posts.map((p) => p.id);
+  return posts.map((p) => p.slug);
+}
+
+export async function getPostBySlug(slug: string): Promise<Post | null> {
+  const posts = await getPublishedPosts();
+  return posts.find((p) => p.slug === slug) ?? null;
+}
+
+export async function getPostWithContentBySlug(slug: string): Promise<PostWithContent | null> {
+  const post = await getPostBySlug(slug);
+  if (!post) return null;
+  const blocks = await getPostBlocks(post.id);
+  return { ...post, blocks };
 }

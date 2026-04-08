@@ -1,4 +1,4 @@
-import { getPostWithContent, getAllPublishedSlugs } from "@/lib/notion";
+import { getPostWithContentBySlug, getAllPublishedSlugs } from "@/lib/notion";
 import { NotionBlock, RichText } from "@/types/notion";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -6,6 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import ShareButton from "@/app/components/ShareButton";
 import MobileApplyButton from "@/app/components/MobileApplyButton";
+
+export const revalidate = 1800;
 
 
 export async function generateStaticParams() {
@@ -18,7 +20,7 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const { slug } = await props.params;
   try {
-    const post = await getPostWithContent(slug);
+    const post = await getPostWithContentBySlug(slug);
     if (!post) return { title: "Not Found" };
 
     const ogImage = post.imageUrl ?? "https://www.beelog-jp.com/ogp.png";
@@ -152,7 +154,7 @@ export default async function PostDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = await getPostWithContent(slug);
+  const post = await getPostWithContentBySlug(slug);
   if (!post) notFound();
 
   const now = new Date();
