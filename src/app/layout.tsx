@@ -17,10 +17,13 @@ export const metadata: Metadata = {
     google: "ZH1OcT_VNklTaZEHfcloZ-MN-K_RjwZ21yedcNFRoU4",
   },
   icons: {
-    icon: [{ url: "/beelog.svg", type: "image/svg+xml" }],
-    shortcut: "/beelog.svg",
-    apple: "/beelog.svg",
-  },
+  icon: [
+    { url: "/beelog.svg", type: "image/svg+xml" },
+    { url: "/favicon.ico", type: "image/x-icon" },
+  ],
+  shortcut: "/favicon.ico",
+  apple: "/apple-touch-icon.png",
+},
   openGraph: {
     type: "website",
     url: BASE_URL,
