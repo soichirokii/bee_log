@@ -72,9 +72,27 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
   const periodLabel = getPeriodLabel(post.period);
 
   return (
-    <div onClick={() => router.push(`/posts/${post.slug}`)} className="bg-[#F8F7F4] rounded-2xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
-      <div className="w-full aspect-video bg-gray-200 relative rounded-t-2xl overflow-hidden">
-        {post.imageUrl ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-200" />}
+    <div
+      onClick={() => router.push(`/posts/${post.slug}`)}
+      className="group relative bg-[#FFFFF0] transition-all duration-300 cursor-pointer overflow-hidden"
+      style={{ fontFamily: "'toppan-bunkyu-midashi-gothic', sans-serif" }}
+    >
+      {/* ホバー：薄黒オーバーレイ */}
+      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-70 transition-opacity duration-300 z-10 pointer-events-none" />
+
+      {/* VIEW MORE：カード全体の中央 */}
+      <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+        <span className="text-white text-lg font-bold tracking-widest">
+          VIEW MORE
+        </span>
+      </div>
+
+      {/* 画像エリア */}
+      <div className="w-full aspect-video bg-gray-200 relative overflow-hidden">
+        {post.imageUrl
+          ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
+          : <div className="w-full h-full bg-gray-200" />
+        }
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
           {post.isFeatured && <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>}
           {seasonTag && <span className="bg-[#F59E0B] text-white text-xs font-bold px-2 py-1 rounded-full">{seasonTag}</span>}
@@ -85,26 +103,14 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
           {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>}
         </div>
       </div>
-      <div className="p-4">
-        <div className="flex items-center gap-2 text-xs mb-1 flex-wrap">
-          {post.category && <span className={`px-2 py-0.5 rounded-full font-medium text-xs whitespace-nowrap ${categoryStyle}`}>{post.category}</span>}
+
+      {/* テキストエリア：シンプル版 */}
+      <div className="p-4 bg-[#FFFFF0]">
+        <div className="flex items-center gap-2 text-xs mb-2 flex-wrap">
+          {post.category && <span className={`px-3 py-1 rounded-full font-medium text-xs whitespace-nowrap ${categoryStyle}`}>{post.category}</span>}
           {post.organizer && <span className="text-gray-400">{post.organizer}</span>}
         </div>
-        <h3 className="font-bold text-[#092040] text-base mb-2 line-clamp-2">{post.title}</h3>
-        {post.summary && <p className="text-sm text-gray-500 line-clamp-2 mb-3">{post.summary}</p>}
-        {post.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3">
-            {post.tags.slice(0, 3).map((tag) => (
-              <button key={tag} onClick={(e) => { e.stopPropagation(); onTagClick?.(tag); }}
-                className="text-xs text-gray-400 hover:text-[#092040] hover:underline cursor-pointer">#{tag}</button>
-            ))}
-          </div>
-        )}
-        <div className="flex items-end gap-2 text-xs border-t pt-2">
-          {post.deadline && <div className="shrink-0"><div className="text-gray-400">締切日</div><div className="text-[#092040] font-bold">{new Date(post.deadline).toLocaleDateString("ja-JP")}</div></div>}
-          {post.targetGrade.length > 0 && <div className="min-w-0 flex-1"><div className="text-gray-400">対象</div><div className="font-medium text-[#092040] truncate">{post.targetGrade.join("・")}</div></div>}
-          {post.format && <div className="shrink-0"><div className="text-gray-400">形式</div><div className="font-medium text-[#092040]">{post.format}</div></div>}
-        </div>
+        <h3 className="font-bold text-[#092040] text-xl line-clamp-2">{post.title}</h3>
       </div>
     </div>
   );

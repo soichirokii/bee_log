@@ -60,6 +60,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
+      <head>
+        <link rel="stylesheet" href="https://use.typekit.net/qhn8cay.css" />
+      </head>
       <body className="bg-[#FFFFF0] font-sans">
         <PageTransition />
         {children}
