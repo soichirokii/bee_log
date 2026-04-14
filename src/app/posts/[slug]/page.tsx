@@ -9,7 +9,6 @@ import MobileApplyButton from "@/app/components/MobileApplyButton";
 
 export const revalidate = 1800;
 
-
 export async function generateStaticParams() {
   const slugs = await getAllPublishedSlugs();
   return slugs.map((slug) => ({ slug }));
@@ -22,9 +21,7 @@ export async function generateMetadata(props: {
   try {
     const post = await getPostWithContentBySlug(slug);
     if (!post) return { title: "Not Found" };
-
     const ogImage = post.imageUrl ?? "https://www.beelog-jp.com/ogp.png";
-
     return {
       title: post.title,
       description: post.summary,
@@ -80,7 +77,7 @@ function BlockRenderer({ block }: { block: NotionBlock }) {
     case "heading_1":
       return <h1 className="text-2xl font-black text-[#092040] mt-8 mb-4"><RichTextRenderer items={block.richText} /></h1>;
     case "heading_2":
-      return <h2 className="text-xl font-black text-[#092040] mt-6 mb-3 flex items-center gap-2"><span className="w-1 h-6 bg-[#FCBC2A] rounded-full inline-block" /><RichTextRenderer items={block.richText} /></h2>;
+      return <h2 className="text-xl font-black text-[#092040] mt-6 mb-3 flex items-center gap-2"><span className="w-1 h-6 bg-[#FCBC2A] inline-block" /><RichTextRenderer items={block.richText} /></h2>;
     case "heading_3":
       return <h3 className="text-lg font-bold text-[#092040] mt-4 mb-2"><RichTextRenderer items={block.richText} /></h3>;
     case "paragraph":
@@ -95,7 +92,7 @@ function BlockRenderer({ block }: { block: NotionBlock }) {
       return <li className="text-gray-700 leading-relaxed ml-4"><RichTextRenderer items={block.richText} /></li>;
     case "code":
       return (
-        <pre className="bg-gray-900 text-green-400 p-4 rounded-2xl overflow-x-auto mb-4 text-sm">
+        <pre className="bg-gray-900 text-green-400 p-4 overflow-x-auto mb-4 text-sm">
           <code><RichTextRenderer items={block.richText} /></code>
         </pre>
       );
@@ -110,7 +107,7 @@ function BlockRenderer({ block }: { block: NotionBlock }) {
     case "image":
       return block.imageUrl ? (
         <figure className="my-6">
-          <div className="relative w-full aspect-video rounded-2xl overflow-hidden">
+          <div className="relative w-full aspect-video overflow-hidden">
             <Image src={block.imageUrl} alt={block.caption?.[0]?.plain_text ?? ""} fill className="object-cover" />
           </div>
           {block.caption && block.caption.length > 0 && (
@@ -171,12 +168,10 @@ export default async function PostDetailPage({
         <Link href="/" className="mr-10 transition-opacity duration-200 hover:opacity-70">
           <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-12 w-auto" />
         </Link>
-        <Link href="/"
-          className="text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] transition-all duration-200 hover:bg-[#FCBC2A] hover:text-[#092040]">
+        <Link href="/" className="text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] transition-all duration-200 hover:bg-[#FCBC2A]">
           HOME
         </Link>
-        <Link href="/search"
-          className="text-base font-bold px-6 py-2.5 rounded-full bg-[#FCBC2A] text-[#092040] transition-all duration-200 hover:bg-[#092040] hover:text-white">
+        <Link href="/search" className="text-base font-bold px-6 py-2.5 rounded-full bg-[#FCBC2A] text-[#092040] transition-all duration-200 hover:bg-[#092040] hover:text-white">
           活動を探す
         </Link>
       </nav>
@@ -193,21 +188,23 @@ export default async function PostDetailPage({
       </nav>
 
       {/* ヘッダー画像 */}
-      <div className="relative w-full h-48 md:h-80 bg-gray-200">
-        {post.imageUrl ? (
-          <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-        <div className="absolute bottom-6 left-6 right-6">
-          {post.category && (
-            <span className={`text-xs font-bold px-3 py-1 rounded-full mb-3 inline-block ${categoryStyle}`}>
-              {post.category}
-            </span>
+      <div className="px-[5vw] md:px-16 pt-8">
+        <div className="relative w-full h-48 md:h-80 bg-gray-200 overflow-hidden">
+          {post.imageUrl ? (
+            <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />
           )}
-          <h1 className="text-white text-2xl md:text-4xl font-black leading-tight drop-shadow">{post.title}</h1>
-          {post.organizer && <p className="text-white/70 text-sm mt-2">{post.organizer}</p>}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+          <div className="absolute bottom-6 left-6 right-6">
+            {post.category && (
+              <span className={`text-xs font-bold px-3 py-1 rounded-full mb-3 inline-block ${categoryStyle}`}>
+                {post.category}
+              </span>
+            )}
+            <h1 className="text-white text-2xl md:text-4xl font-black leading-tight drop-shadow">{post.title}</h1>
+            {post.organizer && <p className="text-white/70 text-sm mt-2">{post.organizer}</p>}
+          </div>
         </div>
       </div>
 
@@ -216,10 +213,10 @@ export default async function PostDetailPage({
         <div className="flex flex-col md:flex-row gap-8">
 
           {/* 左：本文 */}
-          <div className="flex-1 bg-[#FFFFF0] rounded-3xl p-6 md:p-8">
+          <div className="flex-1 p-6 md:p-8">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
               {post.deadline && (
-                <div className={`rounded-2xl p-3 ${daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? "bg-red-50 border border-red-200" : "bg-gray-50"}`}>
+                <div className={`p-3 border-b border-gray-200 ${daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? "" : ""}`}>
                   <div className="text-xs text-gray-400 mb-1">応募締切</div>
                   <div className={`text-sm font-bold flex items-center gap-1.5 ${daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? "text-[#EF4444]" : "text-[#092040]"}`}>
                     <Image src="/icons/Calendar.svg" alt="" width={16} height={16} />
@@ -228,7 +225,7 @@ export default async function PostDetailPage({
                 </div>
               )}
               {post.period && (
-                <div className="rounded-2xl p-3 bg-gray-50">
+                <div className="p-3 border-b border-gray-200">
                   <div className="text-xs text-gray-400 mb-1">活動期間</div>
                   <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
                     <Image src="/icons/Clock.svg" alt="" width={16} height={16} />
@@ -237,7 +234,7 @@ export default async function PostDetailPage({
                 </div>
               )}
               {post.targetGrade.length > 0 && (
-                <div className="rounded-2xl p-3 bg-gray-50">
+                <div className="p-3 border-b border-gray-200">
                   <div className="text-xs text-gray-400 mb-1">対象学年</div>
                   <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
                     <Image src="/icons/Graduation Cap.svg" alt="" width={16} height={16} />
@@ -246,7 +243,7 @@ export default async function PostDetailPage({
                 </div>
               )}
               {post.format && (
-                <div className="rounded-2xl p-3 bg-gray-50">
+                <div className="p-3 border-b border-gray-200">
                   <div className="text-xs text-gray-400 mb-1">形式</div>
                   <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
                     <Image src="/icons/PC.svg" alt="" width={16} height={16} />
@@ -255,7 +252,7 @@ export default async function PostDetailPage({
                 </div>
               )}
               {post.region && (
-                <div className="rounded-2xl p-3 bg-gray-50">
+                <div className="p-3 border-b border-gray-200">
                   <div className="text-xs text-gray-400 mb-1">地域</div>
                   <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
                     <Image src="/icons/Pin.svg" alt="" width={16} height={16} />
@@ -264,7 +261,7 @@ export default async function PostDetailPage({
                 </div>
               )}
               {post.fee && (
-                <div className="rounded-2xl p-3 bg-gray-50">
+                <div className="p-3 border-b border-gray-200">
                   <div className="text-xs text-gray-400 mb-1">参加費</div>
                   <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
                     <Image src="/icons/Dollar Bag.svg" alt="" width={16} height={16} />
@@ -277,7 +274,7 @@ export default async function PostDetailPage({
             {post.summary && (
               <div className="mb-8">
                 <h2 className="text-[#092040] font-black text-lg mb-3 flex items-center gap-2">
-                  <span className="w-1 h-5 bg-[#FCBC2A] rounded-full inline-block" />概要
+                  <span className="w-1 h-5 bg-[#FCBC2A] inline-block" />概要
                 </h2>
                 <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{post.summary}</p>
               </div>
@@ -286,12 +283,12 @@ export default async function PostDetailPage({
             {post.tags.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-[#092040] font-black text-lg mb-3 flex items-center gap-2">
-                  <span className="w-1 h-5 bg-[#FCBC2A] rounded-full inline-block" />タグ
+                  <span className="w-1 h-5 bg-[#FCBC2A] inline-block" />タグ
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   {post.tags.map((tag) => (
                     <Link key={tag} href={`/search?q=${encodeURIComponent(tag)}`}
-                      className="bg-[#FCBC2A]/20 text-[#092040] text-xs font-bold px-3 py-1 rounded-full hover:bg-[#FCBC2A] transition-colors">
+                      className="bg-[#FCBC2A]/20 text-[#092040] text-xs font-bold px-3 py-1 hover:bg-[#FCBC2A] transition-colors">
                       #{tag}
                     </Link>
                   ))}
@@ -302,7 +299,7 @@ export default async function PostDetailPage({
             {post.blocks.length > 0 && (
               <div className="border-t pt-8">
                 <h2 className="text-[#092040] font-black text-lg mb-6 flex items-center gap-2">
-                  <span className="w-1 h-5 bg-[#FCBC2A] rounded-full inline-block" />詳細
+                  <span className="w-1 h-5 bg-[#FCBC2A] inline-block" />詳細
                 </h2>
                 <BlocksRenderer blocks={post.blocks} />
               </div>
@@ -311,20 +308,21 @@ export default async function PostDetailPage({
 
           {/* 右：応募サイドバー */}
           <div className="md:w-64 shrink-0">
-            <div className="bg-[#FFFFF0] rounded-3xl p-6 sticky top-24">              {post.applyUrl ? (
+            <div className="bg-[#FFFFF0] p-6 sticky top-24">
+              {post.applyUrl ? (
                 <a id="apply-button-sidebar" href={post.applyUrl} target="_blank" rel="noopener noreferrer"
-                  className="block w-full bg-[#092040] text-white font-bold text-center py-4 rounded-2xl transition-all duration-200 hover:bg-[#FCBC2A] hover:text-[#092040] hover:scale-[1.02] active:scale-95 mb-3">
+                  className="block w-full bg-[#092040] text-white font-bold text-center py-4 transition-all duration-200 hover:bg-[#FCBC2A] hover:text-[#092040] hover:scale-[1.02] active:scale-95 mb-3">
                   応募する →
                 </a>
               ) : (
-                <div className="w-full bg-gray-100 text-gray-400 font-bold text-center py-4 rounded-2xl mb-3">
+                <div className="w-full bg-gray-100 text-gray-400 font-bold text-center py-4 mb-3">
                   応募URLなし
                 </div>
               )}
               <p className="text-xs text-gray-400 text-center mb-6">※ 外部サイトへ移動します</p>
 
               {daysLeft !== null && daysLeft >= 0 && (
-                <div className={`rounded-2xl p-4 text-center mb-4 ${daysLeft <= 7 ? "bg-red-50" : "bg-gray-50"}`}>
+                <div className="p-4 text-center mb-4">
                   <div className="text-xs text-gray-400 mb-1">締切まで</div>
                   <div className={`text-3xl font-black ${daysLeft <= 7 ? "text-[#EF4444]" : "text-[#092040]"}`}>
                     {daysLeft}<span className="text-sm font-bold ml-1">日</span>
@@ -333,7 +331,7 @@ export default async function PostDetailPage({
               )}
 
               <Link href="/search"
-                className="block w-full border-2 border-[#092040] text-[#092040] font-bold text-center py-3 rounded-2xl hover:bg-[#092040] hover:text-white transition-colors text-sm mb-3">
+                className="block w-full border-2 border-[#092040] text-[#092040] font-bold text-center py-3 hover:bg-[#092040] hover:text-white transition-colors text-sm mb-3">
                 ← 活動一覧に戻る
               </Link>
 
@@ -344,7 +342,7 @@ export default async function PostDetailPage({
         </div>
       </div>
 
-    <MobileApplyButton applyUrl={post.applyUrl} daysLeft={daysLeft} />
+      <MobileApplyButton applyUrl={post.applyUrl} daysLeft={daysLeft} />
       <div className="md:hidden h-24" />
     </div>
   );

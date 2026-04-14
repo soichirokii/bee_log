@@ -4,7 +4,7 @@ import { useState, useMemo, Suspense, useEffect } from "react";
 import { Post } from "@/types/notion";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Footer from "./components/Footer";
 
 const CATEGORIES = [
@@ -38,13 +38,14 @@ function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
 }
 
 function PCNavbar() {
+  const pathname = usePathname();
   return (
     <nav className="hidden md:flex items-center px-16 py-4 bg-[#FFFFF0] border-b-2 border-[#092040] sticky top-0 z-50">
       <Link href="/" className="mr-10">
         <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-12 w-auto" />
       </Link>
-      <Link href="/" className="text-base font-bold px-6 py-2.5 rounded-full mr-3 bg-[#FCBC2A] text-[#092040]">HOME</Link>
-      <Link href="/search" className="text-base font-bold px-6 py-2.5 rounded-full text-[#092040] hover:bg-gray-100 transition-colors">活動を探す</Link>
+      <Link href="/" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] transition-colors ${pathname === "/" ? "bg-[#FCBC2A]" : "hover:bg-[#FCBC2A]"}`}>HOME</Link>
+      <Link href="/search" className={`text-base font-bold px-6 py-2.5 rounded-full text-[#092040] transition-colors ${pathname === "/search" ? "bg-[#FCBC2A]" : "hover:bg-[#FCBC2A]"}`}>活動を探す</Link>
     </nav>
   );
 }
@@ -78,13 +79,11 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
       style={{ fontFamily: "'toppan-bunkyu-midashi-gothic', sans-serif" }}
     >
       {/* ホバー：薄黒オーバーレイ */}
-      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-70 transition-opacity duration-300 z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-50 transition-opacity duration-300 z-10 pointer-events-none" />
 
       {/* VIEW MORE：カード全体の中央 */}
       <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-        <span className="text-white text-lg font-bold tracking-widest">
-          VIEW MORE
-        </span>
+        <span className="text-white text-lg font-bold tracking-widest">VIEW MORE</span>
       </div>
 
       {/* 画像エリア */}
@@ -104,7 +103,7 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
         </div>
       </div>
 
-      {/* テキストエリア：シンプル版 */}
+      {/* テキストエリア */}
       <div className="p-4 bg-[#FFFFF0]">
         <div className="flex items-center gap-2 text-xs mb-2 flex-wrap">
           {post.category && <span className={`px-3 py-1 rounded-full font-medium text-xs whitespace-nowrap ${categoryStyle}`}>{post.category}</span>}
@@ -140,7 +139,7 @@ function MobileSlider({ posts }: { posts: Post[] }) {
 
   return (
     <div className="relative">
-      <div className="overflow-hidden rounded-[4vw]" onClick={() => router.push(`/posts/${current.slug}`)}>
+      <div className="overflow-hidden" onClick={() => router.push(`/posts/${current.slug}`)}>
         <div className={`relative w-full aspect-video transition-opacity duration-300 ${animating ? "opacity-0" : "opacity-100"}`}>
           {current.imageUrl ? <Image src={current.imageUrl} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
@@ -173,7 +172,7 @@ function HeroSlider({ posts }: { posts: Post[] }) {
   const [index, setIndex] = useState(0);
   const router = useRouter();
   const featured = posts.filter((p) => p.isFeatured);
-  if (featured.length === 0) return <div className="w-full aspect-video bg-gray-100 rounded-2xl" />;
+  if (featured.length === 0) return <div className="w-full aspect-video bg-gray-100" />;
   const current = featured[index];
 
   useEffect(() => {
@@ -184,7 +183,7 @@ function HeroSlider({ posts }: { posts: Post[] }) {
   }, [featured.length]);
 
   return (
-    <div className="relative w-full aspect-video rounded-2xl overflow-hidden cursor-pointer"
+    <div className="relative w-full aspect-video overflow-hidden cursor-pointer"
       onClick={() => router.push(`/posts/${current.slug}`)}>
       {current.imageUrl ? <Image src={current.imageUrl} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-100" />}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -236,7 +235,7 @@ function TopPageInner({ posts }: { posts: Post[] }) {
         <div className="mb-[6vw]">
           <div className="flex items-center justify-between mb-[3vw]">
             <h2 className="text-[#092040] text-[5vw] font-black">おすすめの活動</h2>
-            <Link href="/search" className="text-[#092040] text-[3vw] opacity-60">すべて見る →</Link>
+            <Link href="/search" className="text-[#092040] text-[3vw] opacity-60">VIEW MORE →</Link>
           </div>
           <MobileSlider posts={featuredPosts} />
           <div className="flex flex-col gap-[4vw] mt-[4vw]">
@@ -265,7 +264,7 @@ function TopPageInner({ posts }: { posts: Post[] }) {
                 onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
                 className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
               <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
-                className="bg-[#092040] text-white font-bold px-6 py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity">検索</button>
+                className="bg-[#092040] text-white font-bold px-6 py-2.5 text-sm hover:opacity-90 transition-opacity">検索</button>
             </div>
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <span className="text-[#092040] font-bold text-sm">人気のタグ:</span>
@@ -274,19 +273,19 @@ function TopPageInner({ posts }: { posts: Post[] }) {
                 posts.forEach((p) => p.tags.forEach((t) => { tagCount[t] = (tagCount[t] ?? 0) + 1; }));
                 return Object.entries(tagCount).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([tag]) => (
                   <Link key={tag} href={`/search?q=${encodeURIComponent(tag)}`}
-                    className="bg-[#FCBC2A]/30 text-[#092040] font-bold text-sm px-4 py-2 rounded-xl hover:bg-[#FCBC2A] transition-colors">{tag}</Link>
+                    className="bg-[#FCBC2A]/30 text-[#092040] font-bold text-sm px-4 py-2 hover:bg-[#FCBC2A] transition-colors">{tag}</Link>
                 ));
               })()}
             </div>
           </div>
         </div>
 
-        <div className="bg-white py-6 border-b border-gray-100">
+        <div className="bg-[#FFFFF0] py-6 border-b border-gray-100">
           <h2 className="text-[#092040] text-xl font-black px-16 mb-3">カテゴリから探す</h2>
           <div className="flex gap-3 overflow-x-auto pb-2 pl-16">
             {CATEGORIES.map((cat) => (
               <Link key={cat} href={`/search?category=${encodeURIComponent(cat)}`}
-                className={`font-bold px-6 py-3 rounded-2xl text-sm transition-all whitespace-nowrap shrink-0 hover:opacity-80 ${CATEGORY_BG[cat] ?? "bg-gray-100 text-gray-700"}`}>{cat}</Link>
+                className={`font-bold px-6 py-3 text-sm transition-all whitespace-nowrap shrink-0 hover:opacity-80 ${CATEGORY_BG[cat] ?? "bg-gray-100 text-gray-700"}`}>{cat}</Link>
             ))}
           </div>
         </div>
@@ -295,8 +294,8 @@ function TopPageInner({ posts }: { posts: Post[] }) {
           {featuredPosts.length > 0 && (
             <section className="mb-10">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-[#092040] text-2xl font-black">注目の活動</h2>
-                <Link href="/search" className="text-[#092040] text-sm hover:underline opacity-60">すべて見る →</Link>
+                <h2 className="text-[#092040] text-2xl font-black">おすすめ</h2>
+                <Link href="/search" className="text-[#092040] text-sm hover:underline opacity-60">VIEW MORE →</Link>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 {featuredPosts.slice(0, 3).map((post) => (
@@ -312,7 +311,7 @@ function TopPageInner({ posts }: { posts: Post[] }) {
               <section key={cat} className="mb-10">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-[#092040] text-2xl font-black">{cat}</h2>
-                  <Link href={`/search?category=${encodeURIComponent(cat)}`} className="text-[#092040] text-sm hover:underline opacity-60">すべて見る →</Link>
+                  <Link href={`/search?category=${encodeURIComponent(cat)}`} className="text-[#092040] text-sm hover:underline opacity-60">VIEW MORE →</Link>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   {filtered.map((post) => (

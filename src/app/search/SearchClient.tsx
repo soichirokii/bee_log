@@ -48,8 +48,8 @@ function Navbar() {
         <Link href="/" className="mr-10">
           <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-12 w-auto" />
         </Link>
-        <Link href="/" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 transition-colors ${pathname === "/" ? "bg-[#FCBC2A] text-[#092040]" : "text-[#092040] hover:bg-gray-100"}`}>HOME</Link>
-        <Link href="/search" className={`text-base font-bold px-6 py-2.5 rounded-full transition-colors ${pathname === "/search" ? "bg-[#FCBC2A] text-[#092040]" : "text-[#092040] hover:bg-gray-100"}`}>活動を探す</Link>
+        <Link href="/" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 transition-colors ${pathname === "/" ? "bg-[#FCBC2A]" : "hover:bg-[#FCBC2A]"}`}>HOME</Link>
+        <Link href="/search" className={`text-base font-bold px-6 py-2.5 rounded-full transition-colors ${pathname === "/search" ? "bg-[#FCBC2A]" : "hover:bg-[#FCBC2A]"}`}>活動を探す</Link>
       </nav>
       <nav className="md:hidden flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw] sticky top-0 z-50">
         <div className="flex-1" />
