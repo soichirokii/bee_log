@@ -173,12 +173,10 @@ function ScrollHint({ children }: { children: React.ReactNode }) {
     let lastScrollLeft = 0;
 
     const handleScroll = () => {
-      // アニメーション中の場合は無視
       if (isAnimatingRef.current) {
         lastScrollLeft = el.scrollLeft;
         return;
       }
-      // ユーザーが手動でスクロールした場合のみ止める
       if (el.scrollLeft !== lastScrollLeft) {
         stoppedRef.current = true;
       }
@@ -190,7 +188,7 @@ function ScrollHint({ children }: { children: React.ReactNode }) {
     const animate = () => {
       if (stoppedRef.current) return;
       isAnimatingRef.current = true;
-      el.scrollTo({ left: 120, behavior: "smooth" });
+      el.scrollTo({ left: 80, behavior: "smooth" });
       setTimeout(() => {
         if (stoppedRef.current) {
           isAnimatingRef.current = false;
@@ -199,22 +197,18 @@ function ScrollHint({ children }: { children: React.ReactNode }) {
         el.scrollTo({ left: 0, behavior: "smooth" });
         setTimeout(() => {
           isAnimatingRef.current = false;
-        }, 700);
-      }, 700);
+          // アニメーション完了後に次をスケジュール
+          setTimeout(animate, 1000);
+        }, 1000);
+      }, 1000);
     };
 
-    const first = setTimeout(animate, 800);
-    const interval = setInterval(() => {
-      if (stoppedRef.current) {
-        clearInterval(interval);
-        return;
-      }
-      animate();
-    }, 4000);
+    // 最初は1秒後に開始
+    const first = setTimeout(animate, 1000);
 
     return () => {
       clearTimeout(first);
-      clearInterval(interval);
+      stoppedRef.current = true;
       el.removeEventListener("scroll", handleScroll);
     };
   }, []);
