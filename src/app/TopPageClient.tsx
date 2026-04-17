@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, Suspense, useEffect } from "react";
+import { useState, useMemo, Suspense, useEffect, useRef } from "react";
 import { Post } from "@/types/notion";
 import Link from "next/link";
 import Image from "next/image";
@@ -78,15 +78,10 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
       className="group relative bg-[#FFFFF0] transition-all duration-300 cursor-pointer overflow-hidden"
       style={{ fontFamily: "'toppan-bunkyu-midashi-gothic', sans-serif" }}
     >
-      {/* ホバー：薄黒オーバーレイ */}
       <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-50 transition-opacity duration-300 z-10 pointer-events-none" />
-
-      {/* VIEW MORE：カード全体の中央 */}
       <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
         <span className="text-white text-lg font-bold tracking-widest">VIEW MORE</span>
       </div>
-
-      {/* 画像エリア */}
       <div className="w-full aspect-video bg-gray-200 relative overflow-hidden">
         {post.imageUrl
           ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
@@ -102,8 +97,6 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
           {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>}
         </div>
       </div>
-
-      {/* テキストエリア */}
       <div className="p-4 bg-[#FFFFF0]">
         <div className="flex items-center gap-2 text-xs mb-2 flex-wrap">
           {post.category && <span className={`px-3 py-1 rounded-full font-medium text-xs whitespace-nowrap ${categoryStyle}`}>{post.category}</span>}
@@ -164,6 +157,71 @@ function MobileSlider({ posts }: { posts: Post[] }) {
           <button key={i} onClick={() => goTo(i)} className={`rounded-full transition-all duration-300 ${i === index ? "bg-[#092040] w-[4vw] h-[2vw]" : "bg-[#092040]/30 w-[2vw] h-[2vw]"}`} />
         ))}
       </div>
+    </div>
+  );
+}
+
+function ScrollHint({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const stoppedRef = useRef(false);
+  const isAnimatingRef = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    let lastScrollLeft = 0;
+
+    const handleScroll = () => {
+      // アニメーション中の場合は無視
+      if (isAnimatingRef.current) {
+        lastScrollLeft = el.scrollLeft;
+        return;
+      }
+      // ユーザーが手動でスクロールした場合のみ止める
+      if (el.scrollLeft !== lastScrollLeft) {
+        stoppedRef.current = true;
+      }
+      lastScrollLeft = el.scrollLeft;
+    };
+
+    el.addEventListener("scroll", handleScroll);
+
+    const animate = () => {
+      if (stoppedRef.current) return;
+      isAnimatingRef.current = true;
+      el.scrollTo({ left: 120, behavior: "smooth" });
+      setTimeout(() => {
+        if (stoppedRef.current) {
+          isAnimatingRef.current = false;
+          return;
+        }
+        el.scrollTo({ left: 0, behavior: "smooth" });
+        setTimeout(() => {
+          isAnimatingRef.current = false;
+        }, 700);
+      }, 700);
+    };
+
+    const first = setTimeout(animate, 800);
+    const interval = setInterval(() => {
+      if (stoppedRef.current) {
+        clearInterval(interval);
+        return;
+      }
+      animate();
+    }, 4000);
+
+    return () => {
+      clearTimeout(first);
+      clearInterval(interval);
+      el.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  return (
+    <div ref={ref} className="flex gap-4 overflow-x-auto pb-2">
+      {children}
     </div>
   );
 }
@@ -297,15 +355,17 @@ function TopPageInner({ posts }: { posts: Post[] }) {
                 <h2 className="text-[#092040] text-2xl font-black">おすすめ</h2>
                 <Link href="/search" className="text-[#092040] text-sm hover:underline opacity-60">VIEW MORE →</Link>
               </div>
-              <div className="grid grid-cols-3 gap-4">
-                {featuredPosts.slice(0, 3).map((post) => (
-                  <ActivityCard key={post.id} post={post} />
-                ))}
-              </div>
+              <ScrollHint>
+  {featuredPosts.map((post) => (
+    <div key={post.id} className="shrink-0" style={{ width: "calc(33.333% - 11px)" }}>
+      <ActivityCard post={post} />
+    </div>
+  ))}
+</ScrollHint>
             </section>
           )}
           {CATEGORIES.map((cat) => {
-            const filtered = posts.filter((p) => p.category === cat).slice(0, 3);
+            const filtered = posts.filter((p) => p.category === cat);
             if (filtered.length === 0) return null;
             return (
               <section key={cat} className="mb-10">
@@ -313,11 +373,13 @@ function TopPageInner({ posts }: { posts: Post[] }) {
                   <h2 className="text-[#092040] text-2xl font-black">{cat}</h2>
                   <Link href={`/search?category=${encodeURIComponent(cat)}`} className="text-[#092040] text-sm hover:underline opacity-60">VIEW MORE →</Link>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
-                  {filtered.map((post) => (
-                    <ActivityCard key={post.id} post={post} />
-                  ))}
-                </div>
+                <ScrollHint>
+  {filtered.map((post) => (
+    <div key={post.id} className="shrink-0" style={{ width: "calc(33.333% - 11px)" }}>
+      <ActivityCard post={post} />
+    </div>
+  ))}
+</ScrollHint>
               </section>
             );
           })}
