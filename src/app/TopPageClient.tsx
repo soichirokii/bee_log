@@ -161,65 +161,6 @@ function MobileSlider({ posts }: { posts: Post[] }) {
   );
 }
 
-function ScrollHint({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const stoppedRef = useRef(false);
-  const isAnimatingRef = useRef(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    let lastScrollLeft = 0;
-
-    const handleScroll = () => {
-      if (isAnimatingRef.current) {
-        lastScrollLeft = el.scrollLeft;
-        return;
-      }
-      if (el.scrollLeft !== lastScrollLeft) {
-        stoppedRef.current = true;
-      }
-      lastScrollLeft = el.scrollLeft;
-    };
-
-    el.addEventListener("scroll", handleScroll);
-
-    const animate = () => {
-      if (stoppedRef.current) return;
-      isAnimatingRef.current = true;
-      el.scrollTo({ left: 80, behavior: "smooth" });
-      setTimeout(() => {
-        if (stoppedRef.current) {
-          isAnimatingRef.current = false;
-          return;
-        }
-        el.scrollTo({ left: 0, behavior: "smooth" });
-        setTimeout(() => {
-          isAnimatingRef.current = false;
-          // アニメーション完了後に次をスケジュール
-          setTimeout(animate, 1000);
-        }, 1000);
-      }, 1000);
-    };
-
-    // 最初は1秒後に開始
-    const first = setTimeout(animate, 1000);
-
-    return () => {
-      clearTimeout(first);
-      stoppedRef.current = true;
-      el.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  return (
-    <div ref={ref} className="flex gap-4 overflow-x-auto pb-2">
-      {children}
-    </div>
-  );
-}
-
 function HeroSlider({ posts }: { posts: Post[] }) {
   const [index, setIndex] = useState(0);
   const router = useRouter();
@@ -253,6 +194,75 @@ function HeroSlider({ posts }: { posts: Post[] }) {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+function ScrollHint({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const stoppedRef = useRef(false);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const smoothScroll = (from: number, to: number, duration: number): Promise<void> => {
+      return new Promise((resolve) => {
+        const start = performance.now();
+        const step = (now: number) => {
+          if (stoppedRef.current) { resolve(); return; }
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          const ease = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
+          el.scrollLeft = from + (to - from) * ease;
+          if (progress < 1) {
+            rafRef.current = requestAnimationFrame(step);
+          } else {
+            rafRef.current = null;
+            resolve();
+          }
+        };
+        rafRef.current = requestAnimationFrame(step);
+      });
+    };
+
+    const handleScroll = () => {
+      if (rafRef.current === null) {
+        stoppedRef.current = true;
+      }
+    };
+
+    el.addEventListener("scroll", handleScroll, { passive: true });
+
+    const animate = async () => {
+      if (stoppedRef.current) return;
+      await smoothScroll(0, 80, 800);
+      if (stoppedRef.current) return;
+      await new Promise(r => setTimeout(r, 300));
+      if (stoppedRef.current) return;
+      await smoothScroll(80, 0, 800);
+      if (stoppedRef.current) return;
+      rafRef.current = null;
+      setTimeout(animate, 1000);
+    };
+
+    const first = setTimeout(() => {
+      rafRef.current = null;
+      animate();
+    }, 1000);
+
+    return () => {
+      clearTimeout(first);
+      stoppedRef.current = true;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      el.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  return (
+    <div ref={ref} className="flex gap-4 overflow-x-auto pb-2">
+      {children}
     </div>
   );
 }
@@ -350,12 +360,12 @@ function TopPageInner({ posts }: { posts: Post[] }) {
                 <Link href="/search" className="text-[#092040] text-sm hover:underline opacity-60">VIEW MORE →</Link>
               </div>
               <ScrollHint>
-  {featuredPosts.map((post) => (
-    <div key={post.id} className="shrink-0" style={{ width: "calc(33.333% - 11px)" }}>
-      <ActivityCard post={post} />
-    </div>
-  ))}
-</ScrollHint>
+                {featuredPosts.map((post) => (
+                  <div key={post.id} className="shrink-0" style={{ width: "calc(33.333% - 11px)" }}>
+                    <ActivityCard post={post} />
+                  </div>
+                ))}
+              </ScrollHint>
             </section>
           )}
           {CATEGORIES.map((cat) => {
@@ -368,12 +378,12 @@ function TopPageInner({ posts }: { posts: Post[] }) {
                   <Link href={`/search?category=${encodeURIComponent(cat)}`} className="text-[#092040] text-sm hover:underline opacity-60">VIEW MORE →</Link>
                 </div>
                 <ScrollHint>
-  {filtered.map((post) => (
-    <div key={post.id} className="shrink-0" style={{ width: "calc(33.333% - 11px)" }}>
-      <ActivityCard post={post} />
-    </div>
-  ))}
-</ScrollHint>
+                  {filtered.map((post) => (
+                    <div key={post.id} className="shrink-0" style={{ width: "calc(33.333% - 11px)" }}>
+                      <ActivityCard post={post} />
+                    </div>
+                  ))}
+                </ScrollHint>
               </section>
             );
           })}
