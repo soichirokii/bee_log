@@ -91,9 +91,9 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
       {/* 画像エリア */}
       <div className="w-full aspect-video bg-gray-200 relative overflow-hidden">
         {post.imageUrl
-          ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
-          : <div className="w-full h-full bg-gray-200" />
-        }
+  ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
+  : <Image src="/noimage.svg" alt="No Image" fill className="object-cover" />
+}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
           {post.isFeatured && <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>}
           {seasonTag && <span className="bg-[#F59E0B] text-white text-xs font-bold px-2 py-1 rounded-full">{seasonTag}</span>}
