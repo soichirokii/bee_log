@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, Suspense, useEffect } from "react";
+import { useState, useMemo, Suspense, useEffect, useRef } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
 import { Post } from "@/types/notion";
 import Link from "next/link";
@@ -40,17 +40,41 @@ function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
   return null;
 }
 
-function Navbar() {
+function Navbar({ keyword, setKeyword, searchVisible }: {
+  keyword: string;
+  setKeyword: (v: string) => void;
+  searchVisible: boolean;
+}) {
   const pathname = usePathname();
+  const router = useRouter();
+
   return (
     <>
-      <nav className="hidden md:flex items-center px-16 py-4 bg-[#FFFFF0] border-b-2 border-[#092040] sticky top-0 z-50">
+      <nav className="hidden md:flex items-center px-16 py-4 bg-[#FFFFF0] border-b-2 border-[#092040] sticky top-0 z-50 relative">
         <Link href="/" className="mr-10">
           <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-12 w-auto" />
         </Link>
         <Link href="/" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 transition-colors ${pathname === "/" ? "bg-[#FCBC2A]" : "hover:bg-[#FCBC2A]"}`}>HOME</Link>
         <Link href="/search" className={`text-base font-bold px-6 py-2.5 rounded-full transition-colors ${pathname === "/search" ? "bg-[#FCBC2A]" : "hover:bg-[#FCBC2A]"}`}>活動を探す</Link>
+
+        {/* スティッキー検索窓（PC） */}
+        <div className={`absolute right-8 top-1/2 -translate-y-1/2 transition-all duration-300 ${searchVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`}>
+          <div className="bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 flex items-center gap-3">
+            <Image src="/icons/Magnifying Glass.svg" alt="" width={18} height={18} className="opacity-40 shrink-0" />
+            <input
+              type="search"
+              placeholder="検索"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
+              className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent"
+            />
+            <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+              className="bg-[#092040] text-white font-bold px-6 py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity shrink-0">検索</button>
+          </div>
+        </div>
       </nav>
+
       <nav className="md:hidden flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw] sticky top-0 z-50">
         <div className="flex-1" />
         <Link href="/" className="flex justify-center">
@@ -78,22 +102,14 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
       className="group relative bg-[#FFFFF0] transition-all duration-300 cursor-pointer overflow-hidden"
       style={{ fontFamily: "'toppan-bunkyu-midashi-gothic', sans-serif" }}
     >
-      {/* ホバー：薄黒オーバーレイ */}
       <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-70 transition-opacity duration-300 z-10 pointer-events-none" />
-
-      {/* VIEW MORE：カード全体の中央 */}
       <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-        <span className="text-white text-lg font-bold tracking-widest">
-          VIEW MORE
-        </span>
+        <span className="text-white text-lg font-bold tracking-widest">VIEW MORE</span>
       </div>
-
-      {/* 画像エリア */}
       <div className="w-full aspect-video bg-gray-200 relative overflow-hidden">
         {post.imageUrl
-  ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
-  : <Image src="/noimage.svg" alt="No Image" fill className="object-cover" />
-}
+          ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
+          : <Image src="/noimage.svg" alt="No Image" fill className="object-cover" />}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
           {post.isFeatured && <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>}
           {seasonTag && <span className="bg-[#F59E0B] text-white text-xs font-bold px-2 py-1 rounded-full">{seasonTag}</span>}
@@ -104,8 +120,6 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
           {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>}
         </div>
       </div>
-
-      {/* テキストエリア：シンプル版 */}
       <div className="p-4 bg-[#FFFFF0]">
         <div className="flex items-center gap-2 text-xs mb-2 flex-wrap">
           {post.category && <span className={`px-3 py-1 rounded-full font-medium text-xs whitespace-nowrap ${categoryStyle}`}>{post.category}</span>}
@@ -119,10 +133,15 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
 
 const PAGE_SIZE = 12;
 
-function SearchInner({ posts }: { posts: Post[] }) {
+function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, pcSearchRef }: {
+  posts: Post[];
+  keyword: string;
+  setKeyword: (v: string) => void;
+  mobileSearchRef: React.RefObject<HTMLDivElement | null>;
+  pcSearchRef: React.RefObject<HTMLDivElement | null>;
+}) {
   const searchParams = useSearchParams();
-  const initialQ = searchParams.get("q") ?? searchParams.get("tag") ?? "";
-  const [keyword, setKeyword] = useState(initialQ);
+  const router = useRouter();
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     searchParams.get("category") ? [searchParams.get("category")!] : []
   );
@@ -134,6 +153,7 @@ function SearchInner({ posts }: { posts: Post[] }) {
   const [sortOpen, setSortOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [mobileSearchVisible, setMobileSearchVisible] = useState(false);
 
   useEffect(() => {
     const q = searchParams.get("q") ?? "";
@@ -141,6 +161,16 @@ function SearchInner({ posts }: { posts: Post[] }) {
     setPage(1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [searchParams]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setMobileSearchVisible(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    const el = mobileSearchRef.current;
+    if (el) observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const toggleItem = (list: string[], setList: (v: string[]) => void, item: string) => {
     setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
@@ -232,6 +262,31 @@ function SearchInner({ posts }: { posts: Post[] }) {
 
   return (
     <div className="min-h-screen bg-[#FFFFF0]">
+
+      {/* モバイル固定検索バー */}
+      {mobileSearchVisible && (
+        <div className="md:hidden fixed top-[calc(10vw+6vw+4px)] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw]"
+          style={{ animation: "fadeInDown 0.2s ease forwards" }}>
+          <div className="flex gap-2">
+            <div className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 flex items-center gap-2">
+              <Image src="/icons/Magnifying Glass.svg" alt="" width={18} height={18} className="opacity-40 shrink-0" />
+              <input
+                type="search"
+                placeholder="活動名、主催者などで検索..."
+                value={keyword}
+                onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
+                onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
+                className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent"
+              />
+            </div>
+            <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+              className="bg-[#092040] text-white font-bold text-sm px-4 py-2 rounded-2xl shrink-0">
+              検索
+            </button>
+          </div>
+        </div>
+      )}
+
       {filterOpen && (
         <div className="fixed inset-0 z-40 md:hidden" onClick={() => setFilterOpen(false)}>
           <div className="absolute inset-0 bg-black/50" />
@@ -252,11 +307,16 @@ function SearchInner({ posts }: { posts: Post[] }) {
         </aside>
         <main className="flex-1 md:overflow-y-auto">
           <div className="flex gap-2 mb-4 items-center">
-            <div className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 flex items-center gap-3">
+            <div ref={pcSearchRef} className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 flex items-center gap-3">
               <Image src="/icons/Magnifying Glass.svg" alt="" width={18} height={18} className="opacity-40 shrink-0" />
               <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
                 onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
+                onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
                 className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
+              <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+                className="bg-[#092040] text-white font-bold px-4 py-2 rounded-xl text-sm hover:opacity-90 transition-opacity shrink-0">
+                検索
+              </button>
             </div>
             <div className="relative hidden md:block">
               <button onClick={() => setSortOpen(!sortOpen)}
@@ -340,11 +400,27 @@ function SearchInner({ posts }: { posts: Post[] }) {
 }
 
 export default function SearchClient({ posts }: { posts: Post[] }) {
+  const searchParams = useSearchParams();
+  const [keyword, setKeyword] = useState(searchParams.get("q") ?? "");
+  const pcSearchRef = useRef<HTMLDivElement | null>(null);
+  const mobileSearchRef = useRef<HTMLDivElement | null>(null);
+  const [pcSearchVisible, setPcSearchVisible] = useState(false);
+
+  useEffect(() => {
+    if (!pcSearchRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setPcSearchVisible(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(pcSearchRef.current);
+    return () => observer.disconnect();
+  }, [pcSearchRef.current]);
+
   return (
     <>
-      <Navbar />
+      <Navbar keyword={keyword} setKeyword={setKeyword} searchVisible={pcSearchVisible} />
       <Suspense fallback={<div className="min-h-screen bg-[#FFFFF0]" />}>
-        <SearchInner posts={posts} />
+        <SearchInner posts={posts} keyword={keyword} setKeyword={setKeyword} mobileSearchRef={mobileSearchRef} pcSearchRef={pcSearchRef} />
       </Suspense>
     </>
   );
