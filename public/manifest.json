@@ -1,0 +1,21 @@
+{
+  "name": "BEE log",
+  "short_name": "BEE log",
+  "description": "10代のための探究メディア",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFF0",
+  "theme_color": "#092040",
+  "icons": [
+    {
+      "src": "/ogp.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/ogp.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

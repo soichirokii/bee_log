@@ -7,6 +7,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.beelog-jp.com"
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
+  manifest: "/manifest.json",
   title: {
     default: "BEE log | 10代のための探究メディア",
     template: "%s | BEE log",
@@ -17,13 +18,18 @@ export const metadata: Metadata = {
     google: "ZH1OcT_VNklTaZEHfcloZ-MN-K_RjwZ21yedcNFRoU4",
   },
   icons: {
-  icon: [
-    { url: "/beelog.svg", type: "image/svg+xml" },
-    { url: "/favicon.ico", type: "image/x-icon" },
-  ],
-  shortcut: "/favicon.ico",
-  apple: "/apple-touch-icon.png",
-},
+    icon: [
+      { url: "/beelog.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", type: "image/x-icon" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "BEE log",
+  },
   openGraph: {
     type: "website",
     url: BASE_URL,
@@ -62,8 +68,16 @@ export default function RootLayout({
     <html lang="ja">
       <head>
         <link rel="stylesheet" href="https://use.typekit.net/qhn8cay.css" />
+        <meta name="theme-color" content="#092040" />
       </head>
       <body className="bg-[#FFFFF0] font-sans">
+        <script dangerouslySetInnerHTML={{ __html: `
+          if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+              navigator.serviceWorker.register('/sw.js');
+            });
+          }
+        `}} />
         <PageTransition />
         {children}
         <Analytics />
