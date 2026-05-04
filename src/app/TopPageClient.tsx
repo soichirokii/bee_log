@@ -306,7 +306,7 @@ function TopPageInner({ posts, keyword, setKeyword, pcSearchRef, mobileSearchRef
 
       {/* モバイル固定検索バー */}
       {mobileSearchVisible && (
-        <div className="md:hidden fixed top-[calc(10vw+6vw+4px)] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center gap-2"
+        <div className="md:hidden fixed top-[calc(10vw+6vw+2px)] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center gap-2"
           style={{ animation: "fadeInDown 0.2s ease forwards" }}>
           <div className="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 flex items-center gap-2">
             <Image src="/icons/Magnifying Glass.svg" alt="" width={14} height={14} className="opacity-40 shrink-0" />

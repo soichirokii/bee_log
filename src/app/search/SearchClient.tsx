@@ -50,7 +50,7 @@ function Navbar({ keyword, setKeyword, searchVisible }: {
 
   return (
     <>
-      <nav className="hidden md:flex items-center px-16 py-4 bg-[#FFFFF0] border-b-2 border-[#092040] sticky top-0 z-50 relative">
+      <nav className="hidden md:flex items-center px-16 py-4 bg-[#FFFFF0] border-b-2 border-[#092040] sticky top-0 z-50 relative mb-0">
         <Link href="/" className="mr-10">
           <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-12 w-auto" />
         </Link>
@@ -133,12 +133,12 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
 
 const PAGE_SIZE = 12;
 
-function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, pcSearchRef }: {
+function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchRef }: {
   posts: Post[];
   keyword: string;
   setKeyword: (v: string) => void;
   mobileSearchRef: React.RefObject<HTMLDivElement | null>;
-  pcSearchRef: React.RefObject<HTMLDivElement | null>;
+  setPcSearchRef: (el: HTMLDivElement | null) => void;
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -265,7 +265,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, pcSearchRef 
 
       {/* モバイル固定検索バー */}
       {mobileSearchVisible && (
-        <div className="md:hidden fixed top-[calc(10vw+6vw+4px)] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw]"
+        <div className="md:hidden fixed top-[calc(10vw+6vw+2px)] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw]"
           style={{ animation: "fadeInDown 0.2s ease forwards" }}>
           <div className="flex gap-2">
             <div className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 flex items-center gap-2">
@@ -301,13 +301,14 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, pcSearchRef 
         </div>
       )}
 
-      <div className="flex gap-6 px-[5vw] md:px-6 py-[4vw] md:py-6 md:h-[calc(100vh-72px)] md:overflow-hidden">
+      <div className="flex gap-6 px-[5vw] md:px-6 py-[4vw] md:py-6 md:h-[calc(100vh-73px)] md:overflow-hidden">
         <aside className="w-56 shrink-0 overflow-y-auto hidden md:block">
           <FilterPanel />
         </aside>
         <main className="flex-1 md:overflow-y-auto">
-          <div className="flex gap-2 mb-4 items-center">
-            <div ref={pcSearchRef} className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 flex items-center gap-3">
+          {/* PC：検索窓＋ソート */}
+          <div className="hidden md:flex gap-2 mb-4 items-center">
+            <div ref={setPcSearchRef} className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 flex items-center gap-3">
               <Image src="/icons/Magnifying Glass.svg" alt="" width={18} height={18} className="opacity-40 shrink-0" />
               <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
                 onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
@@ -318,7 +319,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, pcSearchRef 
                 検索
               </button>
             </div>
-            <div className="relative hidden md:block">
+            <div className="relative">
               <button onClick={() => setSortOpen(!sortOpen)}
                 className="bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 text-sm text-[#092040] font-bold whitespace-nowrap relative pr-8">
                 {sortOrder === "newest" ? "新着順" : "締切順"}
@@ -337,7 +338,23 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, pcSearchRef 
             </div>
           </div>
 
-          <div className="flex md:hidden gap-2 mb-4">
+          {/* モバイル：検索窓 */}
+          <div className="md:hidden mb-[3vw]">
+            <div ref={mobileSearchRef} className="bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 flex items-center gap-3">
+              <Image src="/icons/Magnifying Glass.svg" alt="" width={18} height={18} className="opacity-40 shrink-0" />
+              <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
+                onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
+                onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
+                className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
+              <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+                className="bg-[#092040] text-white font-bold px-4 py-2 rounded-xl text-sm hover:opacity-90 transition-opacity shrink-0">
+                検索
+              </button>
+            </div>
+          </div>
+
+          {/* モバイル：絞り込み＋ソート */}
+          <div className="md:hidden flex gap-2 mb-[3vw]">
             <button onClick={() => setFilterOpen(true)}
               className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl py-3 flex items-center justify-center gap-2">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">
@@ -405,22 +422,29 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
   const pcSearchRef = useRef<HTMLDivElement | null>(null);
   const mobileSearchRef = useRef<HTMLDivElement | null>(null);
   const [pcSearchVisible, setPcSearchVisible] = useState(false);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
-  useEffect(() => {
-    if (!pcSearchRef.current) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setPcSearchVisible(!entry.isIntersecting),
-      { threshold: 0 }
-    );
-    observer.observe(pcSearchRef.current);
-    return () => observer.disconnect();
-  }, [pcSearchRef.current]);
+  const setPcSearchRefCallback = (el: HTMLDivElement | null) => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
+    if (el) {
+      pcSearchRef.current = el;
+      const observer = new IntersectionObserver(
+        ([entry]) => setPcSearchVisible(!entry.isIntersecting),
+        { threshold: 0 }
+      );
+      observer.observe(el);
+      observerRef.current = observer;
+    }
+  };
 
   return (
     <>
       <Navbar keyword={keyword} setKeyword={setKeyword} searchVisible={pcSearchVisible} />
       <Suspense fallback={<div className="min-h-screen bg-[#FFFFF0]" />}>
-        <SearchInner posts={posts} keyword={keyword} setKeyword={setKeyword} mobileSearchRef={mobileSearchRef} pcSearchRef={pcSearchRef} />
+        <SearchInner posts={posts} keyword={keyword} setKeyword={setKeyword} mobileSearchRef={mobileSearchRef} setPcSearchRef={setPcSearchRefCallback} />
       </Suspense>
     </>
   );
