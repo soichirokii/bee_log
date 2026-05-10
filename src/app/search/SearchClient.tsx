@@ -207,7 +207,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const FilterPanel = () => (
-    <div className="bg-[#FFFFF0] rounded-2xl p-5 shadow-md">
+    <div className="bg-[#FFFFF0] p-5">
       <h2 className="font-bold text-[#092040] text-lg mb-4">絞り込み検索</h2>
       <div className="mb-5">
         <h3 className="text-sm font-bold text-[#092040] mb-2">カテゴリ</h3>
@@ -301,7 +301,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
       )}
 
       <div className="flex flex-1 gap-6 px-[5vw] md:px-0 py-[4vw] md:py-0">
-        <aside className="w-64 shrink-0 hidden md:block border-r-2 border-[#092040]">
+        <aside className="w-64 shrink-0 hidden md:block">
           <div className="sticky top-[73px] p-5">
             <FilterPanel />
           </div>
