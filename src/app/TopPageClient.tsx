@@ -17,7 +17,7 @@ const CATEGORY_BG: Record<string, string> = {
   "ボランティア": "bg-blue-100 text-blue-700",
   "留学・国際": "bg-red-100 text-red-700",
   "研究・論文": "bg-purple-100 text-purple-700",
-  "起業・ビジネス": "bg-sky-100 text-sky-700",
+  "起業・ビジネス": "bg-blue-100 text-blue-700",
   "奨学金": "bg-green-100 text-green-700",
   "科学・テクノロジー": "bg-pink-100 text-pink-700",
   "イベント": "bg-amber-100 text-amber-800",
@@ -100,15 +100,16 @@ function ActivityCard({ post }: { post: Post }) {
     <div
       onClick={() => router.push(`/posts/${post.slug}`)}
       className="group relative bg-[#FFFFF0] transition-all duration-300 cursor-pointer overflow-hidden"
+      style={{ fontFamily: "'toppan-bunkyu-midashi-gothic', sans-serif" }}
     >
-      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-50 transition-opacity duration-300 z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-70 transition-opacity duration-300 z-10 pointer-events-none" />
       <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
         <span className="text-white text-lg font-bold tracking-widest">VIEW MORE</span>
       </div>
       <div className="w-full aspect-video bg-gray-200 relative overflow-hidden">
         {post.imageUrl
           ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
-          : <div className="w-full h-full bg-gray-200" />}
+          : <Image src="/noimage.svg" alt="No Image" fill className="object-cover" />}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
           {post.isFeatured && <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>}
           {seasonTag && <span className="bg-[#F59E0B] text-white text-xs font-bold px-2 py-1 rounded-full">{seasonTag}</span>}
@@ -306,8 +307,7 @@ function TopPageInner({ posts, keyword, setKeyword, pcSearchRef, mobileSearchRef
 
       {/* モバイル固定検索バー */}
       {mobileSearchVisible && (
-        <div className="md:hidden fixed top-[17vw] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw]"
-  style={{ animation: "fadeInDown 0.2s ease forwards" }}>
+        <div className="md:hidden fixed top-[17vw] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw] animate-fadeInDown">
   <div className="flex items-center gap-[2vw]">
     <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
       <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />

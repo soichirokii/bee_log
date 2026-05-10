@@ -265,8 +265,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
 
       {/* モバイル固定検索バー */}
       {mobileSearchVisible && (
-        <div className="md:hidden fixed top-[17vw] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw]"
-  style={{ animation: "fadeInDown 0.2s ease forwards" }}>
+        <div className="md:hidden fixed top-[17vw] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw] animate-fadeInDown">
   <div className="flex items-center gap-[2vw]">
     <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
       <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
@@ -394,21 +393,36 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
             </div>
           )}
 
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 pb-6">
-              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-                className="w-10 h-10 rounded-full bg-[#FFFFF0] border-2 border-[#092040] text-[#092040] font-bold disabled:opacity-30 hover:bg-[#092040] hover:text-white transition-colors">‹</button>
-              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((p) => (
-                <button key={p} onClick={() => setPage(p)}
-                  className={`w-10 h-10 rounded-full font-bold transition-colors ${page === p ? "bg-[#092040] text-white" : "bg-[#FFFFF0] border-2 border-[#092040] text-[#092040] hover:bg-[#092040] hover:text-white"}`}>
-                  {p}
-                </button>
-              ))}
-              {totalPages > 5 && <span className="text-[#092040] font-bold">...</span>}
-              <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                className="w-10 h-10 rounded-full bg-[#FFFFF0] border-2 border-[#092040] text-[#092040] font-bold disabled:opacity-30 hover:bg-[#092040] hover:text-white transition-colors">›</button>
-            </div>
-          )}
+          {totalPages > 1 && (() => {
+            const btnBase = "w-10 h-10 rounded-full font-bold transition-colors bg-[#FFFFF0] border-2 border-[#092040] text-[#092040] hover:bg-[#092040] hover:text-white";
+            const btnActive = "w-10 h-10 rounded-full font-bold bg-[#092040] text-white";
+            const left = Math.max(1, page - 2);
+            const right = Math.min(totalPages, page + 2);
+            const windowPages = Array.from({ length: right - left + 1 }, (_, i) => left + i);
+            return (
+              <div className="flex justify-center items-center gap-2 pb-6">
+                <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
+                  className="w-10 h-10 rounded-full bg-[#FFFFF0] border-2 border-[#092040] text-[#092040] font-bold disabled:opacity-30 hover:bg-[#092040] hover:text-white transition-colors">‹</button>
+                {left > 1 && (
+                  <>
+                    <button onClick={() => setPage(1)} className={btnBase}>1</button>
+                    {left > 2 && <span className="text-[#092040] font-bold px-1">…</span>}
+                  </>
+                )}
+                {windowPages.map((p) => (
+                  <button key={p} onClick={() => setPage(p)} className={page === p ? btnActive : btnBase}>{p}</button>
+                ))}
+                {right < totalPages && (
+                  <>
+                    {right < totalPages - 1 && <span className="text-[#092040] font-bold px-1">…</span>}
+                    <button onClick={() => setPage(totalPages)} className={btnBase}>{totalPages}</button>
+                  </>
+                )}
+                <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                  className="w-10 h-10 rounded-full bg-[#FFFFF0] border-2 border-[#092040] text-[#092040] font-bold disabled:opacity-30 hover:bg-[#092040] hover:text-white transition-colors">›</button>
+              </div>
+            );
+          })()}
         </main>
       </div>
       <Footer />

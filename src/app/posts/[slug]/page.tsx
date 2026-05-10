@@ -311,7 +311,7 @@ export default async function PostDetailPage({
             <div className="bg-[#FFFFF0] p-6 sticky top-24">
               {post.applyUrl ? (
                 <a id="apply-button-sidebar" href={post.applyUrl} target="_blank" rel="noopener noreferrer"
-                  className="block w-full bg-[#092040] text-white font-bold text-center py-4 transition-all duration-200 hover:bg-[#FCBC2A] hover:text-[#092040] hover:scale-[1.02] active:scale-95 mb-3">
+                  className="block w-full bg-[#092040] text-white font-bold text-center py-4 rounded-xl transition-all duration-200 hover:bg-[#FCBC2A] hover:text-[#092040] hover:scale-[1.02] active:scale-95 mb-3">
                   応募する →
                 </a>
               ) : (
