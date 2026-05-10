@@ -306,22 +306,24 @@ function TopPageInner({ posts, keyword, setKeyword, pcSearchRef, mobileSearchRef
 
       {/* モバイル固定検索バー */}
       {mobileSearchVisible && (
-        <div className="md:hidden fixed top-[calc(10vw+6vw+2px)] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-4 py-2 flex items-center gap-2"
-          style={{ animation: "fadeInDown 0.2s ease forwards" }}>
-          <div className="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 flex items-center gap-2">
-            <Image src="/icons/Magnifying Glass.svg" alt="" width={14} height={14} className="opacity-40 shrink-0" />
-            <input
-              type="search"
-              placeholder="活動を検索..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-              className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/40 bg-transparent"
-            />
-          </div>
-          <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
-            className="bg-[#092040] text-white text-xs font-bold px-4 py-2 rounded-xl shrink-0">検索</button>
-        </div>
+        <div className="md:hidden fixed top-[17vw] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw]"
+  style={{ animation: "fadeInDown 0.2s ease forwards" }}>
+  <div className="flex items-center gap-[2vw]">
+    <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
+      <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
+      <input
+        type="search"
+        placeholder="活動を検索..."
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
+        className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent"
+      />
+    </div>
+    <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+      className="bg-[#092040] text-white font-bold text-sm px-[3vw] py-2.5 rounded-2xl shrink-0">検索</button>
+  </div>
+</div>
       )}
 
       {/* モバイル */}

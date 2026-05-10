@@ -75,15 +75,15 @@ function Navbar({ keyword, setKeyword, searchVisible }: {
         </div>
       </nav>
 
-      <nav className="md:hidden flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw] sticky top-0 z-50">
-        <div className="flex-1" />
-        <Link href="/" className="flex justify-center">
-          <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-[10vw] w-auto" />
-        </Link>
-        <div className="flex-1 flex justify-end">
-          <Link href="/" className="bg-[#FCBC2A] text-[#092040] font-bold text-[3.5vw] px-[4vw] py-[2vw] rounded-full">HOME</Link>
-        </div>
-      </nav>
+      <nav className="md:hidden flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw] sticky top-0 z-50 w-full">
+  <div className="flex-1" />
+  <Link href="/" className="flex justify-center">
+    <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-[10vw] w-auto" />
+  </Link>
+  <div className="flex-1 flex justify-end">
+    <Link href="/" className="bg-[#FCBC2A] text-[#092040] font-bold text-[3.5vw] px-[4vw] py-[2vw] rounded-full transition-all duration-200 hover:bg-[#092040] hover:text-white">HOME</Link>
+  </div>
+</nav>
     </>
   );
 }
@@ -170,7 +170,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
     const el = mobileSearchRef.current;
     if (el) observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [mobileSearchRef.current]);
 
   const toggleItem = (list: string[], setList: (v: string[]) => void, item: string) => {
     setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
@@ -265,26 +265,26 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
 
       {/* モバイル固定検索バー */}
       {mobileSearchVisible && (
-        <div className="md:hidden fixed top-[calc(10vw+6vw+2px)] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw]"
-          style={{ animation: "fadeInDown 0.2s ease forwards" }}>
-          <div className="flex gap-2">
-            <div className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 flex items-center gap-2">
-              <Image src="/icons/Magnifying Glass.svg" alt="" width={18} height={18} className="opacity-40 shrink-0" />
-              <input
-                type="search"
-                placeholder="活動名、主催者などで検索..."
-                value={keyword}
-                onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
-                onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-                className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent"
-              />
-            </div>
-            <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
-              className="bg-[#092040] text-white font-bold text-sm px-4 py-2 rounded-2xl shrink-0">
-              検索
-            </button>
-          </div>
-        </div>
+        <div className="md:hidden fixed top-[17vw] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw]"
+  style={{ animation: "fadeInDown 0.2s ease forwards" }}>
+  <div className="flex items-center gap-[2vw]">
+    <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
+      <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
+      <input
+        type="search"
+        placeholder="活動を検索..."
+        value={keyword}
+        onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
+        onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
+        className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent"
+      />
+    </div>
+    <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+      className="bg-[#092040] text-white font-bold text-sm px-[3vw] py-2.5 rounded-2xl shrink-0">
+      検索
+    </button>
+  </div>
+</div>
       )}
 
       {filterOpen && (
@@ -301,7 +301,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
         </div>
       )}
 
-      <div className="flex gap-6 px-[5vw] md:px-6 py-[4vw] md:py-6 md:h-[calc(100vh-73px)] md:overflow-hidden">
+      <div className="flex gap-6 px-[5vw] md:px-6 py-[4vw] md:py-6 md:h-[calc(100vh-73px)] md:overflow-hidden overflow-hidden">
         <aside className="w-56 shrink-0 overflow-y-auto hidden md:block">
           <FilterPanel />
         </aside>
@@ -339,19 +339,19 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
           </div>
 
           {/* モバイル：検索窓 */}
-          <div className="md:hidden mb-[3vw]">
-            <div ref={mobileSearchRef} className="bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 flex items-center gap-3">
-              <Image src="/icons/Magnifying Glass.svg" alt="" width={18} height={18} className="opacity-40 shrink-0" />
-              <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
-                onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
-                onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-                className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
-              <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
-                className="bg-[#092040] text-white font-bold px-4 py-2 rounded-xl text-sm hover:opacity-90 transition-opacity shrink-0">
-                検索
-              </button>
-            </div>
-          </div>
+<div className="md:hidden mb-[3vw] flex items-center gap-[2vw]">
+  <div ref={mobileSearchRef} className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
+    <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
+    <input type="search" placeholder="活動を検索..." value={keyword}
+      onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
+      onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
+      className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
+  </div>
+  <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+    className="bg-[#092040] text-white font-bold text-sm px-[3vw] py-2.5 rounded-2xl shrink-0">
+    検索
+  </button>
+</div>
 
           {/* モバイル：絞り込み＋ソート */}
           <div className="md:hidden flex gap-2 mb-[3vw]">
