@@ -261,7 +261,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
   );
 
   return (
-    <div className="bg-[#FFFFF0] md:flex md:flex-col md:h-[calc(100vh-73px)]">
+    <div className="bg-[#FFFFF0] flex flex-col min-h-screen">
 
       {/* モバイル固定検索バー */}
       {mobileSearchVisible && (
@@ -300,11 +300,13 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
         </div>
       )}
 
-      <div className="flex gap-6 px-[5vw] md:px-6 py-[4vw] md:py-6 md:flex-1 md:overflow-hidden">
-        <aside className="w-56 shrink-0 overflow-y-auto hidden md:block">
-          <FilterPanel />
+      <div className="flex flex-1 gap-6 px-[5vw] md:px-0 py-[4vw] md:py-0">
+        <aside className="w-64 shrink-0 hidden md:block border-r-2 border-[#092040]">
+          <div className="sticky top-[73px] p-5">
+            <FilterPanel />
+          </div>
         </aside>
-        <main className="flex-1 md:overflow-y-auto">
+        <main className="flex-1 md:px-6 md:py-6">
           {/* PC：検索窓＋ソート */}
           <div className="hidden md:flex gap-2 mb-4 items-center">
             <div ref={setPcSearchRef} className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
