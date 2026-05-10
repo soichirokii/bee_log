@@ -261,7 +261,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
   );
 
   return (
-    <div className="min-h-screen bg-[#FFFFF0]">
+    <div className="bg-[#FFFFF0] md:flex md:flex-col md:h-[calc(100vh-73px)]">
 
       {/* モバイル固定検索バー */}
       {mobileSearchVisible && (
@@ -300,7 +300,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
         </div>
       )}
 
-      <div className="flex gap-6 px-[5vw] md:px-6 py-[4vw] md:py-6 md:h-[calc(100vh-73px)] md:overflow-hidden overflow-hidden">
+      <div className="flex gap-6 px-[5vw] md:px-6 py-[4vw] md:py-6 md:flex-1 md:overflow-hidden">
         <aside className="w-56 shrink-0 overflow-y-auto hidden md:block">
           <FilterPanel />
         </aside>
@@ -423,9 +423,9 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
               </div>
             );
           })()}
-          <Footer />
         </main>
       </div>
+      <Footer />
     </div>
   );
 }

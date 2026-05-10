@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, Suspense, useEffect, useRef } from "react";
+import { useState, useMemo, Suspense, useEffect, useRef, useCallback } from "react";
 import { Post } from "@/types/notion";
 import Link from "next/link";
 import Image from "next/image";
@@ -281,11 +281,11 @@ function ScrollHint({ children }: { children: React.ReactNode }) {
   );
 }
 
-function TopPageInner({ posts, keyword, setKeyword, pcSearchRef, mobileSearchRef }: {
+function TopPageInner({ posts, keyword, setKeyword, setPcSearchRef, mobileSearchRef }: {
   posts: Post[];
   keyword: string;
   setKeyword: (v: string) => void;
-  pcSearchRef: React.RefObject<HTMLDivElement | null>;
+  setPcSearchRef: (el: HTMLDivElement | null) => void;
   mobileSearchRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const router = useRouter();
@@ -371,7 +371,7 @@ function TopPageInner({ posts, keyword, setKeyword, pcSearchRef, mobileSearchRef
 
         <div className="px-16 py-8 bg-[#FFFFF0] border-b border-gray-100">
           <div className="max-w-3xl mx-auto">
-            <div ref={pcSearchRef} className="flex items-center gap-2 mb-4">
+            <div ref={setPcSearchRef} className="flex items-center gap-2 mb-4">
               <div className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
                 <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
                 <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
@@ -451,18 +451,23 @@ function TopPageInner({ posts, keyword, setKeyword, pcSearchRef, mobileSearchRef
 
 export default function TopPageClient({ posts }: { posts: Post[] }) {
   const [keyword, setKeyword] = useState("");
-  const pcSearchRef = useRef<HTMLDivElement | null>(null);
   const mobileSearchRef = useRef<HTMLDivElement | null>(null);
   const [pcSearchVisible, setPcSearchVisible] = useState(false);
+  const pcObserverRef = useRef<IntersectionObserver | null>(null);
 
-  useEffect(() => {
-    if (!pcSearchRef.current) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setPcSearchVisible(!entry.isIntersecting),
-      { threshold: 0 }
-    );
-    observer.observe(pcSearchRef.current);
-    return () => observer.disconnect();
+  const setPcSearchRef = useCallback((el: HTMLDivElement | null) => {
+    if (pcObserverRef.current) {
+      pcObserverRef.current.disconnect();
+      pcObserverRef.current = null;
+    }
+    if (el) {
+      const observer = new IntersectionObserver(
+        ([entry]) => setPcSearchVisible(!entry.isIntersecting),
+        { threshold: 0 }
+      );
+      observer.observe(el);
+      pcObserverRef.current = observer;
+    }
   }, []);
 
   return (
@@ -470,7 +475,7 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
       <PCNavbar keyword={keyword} setKeyword={setKeyword} searchVisible={pcSearchVisible} />
       <MobileNavbar />
       <Suspense fallback={<div className="min-h-screen bg-[#FFFFF0]" />}>
-        <TopPageInner posts={posts} keyword={keyword} setKeyword={setKeyword} pcSearchRef={pcSearchRef} mobileSearchRef={mobileSearchRef} />
+        <TopPageInner posts={posts} keyword={keyword} setKeyword={setKeyword} setPcSearchRef={setPcSearchRef} mobileSearchRef={mobileSearchRef} />
       </Suspense>
     </>
   );
