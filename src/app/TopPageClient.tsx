@@ -371,16 +371,16 @@ function TopPageInner({ posts, keyword, setKeyword, setPcSearchRef, mobileSearch
 
         <div className="px-16 py-8 bg-[#FFFFF0] border-b border-gray-100">
           <div className="max-w-3xl mx-auto">
-            <div ref={setPcSearchRef} className="flex items-center gap-2 mb-4">
-              <div className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
-                <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
+            <div ref={setPcSearchRef} className="flex items-center gap-3 mb-4">
+              <div className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-5 py-4 flex items-center gap-3">
+                <Image src="/icons/Magnifying Glass.svg" alt="" width={22} height={22} className="opacity-40 shrink-0" />
                 <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-                  className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
+                  className="flex-1 min-w-0 text-base outline-none text-[#092040] placeholder-[#092040]/40 bg-transparent" />
               </div>
               <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
-                className="bg-[#092040] text-white font-bold px-5 py-2.5 rounded-2xl text-sm hover:opacity-90 transition-opacity shrink-0">検索</button>
+                className="bg-[#092040] text-white font-bold px-8 py-4 rounded-2xl text-base hover:opacity-90 transition-opacity shrink-0">検索</button>
             </div>
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <span className="text-[#092040] font-bold text-sm">人気のタグ:</span>
