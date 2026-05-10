@@ -58,9 +58,9 @@ function Navbar({ keyword, setKeyword, searchVisible }: {
         <Link href="/search" className={`text-base font-bold px-6 py-2.5 rounded-full transition-colors ${pathname === "/search" ? "bg-[#FCBC2A]" : "hover:bg-[#FCBC2A]"}`}>活動を探す</Link>
 
         {/* スティッキー検索窓（PC） */}
-        <div className={`absolute right-8 top-1/2 -translate-y-1/2 transition-all duration-300 ${searchVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`}>
-          <div className="bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 flex items-center gap-3">
-            <Image src="/icons/Magnifying Glass.svg" alt="" width={18} height={18} className="opacity-40 shrink-0" />
+        <div className={`absolute right-8 top-1/2 -translate-y-1/2 transition-all duration-300 flex items-center gap-2 ${searchVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`}>
+          <div className="bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
+            <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
             <input
               type="search"
               placeholder="検索"
@@ -69,9 +69,9 @@ function Navbar({ keyword, setKeyword, searchVisible }: {
               onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
               className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent"
             />
-            <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
-              className="bg-[#092040] text-white font-bold px-6 py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity shrink-0">検索</button>
           </div>
+          <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+            className="bg-[#092040] text-white font-bold px-5 py-2.5 rounded-2xl text-sm hover:opacity-90 transition-opacity shrink-0">検索</button>
         </div>
       </nav>
 
@@ -307,17 +307,17 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
         <main className="flex-1 md:overflow-y-auto">
           {/* PC：検索窓＋ソート */}
           <div className="hidden md:flex gap-2 mb-4 items-center">
-            <div ref={setPcSearchRef} className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 flex items-center gap-3">
-              <Image src="/icons/Magnifying Glass.svg" alt="" width={18} height={18} className="opacity-40 shrink-0" />
+            <div ref={setPcSearchRef} className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
+              <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
               <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
                 onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
                 onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-                className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
-              <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
-                className="bg-[#092040] text-white font-bold px-4 py-2 rounded-xl text-sm hover:opacity-90 transition-opacity shrink-0">
-                検索
-              </button>
+                className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
             </div>
+            <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+              className="bg-[#092040] text-white font-bold px-5 py-2.5 rounded-2xl text-sm hover:opacity-90 transition-opacity shrink-0">
+              検索
+            </button>
             <div className="relative">
               <button onClick={() => setSortOpen(!sortOpen)}
                 className="bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 text-sm text-[#092040] font-bold whitespace-nowrap relative pr-8">
