@@ -396,15 +396,16 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
           )}
 
           {totalPages > 1 && (() => {
-            const btnBase = "w-10 h-10 rounded-full font-bold transition-colors bg-[#FFFFF0] border-2 border-[#092040] text-[#092040] hover:bg-[#092040] hover:text-white";
-            const btnActive = "w-10 h-10 rounded-full font-bold bg-[#092040] text-white";
+            const btnBase = "w-10 h-10 rounded-full font-bold transition-colors bg-[#FFFFF0] border-2 border-[#092040] text-[#092040] hover:bg-[#FCBC2A] hover:border-[#FCBC2A]";
+            const btnActive = "w-10 h-10 rounded-full font-bold border-2 border-[#092040] bg-[#092040] text-white";
+            const btnArrow = "w-10 h-10 rounded-full font-bold transition-colors bg-[#FFFFF0] border-2 border-[#092040] text-[#092040] hover:bg-[#FCBC2A] hover:border-[#FCBC2A] disabled:opacity-20 disabled:pointer-events-none";
             const left = Math.max(1, page - 2);
             const right = Math.min(totalPages, page + 2);
             const windowPages = Array.from({ length: right - left + 1 }, (_, i) => left + i);
             return (
               <div className="flex justify-center items-center gap-2 pb-6">
                 <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-                  className="w-10 h-10 rounded-full bg-[#FFFFF0] border-2 border-[#092040] text-[#092040] font-bold disabled:opacity-30 hover:bg-[#092040] hover:text-white transition-colors">‹</button>
+                  className={btnArrow}>‹</button>
                 {left > 1 && (
                   <>
                     <button onClick={() => setPage(1)} className={btnBase}>1</button>
@@ -421,7 +422,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
                   </>
                 )}
                 <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                  className="w-10 h-10 rounded-full bg-[#FFFFF0] border-2 border-[#092040] text-[#092040] font-bold disabled:opacity-30 hover:bg-[#092040] hover:text-white transition-colors">›</button>
+                  className={btnArrow}>›</button>
               </div>
             );
           })()}
