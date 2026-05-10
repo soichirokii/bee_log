@@ -461,7 +461,7 @@ export default function TopPageClient({ posts }: { posts: Post[] }) {
     );
     observer.observe(pcSearchRef.current);
     return () => observer.disconnect();
-  }, [pcSearchRef.current]);
+  }, []);
 
   return (
     <>

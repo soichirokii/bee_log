@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
   applyUrl: string;
@@ -9,7 +9,6 @@ type Props = {
 
 export default function MobileApplyButton({ applyUrl, daysLeft }: Props) {
   const [hidden, setHidden] = useState(false);
-  const targetRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     // サイドバーの応募ボタンを監視

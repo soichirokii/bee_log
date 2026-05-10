@@ -170,7 +170,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
     const el = mobileSearchRef.current;
     if (el) observer.observe(el);
     return () => observer.disconnect();
-  }, [mobileSearchRef.current]);
+  }, []);
 
   const toggleItem = (list: string[], setList: (v: string[]) => void, item: string) => {
     setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
