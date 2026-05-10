@@ -423,9 +423,9 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
               </div>
             );
           })()}
+          <Footer />
         </main>
       </div>
-      <Footer />
     </div>
   );
 }
