@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, Suspense, useEffect, useRef } from "react";
+import { useState, useMemo, Suspense, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
 import { Post } from "@/types/notion";
 import Link from "next/link";
@@ -38,6 +38,74 @@ function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
   const dayMatch = text.match(/(\d+)日/);
   if (dayMatch) { const d = parseInt(dayMatch[1]); return d >= 15 ? "長期" : d >= 7 ? "中期" : "短期"; }
   return null;
+}
+
+/* ① カウントアップフック */
+function useCountUp(target: number, duration = 400) {
+  const [display, setDisplay] = useState(target);
+  const rafRef = useRef<number | null>(null);
+  const prevRef = useRef(target);
+  useEffect(() => {
+    const from = prevRef.current;
+    prevRef.current = target;
+    if (from === target) return;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    const t0 = performance.now();
+    const tick = (now: number) => {
+      const p = Math.min((now - t0) / duration, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      setDisplay(Math.round(from + (target - from) * e));
+      if (p < 1) rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [target, duration]);
+  return display;
+}
+
+/* ④ スケルトンカード */
+function SkeletonCard() {
+  return (
+    <div className="bg-[#FFFFF0] overflow-hidden">
+      <div className="w-full aspect-video bg-gray-200 animate-pulse" />
+      <div className="p-4 space-y-2">
+        <div className="h-3 bg-gray-200 rounded-full w-1/3 animate-pulse" />
+        <div className="h-5 bg-gray-200 rounded-full w-full animate-pulse" />
+        <div className="h-5 bg-gray-200 rounded-full w-2/3 animate-pulse" />
+      </div>
+    </div>
+  );
+}
+
+/* ⑥ スクロールfadeInラッパー */
+function FadeInCard({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.05 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return (
+    <div ref={ref} style={{
+      opacity: visible ? 1 : 0,
+      transform: visible ? "translateY(0)" : "translateY(12px)",
+      transition: `opacity 0.4s ease ${delay}ms, transform 0.4s ease ${delay}ms`,
+    }}>
+      {children}
+    </div>
+  );
+}
+
+/* ① 件数カウントアップ表示 */
+function ResultsCount({ count }: { count: number }) {
+  const display = useCountUp(count);
+  return <p className="text-[#092040] font-bold mb-4 text-base">{display} 件の活動が見つかりました</p>;
 }
 
 function Navbar({ keyword, setKeyword, searchVisible }: {
@@ -117,7 +185,12 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
         </div>
         <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
           {(post.fee === "無料" || post.fee === "0円" || post.fee === "0") && <span className="bg-[#4ADE80] text-white text-xs font-bold px-2 py-1 rounded-full">無料</span>}
-          {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>}
+          {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && (
+              <span className="relative inline-flex">
+                <span className="absolute inset-0 bg-[#EF4444] rounded-full animate-ping opacity-60" />
+                <span className="relative bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>
+              </span>
+            )}
         </div>
       </div>
       <div className="p-4 bg-[#FFFFF0]">
@@ -154,6 +227,17 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
   const [page, setPage] = useState(1);
   const [filterOpen, setFilterOpen] = useState(false);
   const [mobileSearchVisible, setMobileSearchVisible] = useState(false);
+  /* ⑦ ページ切替トランジション */
+  const [cardsVisible, setCardsVisible] = useState(true);
+  const goToPage = useCallback((p: number) => {
+    setCardsVisible(false);
+    setTimeout(() => { setPage(p); setCardsVisible(true); }, 180);
+  }, []);
+  /* ⑨ Pull-to-refresh */
+  const pullStartY = useRef(0);
+  const pullDistRef = useRef(0);
+  const [pullDist, setPullDist] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     const q = searchParams.get("q") ?? "";
@@ -171,6 +255,46 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
     if (el) observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  /* ⑨ Pull-to-refresh イベント */
+  useEffect(() => {
+    const THRESHOLD = 70;
+    const onStart = (e: TouchEvent) => {
+      if (window.scrollY === 0) pullStartY.current = e.touches[0].clientY;
+    };
+    const onMove = (e: TouchEvent) => {
+      if (!pullStartY.current) return;
+      const d = e.touches[0].clientY - pullStartY.current;
+      if (d > 0 && window.scrollY === 0) {
+        pullDistRef.current = Math.min(d * 0.4, THRESHOLD + 20);
+        setPullDist(pullDistRef.current);
+      }
+    };
+    const onEnd = () => {
+      if (pullDistRef.current >= THRESHOLD) {
+        setIsRefreshing(true);
+        router.refresh();
+        setTimeout(() => {
+          setIsRefreshing(false);
+          setPullDist(0);
+          pullDistRef.current = 0;
+          pullStartY.current = 0;
+        }, 1200);
+      } else {
+        setPullDist(0);
+        pullDistRef.current = 0;
+        pullStartY.current = 0;
+      }
+    };
+    window.addEventListener("touchstart", onStart, { passive: true });
+    window.addEventListener("touchmove", onMove, { passive: true });
+    window.addEventListener("touchend", onEnd);
+    return () => {
+      window.removeEventListener("touchstart", onStart);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onEnd);
+    };
+  }, [router]);
 
   const toggleItem = (list: string[], setList: (v: string[]) => void, item: string) => {
     setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
@@ -263,12 +387,29 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
   return (
     <div className="bg-[#FFFFF0] flex flex-col min-h-screen">
 
+      {/* ⑨ Pull-to-refresh インジケーター */}
+      {pullDist > 0 && (
+        <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex justify-center items-end pointer-events-none"
+          style={{ height: `${pullDist}px` }}>
+          <span className="text-2xl mb-1" style={{
+            transform: `rotate(${Math.min(pullDist / 70, 1) * 360}deg) scale(${Math.min(pullDist / 70, 1)})`,
+            transition: "transform 0.05s",
+          }}>🐝</span>
+        </div>
+      )}
+      {isRefreshing && (
+        <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex justify-center items-center h-12 pointer-events-none">
+          <span className="text-2xl animate-bounce">🐝</span>
+        </div>
+      )}
+
       {/* モバイル固定検索バー */}
       {mobileSearchVisible && (
         <div className="md:hidden fixed top-[17vw] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw] animate-fadeInDown">
   <div className="flex items-center gap-[2vw]">
-    <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
-      <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
+    {/* ③ アイコン focus アニメーション */}
+    <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
+      <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
       <input
         type="search"
         placeholder="活動を検索..."
@@ -309,8 +450,9 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
         <main className="flex-1 md:px-6 md:py-6">
           {/* PC：検索窓＋ソート */}
           <div className="hidden md:flex gap-2 mb-4 items-center">
-            <div ref={setPcSearchRef} className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
-              <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
+            {/* ③ PC 検索アイコン focus アニメーション */}
+            <div ref={setPcSearchRef} className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
+              <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
               <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
                 onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
                 onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
@@ -341,8 +483,9 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
 
           {/* モバイル：検索窓 */}
 <div className="md:hidden mb-[3vw] flex items-center gap-[2vw]">
-  <div ref={mobileSearchRef} className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
-    <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
+  {/* ③ モバイル検索アイコン focus アニメーション */}
+  <div ref={mobileSearchRef} className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
+    <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
     <input type="search" placeholder="活動を検索..." value={keyword}
       onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
       onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
@@ -383,14 +526,57 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
             </div>
           </div>
 
-          <p className="text-[#092040] font-bold mb-4 text-base">{filtered.length} 件の活動が見つかりました</p>
+          {/* ⑤ アクティブフィルターチップ（PC） */}
+          {activeFilterCount > 0 && (
+            <div className="hidden md:flex flex-wrap gap-2 mb-3 items-center">
+              {selectedCategories.map((cat) => (
+                <button key={cat} onClick={() => toggleItem(selectedCategories, setSelectedCategories, cat)}
+                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown">
+                  {cat} <span>×</span>
+                </button>
+              ))}
+              {selectedGrades.map((g) => (
+                <button key={g} onClick={() => toggleItem(selectedGrades, setSelectedGrades, g)}
+                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown">
+                  {g} <span>×</span>
+                </button>
+              ))}
+              {selectedFormats.map((f) => (
+                <button key={f} onClick={() => setSelectedFormats([])}
+                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown">
+                  {f} <span>×</span>
+                </button>
+              ))}
+              {selectedPeriods.map((p) => (
+                <button key={p} onClick={() => toggleItem(selectedPeriods, setSelectedPeriods, p)}
+                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown">
+                  {p} <span>×</span>
+                </button>
+              ))}
+              {freeOnly && (
+                <button onClick={() => setFreeOnly(false)}
+                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown">
+                  無料のみ <span>×</span>
+                </button>
+              )}
+              <button onClick={() => { setSelectedCategories([]); setSelectedGrades([]); setSelectedFormats([]); setSelectedPeriods([]); setFreeOnly(false); setPage(1); }}
+                className="text-xs text-[#092040]/50 font-bold hover:text-[#EF4444] transition-colors underline ml-1">すべてクリア</button>
+            </div>
+          )}
 
+          {/* ① カウントアップ件数表示 */}
+          <ResultsCount count={filtered.length} />
+
+          {/* ⑦ ページ切替トランジション + ⑥ カードfadeIn */}
           {paginated.length === 0 ? (
             <div className="bg-[#F8F7F4] rounded-2xl p-10 text-center text-gray-400">条件に一致する活動がありません</div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6">
-              {paginated.map((post) => (
-                <ActivityCard key={post.id} post={post} onTagClick={(tag) => { setKeyword(tag); setPage(1); }} />
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6"
+              style={{ opacity: cardsVisible ? 1 : 0, transition: "opacity 0.18s ease" }}>
+              {paginated.map((post, i) => (
+                <FadeInCard key={post.id} delay={i * 40}>
+                  <ActivityCard post={post} onTagClick={(tag) => { setKeyword(tag); setPage(1); }} />
+                </FadeInCard>
               ))}
             </div>
           )}
@@ -404,24 +590,24 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
             const windowPages = Array.from({ length: right - left + 1 }, (_, i) => left + i);
             return (
               <div className="flex justify-center items-center gap-2 pb-6">
-                <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
+                <button onClick={() => goToPage(Math.max(1, page - 1))} disabled={page === 1}
                   className={btnArrow}>‹</button>
                 {left > 1 && (
                   <>
-                    <button onClick={() => setPage(1)} className={btnBase}>1</button>
+                    <button onClick={() => goToPage(1)} className={btnBase}>1</button>
                     {left > 2 && <span className="text-[#092040] font-bold px-1">…</span>}
                   </>
                 )}
                 {windowPages.map((p) => (
-                  <button key={p} onClick={() => setPage(p)} className={page === p ? btnActive : btnBase}>{p}</button>
+                  <button key={p} onClick={() => goToPage(p)} className={page === p ? btnActive : btnBase}>{p}</button>
                 ))}
                 {right < totalPages && (
                   <>
                     {right < totalPages - 1 && <span className="text-[#092040] font-bold px-1">…</span>}
-                    <button onClick={() => setPage(totalPages)} className={btnBase}>{totalPages}</button>
+                    <button onClick={() => goToPage(totalPages)} className={btnBase}>{totalPages}</button>
                   </>
                 )}
-                <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                <button onClick={() => goToPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}
                   className={btnArrow}>›</button>
               </div>
             );
@@ -460,7 +646,14 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
   return (
     <>
       <Navbar keyword={keyword} setKeyword={setKeyword} searchVisible={pcSearchVisible} />
-      <Suspense fallback={<div className="min-h-screen bg-[#FFFFF0]" />}>
+      {/* ④ スケルトンローディング */}
+      <Suspense fallback={
+        <div className="bg-[#FFFFF0] min-h-screen px-6 py-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        </div>
+      }>
         <SearchInner posts={posts} keyword={keyword} setKeyword={setKeyword} mobileSearchRef={mobileSearchRef} setPcSearchRef={setPcSearchRefCallback} />
       </Suspense>
     </>

@@ -117,7 +117,12 @@ function ActivityCard({ post }: { post: Post }) {
         </div>
         <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
           {(post.fee === "無料" || post.fee === "0円" || post.fee === "0") && <span className="bg-[#4ADE80] text-white text-xs font-bold px-2 py-1 rounded-full">無料</span>}
-          {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && <span className="bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full animate-blink">締切間近</span>}
+          {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && (
+              <span className="relative inline-flex">
+                <span className="absolute inset-0 bg-[#EF4444] rounded-full animate-ping opacity-60" />
+                <span className="relative bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>
+              </span>
+            )}
         </div>
       </div>
       <div className="p-4 bg-[#FFFFF0]">
@@ -309,8 +314,8 @@ function TopPageInner({ posts, keyword, setKeyword, setPcSearchRef, mobileSearch
       {mobileSearchVisible && (
         <div className="md:hidden fixed top-[17vw] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw] animate-fadeInDown">
   <div className="flex items-center gap-[2vw]">
-    <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
-      <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
+    <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
+      <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
       <input
         type="search"
         placeholder="活動を検索..."
@@ -335,8 +340,8 @@ function TopPageInner({ posts, keyword, setKeyword, setPcSearchRef, mobileSearch
         </div>
         <div className="mb-[5vw]">
           <div className="flex items-center gap-[2vw]">
-            <div ref={mobileSearchRef} className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
-              <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
+            <div ref={mobileSearchRef} className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
+              <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
               <input type="search" placeholder="活動名、主催者などで検索..." value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
@@ -372,8 +377,8 @@ function TopPageInner({ posts, keyword, setKeyword, setPcSearchRef, mobileSearch
         <div className="px-16 py-8 bg-[#FFFFF0] border-b border-gray-100">
           <div className="max-w-3xl mx-auto">
             <div ref={setPcSearchRef} className="flex items-center gap-3 mb-4">
-              <div className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-5 py-4 flex items-center gap-3">
-                <Image src="/icons/Magnifying Glass.svg" alt="" width={22} height={22} className="opacity-40 shrink-0" />
+              <div className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-5 py-4 flex items-center gap-3 group">
+                <Image src="/icons/Magnifying Glass.svg" alt="" width={22} height={22} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
                 <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
