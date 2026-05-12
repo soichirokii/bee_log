@@ -15,17 +15,20 @@ const notionHeaders = {
   "Content-Type": "application/json",
 };
 
-const REVALIDATE = 3600; // 1時間キャッシュ
+// Notion S3画像URLの有効期限が約1時間のため、60秒キャッシュで安全マージンを確保
+const REVALIDATE = 60;
 const TIMEOUT_MS = 10000; // 10秒タイムアウト
 
-async function notionFetch(url: string, init?: RequestInit): Promise<Response> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  try {
-    return await fetch(url, { ...init, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
+async function notionFetch(
+  url: string,
+  init?: RequestInit & { next?: { revalidate?: number } }
+): Promise<Response> {
+  // AbortControllerをPromise.raceで実現（Next.jsのfetchキャッシュを壊さないため）
+  const fetchPromise = fetch(url, init);
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error(`Notion API timeout after ${TIMEOUT_MS}ms`)), TIMEOUT_MS)
+  );
+  return Promise.race([fetchPromise, timeoutPromise]);
 }
 
 // Notion API raw response types
