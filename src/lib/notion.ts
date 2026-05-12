@@ -15,6 +15,19 @@ const notionHeaders = {
   "Content-Type": "application/json",
 };
 
+const REVALIDATE = 3600; // 1時間キャッシュ
+const TIMEOUT_MS = 10000; // 10秒タイムアウト
+
+async function notionFetch(url: string, init?: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 // Notion API raw response types
 type RawRichTextItem = {
   plain_text?: string;
@@ -148,7 +161,7 @@ function rawBlockToNotionBlock(block: RawBlock): NotionBlock {
 }
 
 export async function getPublishedPosts(): Promise<Post[]> {
-  const res = await fetch(
+  const res = await notionFetch(
     `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
     {
       method: "POST",
@@ -167,7 +180,7 @@ export async function getPublishedPosts(): Promise<Post[]> {
           ],
         },
       }),
-      next: { revalidate: 0 },
+      next: { revalidate: REVALIDATE },
     }
   );
 
@@ -177,9 +190,9 @@ export async function getPublishedPosts(): Promise<Post[]> {
 }
 
 export async function getPostById(id: string): Promise<Post | null> {
-  const res = await fetch(`https://api.notion.com/v1/pages/${id}`, {
+  const res = await notionFetch(`https://api.notion.com/v1/pages/${id}`, {
     headers: notionHeaders,
-    next: { revalidate: 0 },
+    next: { revalidate: REVALIDATE },
   });
   if (!res.ok) return null;
   return pageToPost(await res.json() as RawPage);
@@ -193,9 +206,9 @@ export async function getPostBlocks(pageId: string): Promise<NotionBlock[]> {
     const url = `https://api.notion.com/v1/blocks/${pageId}/children?page_size=100${
       cursor ? `&start_cursor=${cursor}` : ""
     }`;
-    const res = await fetch(url, {
+    const res = await notionFetch(url, {
       headers: notionHeaders,
-      next: { revalidate: 0 },
+      next: { revalidate: REVALIDATE },
     });
     if (!res.ok) throw new Error(`Notion API error: ${res.status}`);
     const data = await res.json() as NotionBlockResult;
