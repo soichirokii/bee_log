@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import ShareButton from "@/app/components/ShareButton";
 import MobileApplyButton from "@/app/components/MobileApplyButton";
+import Footer from "@/app/components/Footer";
 
 export const revalidate = 1800;
 
@@ -344,6 +345,7 @@ export default async function PostDetailPage({
 
       <MobileApplyButton applyUrl={post.applyUrl} daysLeft={daysLeft} />
       <div className="md:hidden h-24" />
+      <Footer />
     </div>
   );
 }
