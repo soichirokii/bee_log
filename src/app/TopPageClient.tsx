@@ -108,7 +108,7 @@ function ActivityCard({ post }: { post: Post }) {
       </div>
       <div className="w-full aspect-video bg-gray-200 relative overflow-hidden">
         {post.imageUrl
-          ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
+          ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" onError={(e) => { e.currentTarget.src = "/noimage.svg"; }} />
           : <Image src="/noimage.svg" alt="No Image" fill className="object-cover" />}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
           {post.isFeatured && <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>}
@@ -162,7 +162,7 @@ function MobileSlider({ posts }: { posts: Post[] }) {
     <div className="relative">
       <div className="overflow-hidden" onClick={() => router.push(`/posts/${current.slug}`)}>
         <div className={`relative w-full aspect-video transition-opacity duration-300 ${animating ? "opacity-0" : "opacity-100"}`}>
-          {current.imageUrl ? <Image src={current.imageUrl} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />}
+          {current.imageUrl ? <Image src={current.imageUrl} alt={current.title} fill className="object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} /> : <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute top-[2vw] left-[2vw] flex gap-[1.5vw]">
             {current.isFeatured && <span className="bg-white text-[#092040] text-[2.5vw] font-bold px-[2.5vw] py-[1vw] rounded-full">おすすめ</span>}
@@ -206,7 +206,7 @@ function HeroSlider({ posts }: { posts: Post[] }) {
   return (
     <div className="relative w-full aspect-video overflow-hidden cursor-pointer"
       onClick={() => router.push(`/posts/${current.slug}`)}>
-      {current.imageUrl ? <Image src={current.imageUrl} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-100" />}
+      {current.imageUrl ? <Image src={current.imageUrl} alt={current.title} fill className="object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} /> : <div className="w-full h-full bg-gray-100" />}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
       <div className="absolute bottom-4 left-4 right-4">
         <h3 className="text-white font-black text-lg line-clamp-2">{current.title}</h3>
