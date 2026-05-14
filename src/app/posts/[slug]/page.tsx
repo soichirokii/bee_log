@@ -1,4 +1,5 @@
-import { getPostWithContentBySlug, getAllPublishedSlugs } from "@/lib/notion";
+import { getPostWithContentBySlug, getAllPublishedSlugs, getPublishedPosts } from "@/lib/notion";
+import { Post, PostWithContent } from "@/types/notion";
 import { NotionBlock, RichText } from "@/types/notion";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -146,14 +147,81 @@ function BlocksRenderer({ blocks }: { blocks: NotionBlock[] }) {
   return <>{result}</>;
 }
 
+/* ── 関連活動スコアリング ── */
+function getRelatedPosts(allPosts: Post[], current: PostWithContent, count = 3): Post[] {
+  return allPosts
+    .filter((p) => p.id !== current.id)
+    .map((p) => {
+      let score = 0;
+      if (p.category && p.category === current.category) score += 10;
+      current.tags.forEach((tag) => { if (p.tags.includes(tag)) score += 1; });
+      return { post: p, score };
+    })
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, count)
+    .map(({ post }) => post);
+}
+
+/* ── 関連活動カード（サーバーコンポーネント）── */
+function RelatedCard({ post }: { post: Post }) {
+  const now = new Date();
+  const daysLeft = post.deadline
+    ? Math.ceil((new Date(post.deadline).getTime() - now.getTime()) / 86400000)
+    : null;
+  const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
+
+  return (
+    <Link href={`/posts/${post.slug}`}
+      className="group relative bg-[#FFFFF0] transition-all duration-300 overflow-hidden block">
+      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-70 transition-opacity duration-300 z-10 pointer-events-none" />
+      <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+        <span className="text-white text-lg font-bold tracking-widest">VIEW MORE</span>
+      </div>
+      <div className="w-full aspect-video bg-gray-200 relative overflow-hidden">
+        {post.imageUrl
+          ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" onError={(e) => { e.currentTarget.src = "/noimage.svg"; }} />
+          : <Image src="/noimage.svg" alt="No Image" fill className="object-cover" />}
+        {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && (
+          <div className="absolute top-2 right-2">
+            <span className="relative inline-flex">
+              <span className="absolute inset-0 bg-[#EF4444] rounded-full animate-ping opacity-60" />
+              <span className="relative bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="p-4 bg-[#FFFFF0]">
+        <div className="flex items-center gap-2 mb-2 flex-wrap">
+          {post.category && (
+            <span className={`px-3 py-1 rounded-full font-medium text-xs whitespace-nowrap ${categoryStyle}`}>
+              {post.category}
+            </span>
+          )}
+        </div>
+        <h3 className="font-bold text-[#092040] text-xl line-clamp-2">{post.title}</h3>
+        {post.deadline && (
+          <p className={`text-xs mt-2 ${daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? "text-[#EF4444] font-bold" : "text-gray-400"}`}>
+            締切: {new Date(post.deadline).toLocaleDateString("ja-JP")}
+          </p>
+        )}
+      </div>
+    </Link>
+  );
+}
+
 export default async function PostDetailPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const post = await getPostWithContentBySlug(slug);
+  const [post, allPosts] = await Promise.all([
+    getPostWithContentBySlug(slug),
+    getPublishedPosts(),
+  ]);
   if (!post) notFound();
+  const relatedPosts = getRelatedPosts(allPosts, post);
 
   const now = new Date();
   const daysLeft = post.deadline
@@ -342,6 +410,18 @@ export default async function PostDetailPage({
 
         </div>
       </div>
+
+      {/* 関連する活動 */}
+      {relatedPosts.length > 0 && (
+        <section className="px-[5vw] md:px-16 py-8 border-t border-gray-100">
+          <h2 className="font-bold text-xl text-[#092040] mb-6">関連する活動</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {relatedPosts.map((p) => (
+              <RelatedCard key={p.id} post={p} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <MobileApplyButton applyUrl={post.applyUrl} daysLeft={daysLeft} />
       <div className="md:hidden h-24" />
