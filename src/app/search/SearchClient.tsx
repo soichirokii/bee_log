@@ -571,7 +571,6 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
           {paginated.length === 0 ? (
             <div className="bg-[#FFFFEE] rounded-2xl p-10 text-center">
               <div className="flex flex-col items-center gap-4">
-                <Image src="/beelog.svg" alt="BEE log" width={64} height={64} />
                 <p className="font-bold text-[#092040]">その活動、まだ載ってないかも🐝</p>
                 <p className="text-sm text-gray-400">条件を変えて探してみよう</p>
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -587,7 +586,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
                     rel="noopener noreferrer"
                     className="border-2 border-[#092040] text-[#092040] rounded-xl px-6 py-2 font-bold text-sm hover:bg-[#092040] hover:text-white transition-colors"
                   >
-                    LINE で新着通知を受け取る
+                    LINEで締切・新着通知を受け取る
                   </a>
                 </div>
               </div>
