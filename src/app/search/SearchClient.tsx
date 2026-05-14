@@ -569,7 +569,29 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
 
           {/* ⑦ ページ切替トランジション + ⑥ カードfadeIn */}
           {paginated.length === 0 ? (
-            <div className="bg-[#F8F7F4] rounded-2xl p-10 text-center text-gray-400">条件に一致する活動がありません</div>
+            <div className="bg-[#FFFFEE] rounded-2xl p-10 text-center">
+              <div className="flex flex-col items-center gap-4">
+                <Image src="/beelog.svg" alt="BEE log" width={64} height={64} />
+                <p className="font-bold text-[#092040]">その活動、まだ載ってないかも🐝</p>
+                <p className="text-sm text-gray-400">条件を変えて探してみよう</p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => { setSelectedCategories([]); setSelectedGrades([]); setSelectedFormats([]); setSelectedPeriods([]); setFreeOnly(false); setPage(1); }}
+                    className="bg-[#092040] text-white rounded-xl px-6 py-2 font-bold text-sm hover:opacity-80 transition-opacity"
+                  >
+                    絞り込みをリセット
+                  </button>
+                  <a
+                    href="https://lin.ee/FD2mNHZ"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="border-2 border-[#092040] text-[#092040] rounded-xl px-6 py-2 font-bold text-sm hover:bg-[#092040] hover:text-white transition-colors"
+                  >
+                    LINE で新着通知を受け取る
+                  </a>
+                </div>
+              </div>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-6"
               style={{ opacity: cardsVisible ? 1 : 0, transition: "opacity 0.18s ease" }}>
