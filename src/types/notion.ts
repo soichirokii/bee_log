@@ -17,7 +17,8 @@ export type Post = {
   applyUrl: string;
   isFeatured: boolean;
   isPublished: boolean;
-  imageUrl: string | null; // ← 追加
+  imageUrl: string | null;
+  createdAt: string; // Notionページ作成日時（ISO 8601）
 };
 
 export type PostWithContent = Post & {

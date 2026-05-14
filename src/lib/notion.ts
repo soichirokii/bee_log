@@ -57,6 +57,7 @@ type RawPropertyValue = {
 
 type RawPage = {
   id: string;
+  created_time: string;
   properties: Record<string, RawPropertyValue>;
 };
 
@@ -129,6 +130,7 @@ function pageToPost(page: RawPage): Post {
     isFeatured: props["注目"]?.checkbox ?? false,
     isPublished: props["公開"]?.checkbox ?? false,
     imageUrl,
+    createdAt: page.created_time,
   };
 }
 
