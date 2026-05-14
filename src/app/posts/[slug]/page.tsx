@@ -179,9 +179,12 @@ function RelatedCard({ post }: { post: Post }) {
         <span className="text-white text-lg font-bold tracking-widest">VIEW MORE</span>
       </div>
       <div className="w-full aspect-video bg-gray-200 relative overflow-hidden">
-        {post.imageUrl
-          ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" onError={(e) => { e.currentTarget.src = "/noimage.svg"; }} />
-          : <Image src="/noimage.svg" alt="No Image" fill className="object-cover" />}
+        <Image
+          src={post.imageUrl ?? "/noimage.svg"}
+          alt={post.title}
+          fill
+          className="object-cover"
+        />
         {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && (
           <div className="absolute top-2 right-2">
             <span className="relative inline-flex">
