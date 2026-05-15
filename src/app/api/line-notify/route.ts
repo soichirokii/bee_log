@@ -7,74 +7,34 @@ import { Post } from "@/types/notion";
 //   CRON_SECRET               ... Vercel Cron からのリクエスト認証用シークレット
 //                                 （openssl rand -hex 32 などで生成した任意の文字列）
 
-function toLineMessage(text: string) {
-  return { type: "text", text };
-}
+function buildDailyMessage(deadlineSoon: Post[], newPosts: Post[], now: Date): string {
+  const lines: string[] = [];
 
-function buildDeadlineMessage(p: Post, now: Date): string {
-  const deadline = new Date(p.deadline!);
-  const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  const deadlineStr = deadline.toLocaleDateString("ja-JP", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-  const url = `https://www.beelog-jp.com/posts/${p.slug}`;
+  const dateStr = now.toLocaleDateString("ja-JP", { month: "long", day: "numeric" });
+  lines.push(`🐝 BEE log 本日（${dateStr}）のお知らせ`);
 
-  return [
-    `⏰ 締切まであと${daysLeft}日！`,
-    ``,
-    `【${p.title}】`,
-    `主催: ${p.organizer || "ー"}`,
-    `締切: ${deadlineStr}`,
-    ``,
-    `詳細はこちら👇`,
-    url,
-  ].join("\n");
-}
-
-function buildNewPostMessage(p: Post): string {
-  const url = `https://www.beelog-jp.com/posts/${p.slug}`;
-
-  return [
-    `🐝 新着活動が追加されました！`,
-    ``,
-    `【${p.title}】`,
-    `主催: ${p.organizer || "ー"}`,
-    p.category ? `カテゴリ: ${p.category}` : "",
-    p.deadline
-      ? `締切: ${new Date(p.deadline).toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric" })}`
-      : "",
-    ``,
-    `詳細はこちら👇`,
-    url,
-  ]
-    .filter((line) => line !== "")
-    .join("\n");
-}
-
-async function broadcastMessages(messages: { type: string; text: string }[], token: string): Promise<string[]> {
-  const CHUNK = 5;
-  const errors: string[] = [];
-
-  for (let i = 0; i < messages.length; i += CHUNK) {
-    const chunk = messages.slice(i, i + CHUNK);
-    const res = await fetch("https://api.line.me/v2/bot/message/broadcast", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ messages: chunk }),
+  // ── 締切間近 ──
+  if (deadlineSoon.length > 0) {
+    lines.push("", "⏰ 締切が近い活動");
+    deadlineSoon.forEach((p) => {
+      const deadline = new Date(p.deadline!);
+      const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      const deadlineStr = deadline.toLocaleDateString("ja-JP", { month: "long", day: "numeric" });
+      lines.push(`・${p.title}（あと${daysLeft}日 / ${deadlineStr}締切）`);
+      lines.push(`  https://www.beelog-jp.com/posts/${p.slug}`);
     });
-
-    if (!res.ok) {
-      const body = await res.text();
-      errors.push(`chunk ${Math.floor(i / CHUNK) + 1}: ${res.status} ${body}`);
-    }
   }
 
-  return errors;
+  // ── 新着 ──
+  if (newPosts.length > 0) {
+    lines.push("", "✨ 新着活動");
+    newPosts.forEach((p) => {
+      lines.push(`・${p.title}`);
+      lines.push(`  https://www.beelog-jp.com/posts/${p.slug}`);
+    });
+  }
+
+  return lines.join("\n");
 }
 
 export async function GET(req: NextRequest) {
@@ -113,26 +73,25 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ message: "Nothing to notify." }, { status: 200 });
   }
 
-  // ── メッセージ組み立て ────────────────────────────────────
-  const messages: { type: string; text: string }[] = [];
+  // ── 1通にまとめてブロードキャスト送信 ────────────────────
+  const text = buildDailyMessage(deadlineSoon, newPosts, now);
 
-  if (deadlineSoon.length > 0) {
-    deadlineSoon.forEach((p) => messages.push(toLineMessage(buildDeadlineMessage(p, now))));
-  }
+  const res = await fetch("https://api.line.me/v2/bot/message/broadcast", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ messages: [{ type: "text", text }] }),
+  });
 
-  if (newPosts.length > 0) {
-    newPosts.forEach((p) => messages.push(toLineMessage(buildNewPostMessage(p))));
-  }
-
-  // ── LINE ブロードキャスト送信 ──────────────────────────────
-  const errors = await broadcastMessages(messages, token);
-
-  if (errors.length > 0) {
-    return NextResponse.json({ error: "Some messages failed", details: errors }, { status: 500 });
+  if (!res.ok) {
+    const body = await res.text();
+    return NextResponse.json({ error: `LINE API error: ${res.status}`, detail: body }, { status: 500 });
   }
 
   return NextResponse.json({
-    message: `Sent ${messages.length} message(s).`,
+    message: "Sent 1 message.",
     deadlineSoon: deadlineSoon.map((p) => p.title),
     newPosts: newPosts.map((p) => p.title),
   });
