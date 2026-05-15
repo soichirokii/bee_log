@@ -1,37 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPublishedPosts } from "@/lib/notion";
-import { Post } from "@/types/notion";
 
 // 必要な環境変数:
 //   LINE_CHANNEL_ACCESS_TOKEN ... LINE Messaging API のチャネルアクセストークン
 //   CRON_SECRET               ... Vercel Cron からのリクエスト認証用シークレット
-//                                 （openssl rand -hex 32 などで生成した任意の文字列）
 //
-// ⚠️ LINE Messaging API の無料プランは月200通（受信者×送信数でカウント）。
-//    友達が増えてきたら有料プランへの移行を検討してください。
-
-function buildMessage(p: Post, label: string, now: Date): string {
-  const url = `https://www.beelog-jp.com/posts/${p.slug}`;
-  const lines = [
-    label,
-    ``,
-    `【${p.title}】`,
-    p.organizer ? `主催: ${p.organizer}` : "",
-    p.category ? `カテゴリ: ${p.category}` : "",
-  ];
-
-  if (p.deadline) {
-    const deadline = new Date(p.deadline);
-    const daysLeft = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    const deadlineStr = deadline.toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric" });
-    lines.push(`締切: ${deadlineStr}（あと${daysLeft}日）`);
-  }
-
-  if (p.fee) lines.push(`参加費: ${p.fee}`);
-  lines.push(``, `詳細はこちら👇`, url);
-
-  return lines.filter((l) => l !== "").join("\n");
-}
+// 毎週金曜 JST 9:00（UTC 0:00）に自動送信。
+// 今週の新着活動（最大3件）と締切間近の活動（最大3件）を1通にまとめる。
 
 export async function GET(req: NextRequest) {
   // ── セキュリティ検証 ──────────────────────────────────────
@@ -48,46 +23,68 @@ export async function GET(req: NextRequest) {
 
   const posts = await getPublishedPosts();
   const now = new Date();
-  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const fourteenDaysLater = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
 
-  // ── ① 新着活動（過去24h以内に追加）を優先 ────────────────
+  // ── 今週の新着（過去7日以内に追加、新しい順）───────────
   const newPosts = posts
-    .filter((p) => new Date(p.createdAt) >= oneDayAgo)
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    .filter((p) => new Date(p.createdAt) >= sevenDaysAgo)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 3);
+
+  // ── 締切間近（14日以内、締切昇順）───────────────────────
+  const deadlineSoon = posts
+    .filter((p) => {
+      if (!p.deadline) return false;
+      const dl = new Date(p.deadline);
+      return dl >= now && dl <= fourteenDaysLater;
+    })
+    .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())
+    .slice(0, 3);
+
+  if (newPosts.length === 0 && deadlineSoon.length === 0) {
+    return NextResponse.json({ message: "Nothing to notify." }, { status: 200 });
+  }
+
+  // ── メッセージ組み立て（1通）────────────────────────────
+  const lines: string[] = [];
+  const weekStr = `${sevenDaysAgo.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}〜${now.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}`;
+
+  lines.push(`🐝 BEE log 週間まとめ（${weekStr}）`);
 
   if (newPosts.length > 0) {
-    const p = newPosts[0];
-    const text = buildMessage(p, "🐝 新着活動のご紹介", now);
-    const res = await fetch("https://api.line.me/v2/bot/message/broadcast", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ messages: [{ type: "text", text }] }),
+    lines.push("", "✨ 今週の新着活動");
+    newPosts.forEach((p) => {
+      lines.push(`・${p.title}`);
+      if (p.deadline) {
+        const dl = new Date(p.deadline);
+        lines.push(`  締切: ${dl.toLocaleDateString("ja-JP", { month: "long", day: "numeric" })}`);
+      }
+      lines.push(`  https://www.beelog-jp.com/posts/${p.slug}`);
     });
-    if (!res.ok) {
-      const body = await res.text();
-      return NextResponse.json({ error: `LINE API error: ${res.status}`, detail: body }, { status: 500 });
-    }
-    return NextResponse.json({ message: "Sent (new post).", activity: p.title });
   }
 
-  // ── ② 新着なし → 締切順で日付ローテーション ─────────────
-  // 日付ベースのインデックスで毎日違う活動を紹介（連続を防止）
-  const upcoming = posts
-    .filter((p) => p.deadline && new Date(p.deadline) >= now)
-    .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime());
-
-  if (upcoming.length === 0) {
-    return NextResponse.json({ message: "No upcoming activities. Nothing sent." }, { status: 200 });
+  if (deadlineSoon.length > 0) {
+    lines.push("", "⏰ 締切が近い活動");
+    deadlineSoon.forEach((p) => {
+      const dl = new Date(p.deadline!);
+      const daysLeft = Math.ceil((dl.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      const dlStr = dl.toLocaleDateString("ja-JP", { month: "long", day: "numeric" });
+      lines.push(`・${p.title}`);
+      lines.push(`  締切: ${dlStr}（あと${daysLeft}日）`);
+      lines.push(`  https://www.beelog-jp.com/posts/${p.slug}`);
+    });
   }
 
-  // UTC日数をリストの長さで割った余りでインデックスを決定
-  const dayIndex = Math.floor(now.getTime() / (1000 * 60 * 60 * 24));
-  const pick = upcoming[dayIndex % upcoming.length];
-  const text = buildMessage(pick, "🐝 本日のおすすめ活動", now);
+  const text = lines.join("\n");
 
+  // ── LINE ブロードキャスト送信 ─────────────────────────────
   const res = await fetch("https://api.line.me/v2/bot/message/broadcast", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify({ messages: [{ type: "text", text }] }),
   });
 
@@ -96,5 +93,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: `LINE API error: ${res.status}`, detail: body }, { status: 500 });
   }
 
-  return NextResponse.json({ message: "Sent (rotation).", activity: pick.title });
+  return NextResponse.json({
+    message: "Sent.",
+    newPosts: newPosts.map((p) => p.title),
+    deadlineSoon: deadlineSoon.map((p) => p.title),
+  });
 }
