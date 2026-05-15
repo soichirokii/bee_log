@@ -3,7 +3,7 @@ import { Post } from "@/types/notion";
 import SearchClient from "./SearchClient";
 import { Suspense } from "react";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function SearchPage() {
   let posts: Post[] = [];
