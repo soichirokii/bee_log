@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import PageTransition from "./components/PageTransition";
+import LinePopup from "./components/LinePopup";
 import { Analytics } from "@vercel/analytics/react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.beelog-jp.com";
@@ -80,6 +81,7 @@ export default function RootLayout({
         `}} />
         <PageTransition />
         {children}
+        <LinePopup />
         <Analytics />
       </body>
     </html>
