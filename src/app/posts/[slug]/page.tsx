@@ -8,6 +8,7 @@ import Link from "next/link";
 import ShareButton from "@/app/components/ShareButton";
 import MobileApplyButton from "@/app/components/MobileApplyButton";
 import Footer from "@/app/components/Footer";
+import { CATEGORY_BG } from "@/constants/categories";
 
 export const revalidate = 1800;
 
@@ -31,6 +32,9 @@ export async function generateMetadata(props: {
     return {
       title: post.title,
       description: post.summary,
+      alternates: {
+        canonical: `https://www.beelog-jp.com/posts/${slug}`,
+      },
       openGraph: {
         type: "article",
         url: `https://www.beelog-jp.com/posts/${slug}`,
@@ -49,17 +53,6 @@ export async function generateMetadata(props: {
     return { title: "Error" };
   }
 }
-
-const CATEGORY_BG: Record<string, string> = {
-  "コンテスト・大会": "bg-orange-100 text-orange-700",
-  "インターンシップ": "bg-lime-100 text-lime-700",
-  "ボランティア": "bg-blue-100 text-blue-700",
-  "留学・国際": "bg-red-100 text-red-700",
-  "研究・論文": "bg-purple-100 text-purple-700",
-  "起業・ビジネス": "bg-blue-100 text-blue-700",
-  "奨学金": "bg-green-100 text-green-700",
-  "科学・テクノロジー": "bg-pink-100 text-pink-700",
-};
 
 function RichTextRenderer({ items }: { items: RichText[] }) {
   return (
@@ -236,8 +229,37 @@ export default async function PostDetailPage({
     : null;
   const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
 
+  const BASE_URL = "https://www.beelog-jp.com";
+  const postUrl = `${BASE_URL}/posts/${post.slug}`;
+
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.summary,
+    image: post.imageUrl ?? `${BASE_URL}/ogp.png`,
+    datePublished: post.createdAt,
+    author: { "@type": "Organization", name: post.organizer || "BEE log" },
+    publisher: { "@type": "Organization", name: "BEE log", url: BASE_URL },
+    url: postUrl,
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "ホーム", item: BASE_URL },
+      ...(post.category
+        ? [{ "@type": "ListItem", position: 2, name: post.category, item: `${BASE_URL}/search?category=${encodeURIComponent(post.category)}` }]
+        : []),
+      { "@type": "ListItem", position: post.category ? 3 : 2, name: post.title },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-[#FFFFF0]">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
       {/* PC Navbar */}
       <nav className="hidden md:flex items-center px-16 py-4 bg-[#FFFFF0] border-b-2 border-[#092040] sticky top-0 z-50">
@@ -261,6 +283,32 @@ export default async function PostDetailPage({
         <div className="flex-1 flex justify-end">
           <Link href="/search" className="bg-[#FCBC2A] text-[#092040] font-bold text-[3.5vw] px-[4vw] py-[2vw] rounded-full">探す</Link>
         </div>
+      </nav>
+
+      {/* パンくずリスト */}
+      <nav aria-label="パンくずリスト" className="px-[5vw] md:px-16 pt-4 pb-1">
+        <ol className="flex items-center gap-1.5 text-xs text-[#092040]/60 flex-wrap">
+          <li>
+            <Link href="/" className="hover:text-[#092040] transition-colors font-medium">ホーム</Link>
+          </li>
+          {post.category && (
+            <>
+              <li aria-hidden="true" className="select-none">›</li>
+              <li>
+                <Link
+                  href={`/search?category=${encodeURIComponent(post.category)}`}
+                  className="hover:text-[#092040] transition-colors font-medium"
+                >
+                  {post.category}
+                </Link>
+              </li>
+            </>
+          )}
+          <li aria-hidden="true" className="select-none">›</li>
+          <li aria-current="page" className="text-[#092040] font-bold truncate max-w-[180px] md:max-w-xs">
+            {post.title}
+          </li>
+        </ol>
       </nav>
 
       {/* ヘッダー画像 */}
