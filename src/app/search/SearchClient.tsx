@@ -108,10 +108,11 @@ function ResultsCount({ count }: { count: number }) {
   return <p className="text-[#092040] font-bold mb-4 text-base">{display} 件の活動が見つかりました</p>;
 }
 
-function Navbar({ keyword, setKeyword, searchVisible }: {
+function Navbar({ keyword, setKeyword, searchVisible, onSearch }: {
   keyword: string;
   setKeyword: (v: string) => void;
   searchVisible: boolean;
+  onSearch: () => void;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -134,11 +135,11 @@ function Navbar({ keyword, setKeyword, searchVisible }: {
               placeholder="検索"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
+              onKeyDown={(e) => { if (e.key === "Enter") onSearch(); }}
               className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent"
             />
           </div>
-          <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+          <button onClick={onSearch}
             className="bg-[#092040] text-white font-bold px-5 py-2.5 rounded-2xl text-sm hover:opacity-90 transition-opacity shrink-0">検索</button>
         </div>
       </nav>
@@ -199,6 +200,11 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
           {post.organizer && <span className="text-gray-400">{post.organizer}</span>}
         </div>
         <h3 className="font-bold text-[#092040] text-xl line-clamp-2">{post.title}</h3>
+        {post.deadline && daysLeft !== null && (
+          <p className={`text-xs mt-1.5 font-bold ${daysLeft < 0 ? "text-gray-400" : daysLeft === 0 ? "text-[#EF4444]" : daysLeft <= 7 ? "text-[#EF4444]" : "text-gray-400"}`}>
+            {daysLeft < 0 ? "締切済み" : daysLeft === 0 ? "本日締切" : `あと${daysLeft}日`}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -216,19 +222,28 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
   const searchParams = useSearchParams();
   const router = useRouter();
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    searchParams.get("category") ? [searchParams.get("category")!] : []
+    searchParams.get("category")?.split(",").filter(Boolean) ?? []
   );
-  const [selectedGrades, setSelectedGrades] = useState<string[]>([]);
-  const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
-  const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
-  const [freeOnly, setFreeOnly] = useState(false);
-  const [sortOrder, setSortOrder] = useState<"newest" | "deadline">("newest");
+  const [selectedGrades, setSelectedGrades] = useState<string[]>(
+    searchParams.get("grade")?.split(",").filter(Boolean) ?? []
+  );
+  const [selectedFormats, setSelectedFormats] = useState<string[]>(
+    searchParams.get("format") ? [searchParams.get("format")!] : []
+  );
+  const [selectedPeriods, setSelectedPeriods] = useState<string[]>(
+    searchParams.get("period")?.split(",").filter(Boolean) ?? []
+  );
+  const [freeOnly, setFreeOnly] = useState(searchParams.get("free") === "1");
+  const [sortOrder, setSortOrder] = useState<"newest" | "deadline">(
+    searchParams.get("sort") === "deadline" ? "deadline" : "newest"
+  );
   const [sortOpen, setSortOpen] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
   const [filterOpen, setFilterOpen] = useState(false);
   const [mobileSearchVisible, setMobileSearchVisible] = useState(false);
   /* ⑦ ページ切替トランジション */
   const [cardsVisible, setCardsVisible] = useState(true);
+  const skipUrlToStateRef = useRef(false);
   const goToPage = useCallback((p: number) => {
     setCardsVisible(false);
     setTimeout(() => { setPage(p); setCardsVisible(true); }, 180);
@@ -239,12 +254,37 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
   const [pullDist, setPullDist] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  // URL → 状態（シェアURLや戻るボタンで状態を復元）
   useEffect(() => {
-    const q = searchParams.get("q") ?? "";
-    setKeyword(q);
-    setPage(1);
+    if (skipUrlToStateRef.current) {
+      skipUrlToStateRef.current = false;
+      return;
+    }
+    setKeyword(searchParams.get("q") ?? "");
+    setSelectedCategories(searchParams.get("category")?.split(",").filter(Boolean) ?? []);
+    setSelectedGrades(searchParams.get("grade")?.split(",").filter(Boolean) ?? []);
+    setSelectedFormats(searchParams.get("format") ? [searchParams.get("format")!] : []);
+    setSelectedPeriods(searchParams.get("period")?.split(",").filter(Boolean) ?? []);
+    setFreeOnly(searchParams.get("free") === "1");
+    setSortOrder((searchParams.get("sort") ?? "newest") as "newest" | "deadline");
+    setPage(Number(searchParams.get("page")) || 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [searchParams]);
+
+  // 状態 → URL（フィルター変更時にURLを更新）
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (keyword.trim()) params.set("q", keyword.trim());
+    if (selectedCategories.length) params.set("category", selectedCategories.join(","));
+    if (selectedGrades.length) params.set("grade", selectedGrades.join(","));
+    if (selectedFormats.length) params.set("format", selectedFormats[0]);
+    if (selectedPeriods.length) params.set("period", selectedPeriods.join(","));
+    if (freeOnly) params.set("free", "1");
+    if (sortOrder !== "newest") params.set("sort", sortOrder);
+    if (page > 1) params.set("page", String(page));
+    skipUrlToStateRef.current = true;
+    router.replace(`/search?${params.toString()}`, { scroll: false });
+  }, [selectedCategories, selectedGrades, selectedFormats, selectedPeriods, freeOnly, sortOrder, page]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -300,6 +340,18 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
     setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
     setPage(1);
   };
+
+  const handleSearch = useCallback(() => {
+    const params = new URLSearchParams();
+    if (keyword.trim()) params.set("q", keyword.trim());
+    if (selectedCategories.length) params.set("category", selectedCategories.join(","));
+    if (selectedGrades.length) params.set("grade", selectedGrades.join(","));
+    if (selectedFormats.length) params.set("format", selectedFormats[0]);
+    if (selectedPeriods.length) params.set("period", selectedPeriods.join(","));
+    if (freeOnly) params.set("free", "1");
+    if (sortOrder !== "newest") params.set("sort", sortOrder);
+    router.push(`/search?${params.toString()}`);
+  }, [keyword, selectedCategories, selectedGrades, selectedFormats, selectedPeriods, freeOnly, sortOrder, router]);
 
   const activeFilterCount = selectedCategories.length + selectedGrades.length + selectedFormats.length + selectedPeriods.length + (freeOnly ? 1 : 0);
 
@@ -415,11 +467,11 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
         placeholder="活動を検索..."
         value={keyword}
         onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
-        onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
+        onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
         className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent"
       />
     </div>
-    <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+    <button onClick={() => handleSearch()}
       className="bg-[#092040] text-white font-bold text-sm px-[3vw] py-2.5 rounded-2xl shrink-0">
       検索
     </button>
@@ -433,7 +485,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
           <div className="absolute bottom-0 left-0 right-0 bg-[#FFFFF0] rounded-t-3xl p-4 max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <span className="font-black text-[#092040] text-lg">絞り込み</span>
-              <button onClick={() => setFilterOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-[#092040] text-xl font-bold hover:bg-gray-200 transition-colors">×</button>
+              <button onClick={() => setFilterOpen(false)} aria-label="フィルターを閉じる" className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-[#092040] text-xl font-bold hover:bg-gray-200 transition-colors focus-visible:outline-2 focus-visible:outline-[#FCBC2A]">×</button>
             </div>
             <FilterPanel />
             <button onClick={() => setFilterOpen(false)} className="w-full mt-4 bg-[#092040] text-white font-bold py-4 rounded-2xl">{filtered.length}件を表示</button>
@@ -455,10 +507,10 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
               <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
               <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
                 onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
-                onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
+                onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
                 className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
             </div>
-            <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+            <button onClick={() => handleSearch()}
               className="bg-[#092040] text-white font-bold px-5 py-2.5 rounded-2xl text-sm hover:opacity-90 transition-opacity shrink-0">
               検索
             </button>
@@ -488,10 +540,10 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
     <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
     <input type="search" placeholder="活動を検索..." value={keyword}
       onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
-      onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
+      onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
       className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
   </div>
-  <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
+  <button onClick={() => handleSearch()}
     className="bg-[#092040] text-white font-bold text-sm px-[3vw] py-2.5 rounded-2xl shrink-0">
     検索
   </button>
@@ -531,32 +583,37 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
             <div className="hidden md:flex flex-wrap gap-2 mb-3 items-center">
               {selectedCategories.map((cat) => (
                 <button key={cat} onClick={() => toggleItem(selectedCategories, setSelectedCategories, cat)}
-                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown">
-                  {cat} <span>×</span>
+                  aria-label={`${cat}フィルターを解除`}
+                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown focus-visible:outline-2 focus-visible:outline-[#FCBC2A]">
+                  {cat} <span aria-hidden="true">×</span>
                 </button>
               ))}
               {selectedGrades.map((g) => (
                 <button key={g} onClick={() => toggleItem(selectedGrades, setSelectedGrades, g)}
-                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown">
-                  {g} <span>×</span>
+                  aria-label={`${g}フィルターを解除`}
+                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown focus-visible:outline-2 focus-visible:outline-[#FCBC2A]">
+                  {g} <span aria-hidden="true">×</span>
                 </button>
               ))}
               {selectedFormats.map((f) => (
                 <button key={f} onClick={() => setSelectedFormats([])}
-                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown">
-                  {f} <span>×</span>
+                  aria-label={`${f}フィルターを解除`}
+                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown focus-visible:outline-2 focus-visible:outline-[#FCBC2A]">
+                  {f} <span aria-hidden="true">×</span>
                 </button>
               ))}
               {selectedPeriods.map((p) => (
                 <button key={p} onClick={() => toggleItem(selectedPeriods, setSelectedPeriods, p)}
-                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown">
-                  {p} <span>×</span>
+                  aria-label={`${p}フィルターを解除`}
+                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown focus-visible:outline-2 focus-visible:outline-[#FCBC2A]">
+                  {p} <span aria-hidden="true">×</span>
                 </button>
               ))}
               {freeOnly && (
                 <button onClick={() => setFreeOnly(false)}
-                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown">
-                  無料のみ <span>×</span>
+                  aria-label="無料のみフィルターを解除"
+                  className="flex items-center gap-1 bg-[#092040] text-white text-xs font-bold px-3 py-1.5 rounded-full hover:bg-[#EF4444] transition-colors animate-fadeInDown focus-visible:outline-2 focus-visible:outline-[#FCBC2A]">
+                  無料のみ <span aria-hidden="true">×</span>
                 </button>
               )}
               <button onClick={() => { setSelectedCategories([]); setSelectedGrades([]); setSelectedFormats([]); setSelectedPeriods([]); setFreeOnly(false); setPage(1); }}
@@ -575,7 +632,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
                 <p className="text-sm text-gray-400">条件を変えて探してみよう</p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
-                    onClick={() => { setSelectedCategories([]); setSelectedGrades([]); setSelectedFormats([]); setSelectedPeriods([]); setFreeOnly(false); setPage(1); }}
+                    onClick={() => { setSelectedCategories([]); setSelectedGrades([]); setSelectedFormats([]); setSelectedPeriods([]); setFreeOnly(false); setKeyword(""); setPage(1); }}
                     className="bg-[#092040] text-white rounded-xl px-6 py-2 font-bold text-sm hover:opacity-80 transition-opacity"
                   >
                     絞り込みをリセット
@@ -588,6 +645,20 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
                   >
                     LINEで締切・新着通知を受け取る
                   </a>
+                </div>
+                <div className="mt-2 w-full">
+                  <p className="text-xs text-gray-400 mb-3">他のカテゴリも見てみよう</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {CATEGORIES.map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => { setSelectedCategories([cat]); setSelectedGrades([]); setSelectedFormats([]); setSelectedPeriods([]); setFreeOnly(false); setKeyword(""); setPage(1); }}
+                        className={`text-xs font-bold px-3 py-1.5 rounded-full ${CATEGORY_BG[cat] ?? "bg-gray-100 text-gray-700"}`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -642,11 +713,16 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
 
 export default function SearchClient({ posts }: { posts: Post[] }) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [keyword, setKeyword] = useState(searchParams.get("q") ?? "");
   const pcSearchRef = useRef<HTMLDivElement | null>(null);
   const mobileSearchRef = useRef<HTMLDivElement | null>(null);
   const [pcSearchVisible, setPcSearchVisible] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
+
+  const handleNavbarSearch = useCallback(() => {
+    router.push(`/search?q=${encodeURIComponent(keyword)}`);
+  }, [keyword, router]);
 
   const setPcSearchRefCallback = (el: HTMLDivElement | null) => {
     if (observerRef.current) {
@@ -666,7 +742,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
 
   return (
     <>
-      <Navbar keyword={keyword} setKeyword={setKeyword} searchVisible={pcSearchVisible} />
+      <Navbar keyword={keyword} setKeyword={setKeyword} searchVisible={pcSearchVisible} onSearch={handleNavbarSearch} />
       {/* ④ スケルトンローディング */}
       <Suspense fallback={
         <div className="bg-[#FFFFF0] min-h-screen px-6 py-6">

@@ -68,6 +68,16 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
+        {/* フォント preconnect でDNSルックアップを先行処理 */}
+        <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Noto Sans JP: @importより<link>の方が並列取得でレンダーブロッキングを軽減 */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap"
+        />
+        {/* Adobe Fonts（toppan-bunkyu） */}
         <link rel="stylesheet" href="https://use.typekit.net/qhn8cay.css" />
         <meta name="theme-color" content="#092040" />
       </head>

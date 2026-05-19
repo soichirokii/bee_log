@@ -15,9 +15,9 @@ const notionHeaders = {
   "Content-Type": "application/json",
 };
 
-// Notion S3画像URLは約1時間で期限切れになるため、キャッシュせず毎回新鮮なURLを取得する
-// revalidate: 0 = キャッシュしない（Notion画像URL期限切れ問題の根本対策）
-const REVALIDATE = 0;
+// Notion S3画像URLは約1時間で期限切れになるため、60秒でリバリデートする
+// S3 URL有効期限（1時間）より十分短いため画像の期限切れは発生しない
+const REVALIDATE = 60;
 
 async function notionFetch(
   url: string,

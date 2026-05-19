@@ -397,12 +397,21 @@ export default async function PostDetailPage({
               )}
               <p className="text-xs text-gray-400 text-center mb-6">※ 外部サイトへ移動します</p>
 
-              {daysLeft !== null && daysLeft >= 0 && (
+              {daysLeft !== null && (
                 <div className="p-4 text-center mb-4">
-                  <div className="text-xs text-gray-400 mb-1">締切まで</div>
-                  <div className={`text-3xl font-black ${daysLeft <= 7 ? "text-[#EF4444]" : "text-[#092040]"}`}>
-                    {daysLeft}<span className="text-sm font-bold ml-1">日</span>
-                  </div>
+                  {daysLeft < 0 ? (
+                    <>
+                      <div className="text-xs text-gray-400 mb-1">締切</div>
+                      <div className="text-sm font-black text-gray-400">締切済み</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-xs text-gray-400 mb-1">締切まで</div>
+                      <div className={`text-3xl font-black ${daysLeft <= 7 ? "text-[#EF4444]" : "text-[#092040]"}`}>
+                        {daysLeft}<span className="text-sm font-bold ml-1">日</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 

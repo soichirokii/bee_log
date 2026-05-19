@@ -13,12 +13,20 @@ export default function NotFound() {
       <p className="text-[#092040]/60 text-sm mb-8 text-center">
         お探しのページは移動または削除された可能性があります。
       </p>
-      <Link
-        href="/"
-        className="bg-[#092040] text-white font-bold px-6 py-3 rounded-2xl hover:opacity-90 transition-opacity"
-      >
-        HOMEに戻る
-      </Link>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Link
+          href="/"
+          className="bg-[#092040] text-white font-bold px-6 py-3 rounded-2xl hover:opacity-90 transition-opacity text-center"
+        >
+          HOMEに戻る
+        </Link>
+        <Link
+          href="/search"
+          className="border-2 border-[#092040] text-[#092040] font-bold px-6 py-3 rounded-2xl hover:bg-[#092040] hover:text-white transition-colors text-center"
+        >
+          活動を探す
+        </Link>
+      </div>
     </div>
   );
 }

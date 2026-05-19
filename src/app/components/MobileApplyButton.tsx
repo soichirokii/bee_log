@@ -29,12 +29,18 @@ export default function MobileApplyButton({ applyUrl, daysLeft }: Props) {
   return (
     <div className={`md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#FFFFF0]/90 backdrop-blur-sm border-t border-gray-200 px-5 py-4 transition-all duration-300 ${hidden ? "opacity-0 pointer-events-none translate-y-4" : "opacity-100 translate-y-0"}`}>
       <div className="flex gap-3 items-center">
-        {daysLeft !== null && daysLeft >= 0 && (
-          <div className={`shrink-0 rounded-xl px-3 py-2 text-center ${daysLeft <= 7 ? "bg-red-50" : "bg-gray-100"}`}>
-            <div className="text-[10px] text-gray-400">締切まで</div>
-            <div className={`text-lg font-black leading-none ${daysLeft <= 7 ? "text-[#EF4444]" : "text-[#092040]"}`}>
-              {daysLeft}<span className="text-xs font-bold">日</span>
-            </div>
+        {daysLeft !== null && (
+          <div className={`shrink-0 rounded-xl px-3 py-2 text-center ${daysLeft < 0 ? "bg-gray-100" : daysLeft <= 7 ? "bg-red-50" : "bg-gray-100"}`}>
+            {daysLeft < 0 ? (
+              <div className="text-xs font-black text-gray-400 leading-none py-1">締切済み</div>
+            ) : (
+              <>
+                <div className="text-[10px] text-gray-400">締切まで</div>
+                <div className={`text-lg font-black leading-none ${daysLeft <= 7 ? "text-[#EF4444]" : "text-[#092040]"}`}>
+                  {daysLeft}<span className="text-xs font-bold">日</span>
+                </div>
+              </>
+            )}
           </div>
         )}
         {applyUrl ? (
