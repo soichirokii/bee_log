@@ -24,99 +24,98 @@ export default function AboutContent() {
 
   return (
     <>
-      <main className="about-page">
-        {/* ── Hero ── */}
-        <section className="panel hero-panel">
+      {/* ── Desktop header ── */}
+      <nav className="about-header">
+        <Link href="/" className="about-header-logo">
+          <Image
+            src="/Logo.svg"
+            alt="BEE log"
+            width={120}
+            height={48}
+            className="h-12 w-auto"
+          />
+        </Link>
+        <div className="about-header-links">
+          {NAV_LINKS.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`about-header-link${pathname === href ? " active" : ""}`}
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
+      </nav>
 
-          {/* ── Desktop header ── */}
-          <nav className="about-header">
-            <Link href="/" className="about-header-logo">
+      {/* ── Mobile header ── */}
+      <nav className="about-header-mobile">
+        <span className="about-header-mobile-spacer" />
+        <Link href="/" className="about-header-mobile-logo">
+          <Image
+            src="/Logo.svg"
+            alt="BEE log"
+            width={120}
+            height={48}
+            className="h-[10vw] w-auto"
+          />
+        </Link>
+        <button
+          className="about-hamburger"
+          onClick={() => setMenuOpen(true)}
+          aria-label="メニューを開く"
+        >
+          <span className="about-hamburger-line" />
+          <span className="about-hamburger-line" />
+          <span className="about-hamburger-line" />
+        </button>
+      </nav>
+
+      {/* ── Mobile fullscreen overlay ── */}
+      {menuOpen && (
+        <div className="about-mobile-overlay" role="dialog" aria-modal="true">
+          {/* ヘッダー行 */}
+          <div className="about-mobile-overlay-header">
+            <span className="about-header-mobile-spacer" />
+            <Link href="/" className="about-header-mobile-logo" onClick={() => setMenuOpen(false)}>
               <Image
                 src="/Logo.svg"
                 alt="BEE log"
                 width={120}
                 height={48}
-                className="h-10 w-auto"
-              />
-            </Link>
-            <div className="about-header-links">
-              {NAV_LINKS.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`about-header-link${pathname === href ? " active" : ""}`}
-                >
-                  {label}
-                </Link>
-              ))}
-            </div>
-          </nav>
-
-          {/* ── Mobile header ── */}
-          <nav className="about-header-mobile">
-            <span className="about-header-mobile-spacer" />
-            <Link href="/" className="about-header-mobile-logo">
-              <Image
-                src="/Logo.svg"
-                alt="BEE log"
-                width={100}
-                height={40}
-                className="h-8 w-auto"
+                className="h-[10vw] w-auto"
               />
             </Link>
             <button
-              className="about-hamburger"
-              onClick={() => setMenuOpen(true)}
-              aria-label="メニューを開く"
+              className="about-hamburger is-open"
+              onClick={() => setMenuOpen(false)}
+              aria-label="メニューを閉じる"
             >
               <span className="about-hamburger-line" />
               <span className="about-hamburger-line" />
               <span className="about-hamburger-line" />
             </button>
+          </div>
+          {/* ナビリンク */}
+          <nav className="about-mobile-overlay-links" role="menu">
+            {NAV_LINKS.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                role="menuitem"
+                className={`about-mobile-overlay-link${pathname === href ? " active" : ""}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                {label}
+              </Link>
+            ))}
           </nav>
+        </div>
+      )}
 
-          {/* ── Mobile fullscreen overlay ── */}
-          {menuOpen && (
-            <div className="about-mobile-overlay" role="dialog" aria-modal="true">
-              {/* ヘッダー行 */}
-              <div className="about-mobile-overlay-header">
-                <span className="about-header-mobile-spacer" />
-                <Link href="/" className="about-header-mobile-logo" onClick={() => setMenuOpen(false)}>
-                  <Image
-                    src="/Logo.svg"
-                    alt="BEE log"
-                    width={100}
-                    height={40}
-                    className="h-8 w-auto"
-                  />
-                </Link>
-                <button
-                  className="about-hamburger is-open"
-                  onClick={() => setMenuOpen(false)}
-                  aria-label="メニューを閉じる"
-                >
-                  <span className="about-hamburger-line" />
-                  <span className="about-hamburger-line" />
-                  <span className="about-hamburger-line" />
-                </button>
-              </div>
-              {/* ナビリンク */}
-              <nav className="about-mobile-overlay-links" role="menu">
-                {NAV_LINKS.map(({ href, label }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    role="menuitem"
-                    className={`about-mobile-overlay-link${pathname === href ? " active" : ""}`}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-          )}
-
+      <main className="about-page">
+        {/* ── Hero ── */}
+        <section className="panel hero-panel">
           {/* Hero content */}
           <div className="hero-inner" data-reveal>
             <Image

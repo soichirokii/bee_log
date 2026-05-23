@@ -1358,16 +1358,14 @@ img {
 }
 
 /* ============================================================
-   About Page Header (overlaid on hero, non-sticky)
+   About Page Header (sticky — same as HOME / Search)
    ============================================================ */
 
 /* ── Desktop ── */
 .about-header {
-  position: absolute;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  z-index: 20;
+  z-index: 50;
   display: flex;
   align-items: center;
   padding: 16px 64px;
@@ -1383,7 +1381,7 @@ img {
 }
 
 .about-header-logo img {
-  height: 40px;
+  height: 48px;
   width: auto;
 }
 
@@ -1408,20 +1406,23 @@ img {
 }
 
 .about-header-link.active {
+  background: var(--yellow);
+  color: var(--navy);
+}
+
+.about-header-link.active:hover {
   background: var(--navy);
   color: #fff;
 }
 
 /* ── Mobile ── */
 .about-header-mobile {
-  position: absolute;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  z-index: 21;
+  z-index: 50;
   display: flex;
   align-items: center;
-  padding: 14px 20px;
+  padding: 3vw 5vw;
   background: var(--paper);
   border-bottom: 2px solid var(--navy);
 }
@@ -1437,7 +1438,8 @@ img {
 }
 
 .about-header-mobile-logo img {
-  height: 32px;
+  height: 10vw;
+  max-height: 48px;
   width: auto;
 }
 
@@ -1534,5 +1536,4 @@ img {
 @media (max-width: 768px) {
   .about-header        { display: none; }
   .about-header-mobile { display: flex; }
-  .hero-panel          { min-height: 100svh; }
 }
