@@ -72,10 +72,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Noto Sans JP: @importより<link>の方が並列取得でレンダーブロッキングを軽減 */}
+        {/* Noto Sans JP (全ページ) + Inter (Aboutページ用) を一括ロード */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Noto+Sans+JP:wght@400;500;700;800;900&display=swap"
         />
         {/* Adobe Fonts（toppan-bunkyu） */}
         <link rel="stylesheet" href="https://use.typekit.net/qhn8cay.css" />

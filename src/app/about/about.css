@@ -1,5 +1,4 @@
-/* Inter (UI/chat) + Noto Sans JP 800/900 (heavy headings) — required by about design */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Noto+Sans+JP:wght@400;700;800;900&display=swap');
+/* フォントは layout.tsx の <link> で一元管理 (Inter + Noto Sans JP 400-900) */
 
 :root {
   --paper: #fffef0;
