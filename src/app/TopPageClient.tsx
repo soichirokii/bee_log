@@ -34,7 +34,8 @@ function PCNavbar({ keyword, setKeyword, searchVisible }: {
         <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-12 w-auto" />
       </Link>
       <Link href="/" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] transition-all duration-200 ${pathname === "/" ? "bg-[#FCBC2A] hover:bg-[#092040] hover:text-white" : "hover:bg-[#FCBC2A]"}`}>HOME</Link>
-      <Link href="/search" className={`text-base font-bold px-6 py-2.5 rounded-full text-[#092040] transition-all duration-200 ${pathname === "/search" ? "bg-[#FCBC2A] hover:bg-[#092040] hover:text-white" : "hover:bg-[#FCBC2A]"}`}>活動を探す</Link>
+      <Link href="/search" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] transition-all duration-200 ${pathname === "/search" ? "bg-[#FCBC2A] hover:bg-[#092040] hover:text-white" : "hover:bg-[#FCBC2A]"}`}>活動を探す</Link>
+      <Link href="/about" className={`text-base font-bold px-6 py-2.5 rounded-full text-[#092040] transition-all duration-200 ${pathname === "/about" ? "bg-[#FCBC2A] hover:bg-[#092040] hover:text-white" : "hover:bg-[#FCBC2A]"}`}>About</Link>
 
       {/* スティッキー検索窓 */}
       <div className={`absolute right-8 top-1/2 -translate-y-1/2 transition-all duration-300 flex items-center gap-2 ${searchVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`}>

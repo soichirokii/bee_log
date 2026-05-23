@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import Footer from "../components/Footer";
+import { initAboutAnimations } from "./aboutAnimations";
 
 const NAV_LINKS = [
   { href: "/", label: "HOME" },
@@ -17,43 +18,8 @@ export default function AboutContent() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const loadScript = (src: string): Promise<void> =>
-      new Promise((resolve) => {
-        if (document.querySelector(`script[src="${src}"]`)) {
-          resolve();
-          return;
-        }
-        const s = document.createElement("script");
-        s.src = src;
-        s.onload = () => resolve();
-        document.head.appendChild(s);
-      });
-
-    let mounted = true;
-
-    const init = async () => {
-      await loadScript(
-        "https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"
-      );
-      await loadScript(
-        "https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"
-      );
-      if (!mounted) return;
-      const prev = document.querySelector('script[src="/about.js"]');
-      if (prev) prev.remove();
-      await loadScript("/about.js");
-    };
-
-    init();
-
-    return () => {
-      mounted = false;
-      const win = window as unknown as Record<string, unknown>;
-      const ST = win["ScrollTrigger"] as
-        | { getAll?: () => Array<{ kill: () => void }> }
-        | undefined;
-      ST?.getAll?.().forEach((t) => t.kill());
-    };
+    const cleanup = initAboutAnimations();
+    return cleanup;
   }, []);
 
   return (
