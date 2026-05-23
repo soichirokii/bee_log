@@ -1,4 +1,5 @@
-/* フォントは layout.tsx の <link> で一元管理 (Inter + Noto Sans JP 400-900) */
+/* Aboutページ専用フォント: Inter + Noto Sans JP 800/900（全体ヘッダーには影響させない） */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Noto+Sans+JP:wght@800;900&display=swap');
 
 :root {
   --paper: #fffef0;
