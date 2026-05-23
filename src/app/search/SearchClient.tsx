@@ -134,39 +134,64 @@ function Navbar({ keyword, setKeyword, searchVisible, onSearch }: {
         </div>
       </nav>
 
-      {/* Mobile nav with hamburger */}
-      <div className="md:hidden sticky top-0 z-50">
-        <nav className="flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw]">
+      {/* Mobile nav */}
+      <div className="md:hidden">
+        {/* 通常ヘッダー */}
+        <nav className="sticky top-0 z-50 flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw]">
           <div className="flex-1" />
           <Link href="/" className="flex justify-center">
             <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-[10vw] w-auto" />
           </Link>
           <div className="flex-1 flex justify-end">
             <button
-              onClick={() => setMenuOpen((o) => !o)}
-              aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
-              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen(true)}
+              aria-label="メニューを開く"
               className="p-2 flex flex-col justify-center gap-[5px]"
             >
-              <span className={`block w-[22px] h-[2px] bg-[#092040] origin-center transition-all duration-200 ${menuOpen ? "translate-y-[7px] rotate-45" : ""}`} />
-              <span className={`block w-[22px] h-[2px] bg-[#092040] transition-all duration-200 ${menuOpen ? "opacity-0" : ""}`} />
-              <span className={`block w-[22px] h-[2px] bg-[#092040] origin-center transition-all duration-200 ${menuOpen ? "-translate-y-[7px] -rotate-45" : ""}`} />
+              <span className="block w-[22px] h-[2px] bg-[#092040]" />
+              <span className="block w-[22px] h-[2px] bg-[#092040]" />
+              <span className="block w-[22px] h-[2px] bg-[#092040]" />
             </button>
           </div>
         </nav>
+
+        {/* フルスクリーンオーバーレイ */}
         {menuOpen && (
-          <div className="flex flex-col bg-[#FFFFF0] border-b-2 border-[#092040]" role="menu">
-            {MOBILE_NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                role="menuitem"
-                onClick={() => setMenuOpen(false)}
-                className={`px-8 py-4 text-[#092040] font-bold text-base border-t border-[#092040]/20 transition-colors hover:bg-[#FCBC2A] ${pathname === href ? "bg-[#FCBC2A]" : ""}`}
-              >
-                {label}
+          <div className="fixed inset-0 z-[60] flex flex-col" role="dialog" aria-modal="true">
+            {/* ヘッダー行（アイボリー） */}
+            <div className="flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw] shrink-0">
+              <div className="flex-1" />
+              <Link href="/" onClick={() => setMenuOpen(false)} className="flex justify-center">
+                <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-[10vw] w-auto" />
               </Link>
-            ))}
+              <div className="flex-1 flex justify-end">
+                <button
+                  onClick={() => setMenuOpen(false)}
+                  aria-label="メニューを閉じる"
+                  className="p-2 flex flex-col justify-center gap-[5px]"
+                >
+                  <span className="block w-[22px] h-[2px] bg-[#092040] origin-center translate-y-[7px] rotate-45" />
+                  <span className="block w-[22px] h-[2px] bg-[#092040] opacity-0" />
+                  <span className="block w-[22px] h-[2px] bg-[#092040] origin-center -translate-y-[7px] -rotate-45" />
+                </button>
+              </div>
+            </div>
+            {/* ナビリンク（ネイビーで残り全部） */}
+            <nav className="flex-1 bg-[#092040] flex flex-col items-center justify-center gap-12" role="menu">
+              {MOBILE_NAV_LINKS.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  role="menuitem"
+                  onClick={() => setMenuOpen(false)}
+                  className={`text-3xl font-bold tracking-wide transition-colors ${
+                    pathname === href ? "text-[#FCBC2A]" : "text-white hover:text-[#FCBC2A]"
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
           </div>
         )}
       </div>
