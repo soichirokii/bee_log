@@ -89,6 +89,12 @@ function ResultsCount({ count }: { count: number }) {
   return <p className="text-[#092040] font-bold mb-4 text-base">{display} 件の活動が見つかりました</p>;
 }
 
+const MOBILE_NAV_LINKS = [
+  { href: "/", label: "HOME" },
+  { href: "/search", label: "活動を探す" },
+  { href: "/about", label: "About" },
+] as const;
+
 function Navbar({ keyword, setKeyword, searchVisible, onSearch }: {
   keyword: string;
   setKeyword: (v: string) => void;
@@ -97,16 +103,18 @@ function Navbar({ keyword, setKeyword, searchVisible, onSearch }: {
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <>
+      {/* PC nav */}
       <nav className="hidden md:flex items-center px-16 py-4 bg-[#FFFFF0] border-b-2 border-[#092040] sticky top-0 z-50 relative mb-0">
-        <Link href="/" className="mr-10">
+        <Link href="/" className="mr-10 transition-opacity duration-200 hover:opacity-70">
           <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-12 w-auto" />
         </Link>
-        <Link href="/" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 transition-colors ${pathname === "/" ? "bg-[#FCBC2A]" : "hover:bg-[#FCBC2A]"}`}>HOME</Link>
-        <Link href="/search" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 transition-colors ${pathname === "/search" ? "bg-[#FCBC2A]" : "hover:bg-[#FCBC2A]"}`}>活動を探す</Link>
-        <Link href="/about" className={`text-base font-bold px-6 py-2.5 rounded-full transition-colors ${pathname === "/about" ? "bg-[#FCBC2A]" : "hover:bg-[#FCBC2A]"}`}>About</Link>
+        <Link href="/" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] transition-all duration-200 ${pathname === "/" ? "bg-[#FCBC2A] hover:bg-[#092040] hover:text-white" : "hover:bg-[#FCBC2A]"}`}>HOME</Link>
+        <Link href="/search" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] transition-all duration-200 ${pathname === "/search" ? "bg-[#FCBC2A] hover:bg-[#092040] hover:text-white" : "hover:bg-[#FCBC2A]"}`}>活動を探す</Link>
+        <Link href="/about" className={`text-base font-bold px-6 py-2.5 rounded-full text-[#092040] transition-all duration-200 ${pathname === "/about" ? "bg-[#FCBC2A] hover:bg-[#092040] hover:text-white" : "hover:bg-[#FCBC2A]"}`}>About</Link>
 
         {/* スティッキー検索窓（PC） */}
         <div className={`absolute right-8 top-1/2 -translate-y-1/2 transition-all duration-300 flex items-center gap-2 ${searchVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`}>
@@ -126,15 +134,42 @@ function Navbar({ keyword, setKeyword, searchVisible, onSearch }: {
         </div>
       </nav>
 
-      <nav className="md:hidden flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw] sticky top-0 z-50 w-full">
-  <div className="flex-1" />
-  <Link href="/" className="flex justify-center">
-    <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-[10vw] w-auto" />
-  </Link>
-  <div className="flex-1 flex justify-end">
-    <Link href="/" className="bg-[#FCBC2A] text-[#092040] font-bold text-[3.5vw] px-[4vw] py-[2vw] rounded-full transition-all duration-200 hover:bg-[#092040] hover:text-white">HOME</Link>
-  </div>
-</nav>
+      {/* Mobile nav with hamburger */}
+      <div className="md:hidden sticky top-0 z-50">
+        <nav className="flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw]">
+          <div className="flex-1" />
+          <Link href="/" className="flex justify-center">
+            <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-[10vw] w-auto" />
+          </Link>
+          <div className="flex-1 flex justify-end">
+            <button
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
+              aria-expanded={menuOpen}
+              className="p-2 flex flex-col justify-center gap-[5px]"
+            >
+              <span className={`block w-[22px] h-[2px] bg-[#092040] origin-center transition-all duration-200 ${menuOpen ? "translate-y-[7px] rotate-45" : ""}`} />
+              <span className={`block w-[22px] h-[2px] bg-[#092040] transition-all duration-200 ${menuOpen ? "opacity-0" : ""}`} />
+              <span className={`block w-[22px] h-[2px] bg-[#092040] origin-center transition-all duration-200 ${menuOpen ? "-translate-y-[7px] -rotate-45" : ""}`} />
+            </button>
+          </div>
+        </nav>
+        {menuOpen && (
+          <div className="flex flex-col bg-[#FFFFF0] border-b-2 border-[#092040]" role="menu">
+            {MOBILE_NAV_LINKS.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                role="menuitem"
+                onClick={() => setMenuOpen(false)}
+                className={`px-8 py-4 text-[#092040] font-bold text-base border-t border-[#092040]/20 transition-colors hover:bg-[#FCBC2A] ${pathname === href ? "bg-[#FCBC2A]" : ""}`}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
     </>
   );
 }
