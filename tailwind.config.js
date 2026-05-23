@@ -10,7 +10,7 @@ module.exports = {
         yellow: "#FCBC2A",
       },
       fontFamily: {
-        sans: ["Noto Sans JP", "sans-serif"],
+        sans: ["var(--font-noto-sans-jp)", "Noto Sans JP", "sans-serif"],
       },
     },
   },

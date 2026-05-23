@@ -1,5 +1,4 @@
-/* Aboutページ専用フォント: Inter + Noto Sans JP 800/900（全体ヘッダーには影響させない） */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800&family=Noto+Sans+JP:wght@800;900&display=swap');
+/* フォントは next/font/google (layout.tsx) で管理 — CSS変数 --font-inter / --font-noto-sans-jp を使用 */
 
 :root {
   --paper: #fffef0;
@@ -25,7 +24,7 @@ html {
 body {
   margin: 0;
   overflow-x: hidden;
-  font-family: "Noto Sans JP", sans-serif;
+  font-family: var(--font-noto-sans-jp), "Noto Sans JP", sans-serif;
   color: var(--navy);
   background: var(--paper-soft);
 }
@@ -207,7 +206,7 @@ img {
   background: var(--navy);
   color: #fffef0;
   text-align: center;
-  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-family: var(--font-inter), var(--font-noto-sans-jp), sans-serif;
   font-size: 36px;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -298,7 +297,7 @@ img {
 }
 
 .chat-brand-name {
-  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-family: var(--font-inter), var(--font-noto-sans-jp), sans-serif;
   font-size: 20px;
   font-weight: 500;
   line-height: 1.32;
@@ -325,7 +324,7 @@ img {
   margin: 0 0 16px;
   color: #929290;
   text-align: center;
-  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-family: var(--font-inter), var(--font-noto-sans-jp), sans-serif;
   font-size: 20px;
   line-height: 1.32;
 }

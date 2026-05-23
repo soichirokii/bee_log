@@ -1,8 +1,25 @@
 import type { Metadata } from "next";
+import { Noto_Sans_JP, Inter } from "next/font/google";
 import "./globals.css";
 import PageTransition from "./components/PageTransition";
 import LinePopup from "./components/LinePopup";
 import { Analytics } from "@vercel/analytics/react";
+
+// ── フォント定義（ビルド時ダウンロード → ローカル配信 → FOUT ゼロ） ──────────
+const notoSansJP = Noto_Sans_JP({
+  subsets: ["latin"],
+  weight: ["400", "500", "700", "800", "900"],
+  variable: "--font-noto-sans-jp",
+  display: "swap",
+  preload: false, // 日本語フォントはサイズが大きいため preload しない
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["500", "700", "800"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.beelog-jp.com";
 
@@ -66,18 +83,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja">
+    <html lang="ja" className={`${notoSansJP.variable} ${inter.variable}`}>
       <head>
-        {/* フォント preconnect でDNSルックアップを先行処理 */}
+        {/* Adobe Fonts（toppan-bunkyu-midashi-gothic） — Google Fonts は next/font で管理 */}
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Noto Sans JP: 全ページ共通の3ウェイトのみ（800/900はAbout専用なのでabout.cssで別途読み込み） */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap"
-        />
-        {/* Adobe Fonts（toppan-bunkyu） */}
         <link rel="stylesheet" href="https://use.typekit.net/qhn8cay.css" />
         <meta name="theme-color" content="#092040" />
       </head>
