@@ -109,8 +109,8 @@ function MobileNavbar() {
               </button>
             </div>
           </div>
-          {/* ナビリンク（ネイビーで残り全部） */}
-          <nav className="flex-1 bg-[#092040] flex flex-col items-center justify-center gap-12" role="menu">
+          {/* ナビリンク（クリームで残り全部） */}
+          <nav className="flex-1 bg-[#FFFFF0] flex flex-col items-center justify-center gap-12" role="menu">
             {MOBILE_NAV_LINKS.map(({ href, label }) => (
               <Link
                 key={href}
@@ -118,7 +118,7 @@ function MobileNavbar() {
                 role="menuitem"
                 onClick={() => setMenuOpen(false)}
                 className={`text-3xl font-bold tracking-wide transition-colors ${
-                  pathname === href ? "text-[#FCBC2A]" : "text-white hover:text-[#FCBC2A]"
+                  pathname === href ? "text-[#FCBC2A]" : "text-[#092040] hover:text-[#FCBC2A]"
                 }`}
               >
                 {label}
