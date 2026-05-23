@@ -1402,7 +1402,7 @@ img {
 }
 
 .about-header-link:hover {
-  background: rgba(9, 32, 64, 0.12);
+  background: var(--yellow);
 }
 
 .about-header-link.active {
