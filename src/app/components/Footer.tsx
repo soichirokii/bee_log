@@ -16,12 +16,14 @@ export default function Footer() {
 
           {/* リンク群 */}
           <div className="flex flex-1 flex-wrap gap-10">
+            {/* ナビリンク */}
             <div className="flex flex-col gap-4">
               <Link href="/" className="text-[#092040] font-bold text-sm hover:opacity-70 transition-opacity">HOME</Link>
               <Link href="/search" className="text-[#092040] font-bold text-sm hover:opacity-70 transition-opacity">活動を探す</Link>
-              <a href="mailto:beelog.jp@gmail.com" className="text-[#092040] font-bold text-sm hover:opacity-70 transition-opacity">お問い合わせ</a>
+              <Link href="/about" className="text-[#092040] font-bold text-sm hover:opacity-70 transition-opacity">About</Link>
             </div>
 
+            {/* SNS ＋ お問い合わせ */}
             <div className="flex flex-col gap-4">
               <a href="https://www.instagram.com/beelog_jp?igsh=MTNieHBjanBkOTc4cA==" target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2 text-[#092040] font-bold text-sm hover:opacity-70 transition-opacity">
@@ -37,6 +39,7 @@ export default function Footer() {
                 </svg>
                 X(Twitter)
               </a>
+              <a href="mailto:beelog.jp@gmail.com" className="text-[#092040] font-bold text-sm hover:opacity-70 transition-opacity">お問い合わせ</a>
             </div>
           </div>
         </div>
@@ -44,7 +47,7 @@ export default function Footer() {
 
       {/* 下部 */}
       <div className="border-t border-gray-200 px-8 md:px-16 py-4">
-        <p className="text-gray-400 text-xs">©-2026 BEE log</p>
+        <p className="text-gray-400 text-xs">©2026 BEE log</p>
       </div>
     </footer>
   );
