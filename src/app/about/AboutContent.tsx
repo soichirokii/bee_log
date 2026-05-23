@@ -9,7 +9,7 @@ import { initAboutAnimations } from "./aboutAnimations";
 
 const NAV_LINKS = [
   { href: "/", label: "HOME" },
-  { href: "/search", label: "探す" },
+  { href: "/search", label: "活動を探す" },
   { href: "/about", label: "About" },
 ];
 
