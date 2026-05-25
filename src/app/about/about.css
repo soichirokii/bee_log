@@ -362,17 +362,17 @@ img {
 }
 
 .bubble-left::before {
-  left: -10px;
-  width: 20px;
-  height: 20px;
-  border-radius: 0 0 16px 0;
+  left: -12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 0 0 18px 0;
 }
 
 .bubble-left::after {
-  left: -22px;
-  width: 22px;
-  height: 22px;
-  border-radius: 0 0 14px 0;
+  left: -24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 0 0 20px 0;
 }
 
 /* ── Right ── */
@@ -381,17 +381,17 @@ img {
 }
 
 .bubble-right::before {
-  right: -10px;
-  width: 20px;
-  height: 20px;
-  border-radius: 0 0 0 16px;
+  right: -12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 0 0 0 18px;
 }
 
 .bubble-right::after {
-  right: -22px;
-  width: 22px;
-  height: 22px;
-  border-radius: 0 0 0 14px;
+  right: -24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 0 0 0 20px;
 }
 
 /* ── Center (yellow) ── */
@@ -400,17 +400,17 @@ img {
 }
 
 .bubble-center::before {
-  left: 10px;
-  width: 20px;
-  height: 20px;
-  border-radius: 0 0 16px 0;
+  left: -12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 0 0 18px 0;
 }
 
 .bubble-center::after {
-  left: -2px;
-  width: 22px;
-  height: 22px;
-  border-radius: 0 0 14px 0;
+  left: -24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 0 0 20px 0;
 }
 
 .bubble-small {
@@ -1068,8 +1068,8 @@ img {
     white-space: normal;
   }
 
-  .bubble-center::before { left: 8px;  width: 16px; height: 16px; border-radius: 0 0 12px 0; }
-  .bubble-center::after  { left: -2px; width: 18px; height: 18px; border-radius: 0 0 10px 0; }
+  .bubble-center::before { left: -9px;  width: 16px; height: 16px; border-radius: 0 0 13px 0; }
+  .bubble-center::after  { left: -18px; width: 18px; height: 18px; border-radius: 0 0 15px 0; }
 
   .info-panel {
     padding: 72px 16px 70px;
