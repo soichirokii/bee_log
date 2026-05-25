@@ -1,5 +1,3 @@
-/* フォントは next/font/google (layout.tsx) で管理 — CSS変数 --font-inter / --font-noto-sans-jp を使用 */
-
 :root {
   --paper: #fffef0;
   --paper-soft: #fffff6;
@@ -23,7 +21,8 @@ html {
 
 body {
   margin: 0;
-  font-family: var(--font-noto-sans-jp), "Noto Sans JP", sans-serif;
+  overflow-x: hidden;
+  font-family: "Noto Sans JP", sans-serif;
   color: var(--navy);
   background: var(--paper-soft);
 }
@@ -54,7 +53,6 @@ img {
   display: grid;
   place-items: center;
   background: var(--yellow);
-  min-height: 100svh; /* always fill the first viewport */
 }
 
 .hero-inner {
@@ -205,7 +203,7 @@ img {
   background: var(--navy);
   color: #fffef0;
   text-align: center;
-  font-family: var(--font-inter), var(--font-noto-sans-jp), sans-serif;
+  font-family: "Inter", "Noto Sans JP", sans-serif;
   font-size: 36px;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -296,7 +294,7 @@ img {
 }
 
 .chat-brand-name {
-  font-family: var(--font-inter), var(--font-noto-sans-jp), sans-serif;
+  font-family: "Inter", "Noto Sans JP", sans-serif;
   font-size: 20px;
   font-weight: 500;
   line-height: 1.32;
@@ -323,7 +321,7 @@ img {
   margin: 0 0 16px;
   color: #929290;
   text-align: center;
-  font-family: var(--font-inter), var(--font-noto-sans-jp), sans-serif;
+  font-family: "Inter", "Noto Sans JP", sans-serif;
   font-size: 20px;
   line-height: 1.32;
 }
@@ -567,8 +565,8 @@ img {
   position: absolute;
   inset: 0.2em -0.15em -0.08em;
   z-index: -1;
-  background: rgba(252, 188, 42, 0.45);
-  border-radius: 0 0 4px 4px;
+  background:
+    center / 100% 100% no-repeat url("https://www.figma.com/api/mcp/asset/de594467-9c44-46fb-ac94-4e56faa6f9e1");
 }
 
 .info-summary {
@@ -798,8 +796,10 @@ img {
   white-space: nowrap;
 }
 
-/* [data-reveal] initial state is set by GSAP — no CSS pre-hiding so content
-   remains visible as a fallback if GSAP fails to load */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(32px);
+}
 
 @media (max-width: 900px) {
   .panel {
@@ -1078,18 +1078,6 @@ img {
     line-height: 2.52;
   }
 
-  /* line-height: 2.52 の余白分をマーカーの上下で打ち消す
-     top = (2.52 - 1) / 2 + 0.25em ≈ 1.01em
-     bottom = (2.52 - 1) / 2 - 0.15em ≈ 0.61em */
-  .marker::before {
-    inset: 1.01em -0.08em 0.61em;
-  }
-
-  .marker-wide::before {
-    inset: 1.01em -0.15em 0.61em;
-    border-radius: 0 0 3px 3px;
-  }
-
   .info-summary {
     margin-top: 84px;
     font-size: clamp(1.28rem, 4.2vw, 1.95rem);
@@ -1354,184 +1342,4 @@ img {
   .story-closing {
     font-size: clamp(1rem, 0.9rem + 0.5vw, 1.24rem);
   }
-}
-
-/* ============================================================
-   About Page Header (スクロールで流れる — sticky なし)
-   ============================================================ */
-
-/* ── Desktop ── */
-.about-header {
-  display: flex;
-  align-items: center;
-  padding: 16px 64px;
-  background: var(--paper);
-  border-bottom: 2px solid var(--navy);
-}
-
-.about-header-logo {
-  display: flex;
-  align-items: center;
-  margin-right: 32px;
-  flex-shrink: 0;
-}
-
-.about-header-logo img {
-  height: 48px;
-  width: auto;
-}
-
-.about-header-links {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.about-header-link {
-  font-size: 0.9rem;
-  font-weight: 700;
-  padding: 8px 20px;
-  border-radius: 999px;
-  color: var(--navy);
-  text-decoration: none;
-  transition: background 0.2s;
-}
-
-.about-header-link:hover {
-  background: var(--yellow);
-}
-
-.about-header-link.active {
-  background: var(--yellow);
-  color: var(--navy);
-}
-
-.about-header-link.active:hover {
-  background: var(--navy);
-  color: #fff;
-}
-
-/* ── Mobile ── */
-.about-header-mobile {
-  display: flex;
-  align-items: center;
-  padding: 3vw 5vw;
-  background: var(--paper);
-  border-bottom: 2px solid var(--navy);
-}
-
-.about-header-mobile-spacer {
-  flex: 1;
-}
-
-.about-header-mobile-end {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.about-header-mobile-logo {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-.about-header-mobile-logo img {
-  height: 10vw;
-  max-height: 48px;
-  width: auto;
-}
-
-/* Hamburger button */
-.about-hamburger {
-  margin-left: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 28px;
-  height: 20px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.about-hamburger-line {
-  display: block;
-  width: 100%;
-  height: 2.5px;
-  background: var(--navy);
-  border-radius: 2px;
-  transition: transform 0.25s ease, opacity 0.25s ease;
-  transform-origin: center;
-}
-
-/* Animate to X when open */
-.about-hamburger.is-open .about-hamburger-line:nth-child(1) {
-  transform: translateY(8.75px) rotate(45deg);
-}
-.about-hamburger.is-open .about-hamburger-line:nth-child(2) {
-  opacity: 0;
-  transform: scaleX(0);
-}
-.about-hamburger.is-open .about-hamburger-line:nth-child(3) {
-  transform: translateY(-8.75px) rotate(-45deg);
-}
-
-/* Mobile dropdown menu */
-/* ── フルスクリーンオーバーレイ ─────────────────────────────── */
-.about-mobile-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-}
-
-.about-mobile-overlay-header {
-  display: flex;
-  align-items: center;
-  background: #FFFFF0;
-  border-bottom: 2px solid var(--navy);
-  padding: 3vw 5vw;
-  flex-shrink: 0;
-}
-
-.about-mobile-overlay-links {
-  flex: 1;
-  background: var(--paper);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3rem;
-}
-
-.about-mobile-overlay-link {
-  font-size: 1.875rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: var(--navy);
-  text-decoration: none;
-  transition: color 0.15s;
-}
-
-.about-mobile-overlay-link:hover {
-  color: var(--yellow);
-}
-
-.about-mobile-overlay-link.active {
-  color: var(--yellow);
-}
-
-/* Responsive show/hide */
-@media (min-width: 769px) {
-  .about-header          { display: flex; }
-  .about-header-mobile   { display: none; }
-  .about-mobile-overlay  { display: none; }
-}
-
-@media (max-width: 768px) {
-  .about-header        { display: none; }
-  .about-header-mobile { display: flex; }
 }

@@ -50,7 +50,7 @@ export default function AboutContent() {
 
       {/* ── Mobile header ── */}
       <nav className="about-header-mobile">
-        <span className="about-header-mobile-spacer" />
+        <div className="about-header-mobile-spacer" />
         <Link href="/" className="about-header-mobile-logo">
           <Image
             src="/Logo.svg"
@@ -60,15 +60,17 @@ export default function AboutContent() {
             className="h-[10vw] w-auto"
           />
         </Link>
-        <button
-          className="about-hamburger"
-          onClick={() => setMenuOpen(true)}
-          aria-label="メニューを開く"
-        >
-          <span className="about-hamburger-line" />
-          <span className="about-hamburger-line" />
-          <span className="about-hamburger-line" />
-        </button>
+        <div className="about-header-mobile-spacer about-header-mobile-end">
+          <button
+            className="about-hamburger"
+            onClick={() => setMenuOpen(true)}
+            aria-label="メニューを開く"
+          >
+            <span className="about-hamburger-line" />
+            <span className="about-hamburger-line" />
+            <span className="about-hamburger-line" />
+          </button>
+        </div>
       </nav>
 
       {/* ── Mobile fullscreen overlay ── */}
@@ -76,7 +78,7 @@ export default function AboutContent() {
         <div className="about-mobile-overlay" role="dialog" aria-modal="true">
           {/* ヘッダー行 */}
           <div className="about-mobile-overlay-header">
-            <span className="about-header-mobile-spacer" />
+            <div className="about-header-mobile-spacer" />
             <Link href="/" className="about-header-mobile-logo" onClick={() => setMenuOpen(false)}>
               <Image
                 src="/Logo.svg"
@@ -86,15 +88,17 @@ export default function AboutContent() {
                 className="h-[10vw] w-auto"
               />
             </Link>
-            <button
-              className="about-hamburger is-open"
-              onClick={() => setMenuOpen(false)}
-              aria-label="メニューを閉じる"
-            >
-              <span className="about-hamburger-line" />
-              <span className="about-hamburger-line" />
-              <span className="about-hamburger-line" />
-            </button>
+            <div className="about-header-mobile-spacer about-header-mobile-end">
+              <button
+                className="about-hamburger is-open"
+                onClick={() => setMenuOpen(false)}
+                aria-label="メニューを閉じる"
+              >
+                <span className="about-hamburger-line" />
+                <span className="about-hamburger-line" />
+                <span className="about-hamburger-line" />
+              </button>
+            </div>
           </div>
           {/* ナビリンク */}
           <nav className="about-mobile-overlay-links" role="menu">

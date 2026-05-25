@@ -136,8 +136,9 @@ function Navbar({ keyword, setKeyword, searchVisible, onSearch }: {
 
       {/* Mobile nav */}
       <div className="md:hidden">
-        {/* 通常ヘッダー */}
-        <nav className="sticky top-0 z-50 flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw]">
+        {/* 通常ヘッダー（fixed で確実に上部固定） */}
+        <div className="h-[16vw]" aria-hidden="true" />
+        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw]">
           <div className="flex-1" />
           <Link href="/" className="flex justify-center">
             <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-[10vw] w-auto" />
