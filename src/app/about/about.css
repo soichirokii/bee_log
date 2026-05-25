@@ -339,9 +339,11 @@ img {
   letter-spacing: -0.02em;
 }
 
-/* Apple iMessage tail — 2段重ね法
-   ::before = バブル色のブロック（テール本体）
-   ::after  = 背景色のブロック（内側をくり抜く） */
+/* Apple iMessage tail — Samuel Kraft 実装に基づく正確な再現
+   ::before = バブル色ブロック（テール本体）
+     → border-bottom-*-radius に非対称楕円値を使うのがApple曲線の正体
+   ::after  = 背景色ブロック（内側の凹カーブをくり抜く）
+     → 右端を bubble 左端に合わせる: left = -width */
 .chat-bubble::before {
   content: "";
   position: absolute;
@@ -352,65 +354,65 @@ img {
 .chat-bubble::after {
   content: "";
   position: absolute;
-  bottom: -2px;
+  bottom: 0;
   background: var(--paper);
 }
 
-/* ── Left ── */
+/* ── Left (受信) ── */
 .bubble-left {
   margin-right: auto;
 }
 
 .bubble-left::before {
-  left: -12px;
-  width: 22px;
+  left: -8px;
+  width: 20px;
   height: 22px;
-  border-radius: 0 0 18px 0;
+  border-bottom-right-radius: 16px 14px; /* 非対称楕円 = Apple曲線 */
 }
 
 .bubble-left::after {
-  left: -24px;
-  width: 24px;
-  height: 24px;
-  border-radius: 0 0 20px 0;
+  left: -26px; /* = -width → 右端がバブル左端にぴったり */
+  width: 26px;
+  height: 22px;
+  border-bottom-right-radius: 10px;
 }
 
-/* ── Right ── */
+/* ── Right (送信) ── */
 .bubble-right {
   margin-left: auto;
 }
 
 .bubble-right::before {
-  right: -12px;
-  width: 22px;
+  right: -8px;
+  width: 20px;
   height: 22px;
-  border-radius: 0 0 0 18px;
+  border-bottom-left-radius: 16px 14px;
 }
 
 .bubble-right::after {
-  right: -24px;
-  width: 24px;
-  height: 24px;
-  border-radius: 0 0 0 20px;
+  right: -26px;
+  width: 26px;
+  height: 22px;
+  border-bottom-left-radius: 10px;
 }
 
-/* ── Center (yellow) ── */
+/* ── Center (黄色) ── */
 .bubble-center {
   margin-inline: auto;
 }
 
 .bubble-center::before {
-  left: -12px;
-  width: 22px;
+  left: -8px;
+  width: 20px;
   height: 22px;
-  border-radius: 0 0 18px 0;
+  border-bottom-right-radius: 16px 14px;
 }
 
 .bubble-center::after {
-  left: -24px;
-  width: 24px;
-  height: 24px;
-  border-radius: 0 0 20px 0;
+  left: -26px;
+  width: 26px;
+  height: 22px;
+  border-bottom-right-radius: 10px;
 }
 
 .bubble-small {
@@ -1008,15 +1010,14 @@ img {
     font-size: clamp(0.94rem, 0.86rem + 0.38vw, 1.06rem);
   }
 
-  /* モバイル テール */
-  .chat-bubble::before { bottom: 0; }
-  .chat-bubble::after  { bottom: -1px; }
+  /* モバイル テール — border-radius: 18px に合わせてスケール */
+  .chat-bubble::after { bottom: 0; }
 
-  .bubble-left::before  { left: -8px;  width: 16px; height: 16px; border-radius: 0 0 12px 0; }
-  .bubble-left::after   { left: -18px; width: 18px; height: 18px; border-radius: 0 0 10px 0; }
+  .bubble-left::before  { left: -6px;  width: 16px; height: 18px; border-bottom-right-radius: 12px 10px; }
+  .bubble-left::after   { left: -20px; width: 20px; height: 18px; border-bottom-right-radius: 8px; }
 
-  .bubble-right::before { right: -8px;  width: 16px; height: 16px; border-radius: 0 0 0 12px; }
-  .bubble-right::after  { right: -18px; width: 18px; height: 18px; border-radius: 0 0 0 10px; }
+  .bubble-right::before { right: -6px;  width: 16px; height: 18px; border-bottom-left-radius: 12px 10px; }
+  .bubble-right::after  { right: -20px; width: 20px; height: 18px; border-bottom-left-radius: 8px; }
 
   .bubble-small {
     font-size: clamp(0.88rem, 0.8rem + 0.34vw, 0.98rem);
@@ -1068,8 +1069,8 @@ img {
     white-space: normal;
   }
 
-  .bubble-center::before { left: -9px;  width: 16px; height: 16px; border-radius: 0 0 13px 0; }
-  .bubble-center::after  { left: -18px; width: 18px; height: 18px; border-radius: 0 0 15px 0; }
+  .bubble-center::before { left: -6px;  width: 16px; height: 18px; border-bottom-right-radius: 12px 10px; }
+  .bubble-center::after  { left: -20px; width: 20px; height: 18px; border-bottom-right-radius: 8px; }
 
   .info-panel {
     padding: 72px 16px 70px;
