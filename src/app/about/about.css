@@ -7,7 +7,7 @@
   --navy: #092040;
   --grid: rgba(9, 32, 64, 0.08);
   --gray-panel: #f5f5f5;
-  --gray-bubble: #d0d0d8;
+  --gray-bubble: #e5e5ea;
   --blue-bubble: #147af3;
 }
 
@@ -333,50 +333,84 @@ img {
   width: fit-content;
   max-width: 80%;
   padding: 16px 24px;
-  border-radius: 32px;
+  border-radius: 22px;
   font-size: 40px;
   line-height: 1.32;
   letter-spacing: -0.02em;
-  box-shadow: 0 14px 30px rgba(9, 32, 64, 0.08);
+}
+
+/* Apple iMessage tail — 2段重ね法
+   ::before = バブル色のブロック（テール本体）
+   ::after  = 背景色のブロック（内側をくり抜く） */
+.chat-bubble::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  background: inherit;
 }
 
 .chat-bubble::after {
   content: "";
   position: absolute;
-  bottom: -0.15em;
-  width: 0.7em;
-  height: 0.75em;
-  background: inherit;
-  border-radius: 0;
+  bottom: -2px;
+  background: var(--paper);
 }
 
+/* ── Left ── */
 .bubble-left {
   margin-right: auto;
 }
 
-.bubble-left::after {
-  left: 0.35em;
-  clip-path: polygon(0 0, 100% 8%, 0 100%);
+.bubble-left::before {
+  left: -10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 0 0 16px 0;
 }
 
+.bubble-left::after {
+  left: -22px;
+  width: 22px;
+  height: 22px;
+  border-radius: 0 0 14px 0;
+}
+
+/* ── Right ── */
 .bubble-right {
   margin-left: auto;
 }
 
-.bubble-right::after {
-  right: 0.35em;
-  clip-path: polygon(100% 0, 100% 100%, 0 8%);
+.bubble-right::before {
+  right: -10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 0 0 0 16px;
 }
 
+.bubble-right::after {
+  right: -22px;
+  width: 22px;
+  height: 22px;
+  border-radius: 0 0 0 14px;
+}
+
+/* ── Center (yellow) ── */
 .bubble-center {
   margin-inline: auto;
 }
 
+.bubble-center::before {
+  left: 10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 0 0 16px 0;
+}
+
 .bubble-center::after {
-  left: 0.55em;
-  width: 0.8em;
-  height: 0.85em;
-  clip-path: polygon(0 0, 100% 8%, 0 100%);
+  left: -2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 0 0 14px 0;
 }
 
 .bubble-small {
@@ -969,20 +1003,20 @@ img {
 
   .chat-bubble {
     max-width: 90%;
-    padding: 14px 16px;
-    border-radius: 24px;
+    padding: 10px 14px;
+    border-radius: 18px;
     font-size: clamp(0.94rem, 0.86rem + 0.38vw, 1.06rem);
   }
 
-  .chat-bubble::after {
-    bottom: -20px;
-    width: 26px;
-    height: 28px;
-  }
+  /* モバイル テール */
+  .chat-bubble::before { bottom: 0; }
+  .chat-bubble::after  { bottom: -1px; }
 
-  /* テールをバブルの角に近づける */
-  .bubble-left::after  { left: 6px; }
-  .bubble-right::after { right: 6px; }
+  .bubble-left::before  { left: -8px;  width: 16px; height: 16px; border-radius: 0 0 12px 0; }
+  .bubble-left::after   { left: -18px; width: 18px; height: 18px; border-radius: 0 0 10px 0; }
+
+  .bubble-right::before { right: -8px;  width: 16px; height: 16px; border-radius: 0 0 0 12px; }
+  .bubble-right::after  { right: -18px; width: 18px; height: 18px; border-radius: 0 0 0 10px; }
 
   .bubble-small {
     font-size: clamp(0.88rem, 0.8rem + 0.34vw, 0.98rem);
@@ -1034,13 +1068,8 @@ img {
     white-space: normal;
   }
 
-  .bubble-center::after {
-    left: 14px;
-    bottom: -18px;
-    width: 22px;
-    height: 26px;
-    clip-path: polygon(0 0, 100% 18%, 0 100%);
-  }
+  .bubble-center::before { left: 8px;  width: 16px; height: 16px; border-radius: 0 0 12px 0; }
+  .bubble-center::after  { left: -2px; width: 18px; height: 18px; border-radius: 0 0 10px 0; }
 
   .info-panel {
     padding: 72px 16px 70px;
