@@ -7,7 +7,7 @@
   --navy: #092040;
   --grid: rgba(9, 32, 64, 0.08);
   --gray-panel: #f5f5f5;
-  --gray-bubble: #ebebf0;
+  --gray-bubble: #d0d0d8;
   --blue-bubble: #147af3;
 }
 
@@ -416,23 +416,26 @@ img {
 }
 
 .bubble-one {
-  max-width: 640px;
+  max-width: 720px;
   margin-top: 8px;
 }
 
 .bubble-two {
-  max-width: 500px;
+  max-width: 660px;
   margin-top: -12px;
+  white-space: nowrap;
 }
 
 .bubble-three {
-  max-width: 420px;
+  max-width: 520px;
   margin-top: -8px;
+  white-space: nowrap;
 }
 
 .bubble-four {
   max-width: 360px;
   margin-top: 6px;
+  white-space: nowrap;
 }
 
 .chat-sequence,
@@ -1012,16 +1015,19 @@ img {
   .bubble-two {
     max-width: 72%;
     margin-top: 0;
+    white-space: normal;
   }
 
   .bubble-three {
     max-width: 68%;
     margin-top: 0;
+    white-space: normal;
   }
 
   .bubble-four {
     max-width: 60%;
     margin-top: 0;
+    white-space: normal;
   }
 
   .bubble-center::after {
