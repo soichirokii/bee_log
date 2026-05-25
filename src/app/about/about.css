@@ -980,6 +980,10 @@ img {
     height: 22px;
   }
 
+  /* テールをバブルの角に近づける */
+  .bubble-left::after  { left: 6px; }
+  .bubble-right::after { right: 6px; }
+
   .bubble-small {
     font-size: clamp(0.88rem, 0.8rem + 0.34vw, 0.98rem);
   }
