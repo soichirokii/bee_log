@@ -343,11 +343,11 @@ img {
 .chat-bubble::after {
   content: "";
   position: absolute;
-  bottom: -6px;
-  width: 28px;
-  height: 30px;
+  bottom: -0.15em;
+  width: 0.7em;
+  height: 0.75em;
   background: inherit;
-  border-radius: 10px;
+  border-radius: 0;
 }
 
 .bubble-left {
@@ -355,7 +355,7 @@ img {
 }
 
 .bubble-left::after {
-  left: 14px;
+  left: 0.35em;
   clip-path: polygon(0 0, 100% 8%, 0 100%);
 }
 
@@ -364,7 +364,7 @@ img {
 }
 
 .bubble-right::after {
-  right: 14px;
+  right: 0.35em;
   clip-path: polygon(100% 0, 100% 100%, 0 8%);
 }
 
@@ -373,9 +373,9 @@ img {
 }
 
 .bubble-center::after {
-  left: 22px;
-  width: 32px;
-  height: 34px;
+  left: 0.55em;
+  width: 0.8em;
+  height: 0.85em;
   clip-path: polygon(0 0, 100% 8%, 0 100%);
 }
 
