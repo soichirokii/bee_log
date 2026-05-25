@@ -975,9 +975,9 @@ img {
   }
 
   .chat-bubble::after {
-    bottom: -4px;
-    width: 20px;
-    height: 22px;
+    bottom: -20px;
+    width: 26px;
+    height: 28px;
   }
 
   /* テールをバブルの角に近づける */
@@ -1035,10 +1035,10 @@ img {
   }
 
   .bubble-center::after {
-    left: 22px;
-    bottom: -4px;
-    width: 18px;
-    height: 18px;
+    left: 14px;
+    bottom: -18px;
+    width: 22px;
+    height: 26px;
     clip-path: polygon(0 0, 100% 18%, 0 100%);
   }
 
