@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { getPublishedPosts } from "@/lib/notion";
 import TopPageClient from "./TopPageClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const posts = await getPublishedPosts();
 
