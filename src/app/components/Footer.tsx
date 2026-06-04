@@ -20,7 +20,7 @@ export default function Footer() {
             <div className="flex flex-col gap-4">
               <Link href="/" className="text-[#092040] font-bold text-sm hover:opacity-70 transition-opacity">HOME</Link>
               <Link href="/search" className="text-[#092040] font-bold text-sm hover:opacity-70 transition-opacity">活動を探す</Link>
-              <Link href="/about" className="text-[#092040] font-bold text-sm hover:opacity-70 transition-opacity">About</Link>
+              <Link href="/about" className="text-[#092040] font-bold text-sm hover:opacity-70 transition-opacity">About us</Link>
             </div>
 
             {/* SNS ＋ お問い合わせ */}
