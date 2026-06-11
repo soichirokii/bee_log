@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import Footer from "./components/Footer";
 import { CATEGORIES, CATEGORY_BG, SEASON_TAGS } from "@/constants/categories";
+import { daysUntilJst } from "@/lib/date";
 
 function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
   if (!period) return null;
@@ -134,8 +135,7 @@ function MobileNavbar() {
 
 function ActivityCard({ post }: { post: Post }) {
   const router = useRouter();
-  const now = new Date();
-  const daysLeft = post.deadline ? Math.ceil((new Date(post.deadline).getTime() - now.getTime()) / 86400000) : null;
+  const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
   const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
   const seasonTag = post.tags.find((t) => SEASON_TAGS.includes(t));
   const periodLabel = getPeriodLabel(post.period);

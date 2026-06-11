@@ -9,6 +9,8 @@ import ShareButton from "@/app/components/ShareButton";
 import MobileApplyButton from "@/app/components/MobileApplyButton";
 import Footer from "@/app/components/Footer";
 import { CATEGORY_BG } from "@/constants/categories";
+import { BASE_URL } from "@/constants/site";
+import { daysUntilJst } from "@/lib/date";
 
 export const revalidate = 1800;
 
@@ -29,16 +31,16 @@ export async function generateMetadata(props: {
     const post = await getPostBySlug(slug);
     if (!post) return { title: "Not Found" };
     // Notion S3の画像URLは約1時間で失効するため、OGPには固定画像を使う
-    const ogImage = "https://www.beelog-jp.com/ogp.png";
+    const ogImage = `${BASE_URL}/ogp.png`;
     return {
       title: post.title,
       description: post.summary,
       alternates: {
-        canonical: `https://www.beelog-jp.com/posts/${slug}`,
+        canonical: `${BASE_URL}/posts/${slug}`,
       },
       openGraph: {
         type: "article",
-        url: `https://www.beelog-jp.com/posts/${slug}`,
+        url: `${BASE_URL}/posts/${slug}`,
         title: post.title,
         description: post.summary,
         images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
@@ -163,10 +165,7 @@ function getRelatedPosts(allPosts: Post[], current: PostWithContent, count = 3):
 
 /* ── 関連活動カード（サーバーコンポーネント）── */
 function RelatedCard({ post }: { post: Post }) {
-  const now = new Date();
-  const daysLeft = post.deadline
-    ? Math.ceil((new Date(post.deadline).getTime() - now.getTime()) / 86400000)
-    : null;
+  const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
   const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
 
   return (
@@ -224,13 +223,9 @@ export default async function PostDetailPage({
   if (!post) notFound();
   const relatedPosts = getRelatedPosts(allPosts, post);
 
-  const now = new Date();
-  const daysLeft = post.deadline
-    ? Math.ceil((new Date(post.deadline).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
-    : null;
+  const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
   const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
 
-  const BASE_URL = "https://www.beelog-jp.com";
   const postUrl = `${BASE_URL}/posts/${post.slug}`;
 
   const articleJsonLd = {

@@ -1,6 +1,5 @@
 import { getAllPublishedPosts } from "@/lib/notion";
-
-const BASE_URL = "https://www.beelog-jp.com";
+import { BASE_URL } from "@/constants/site";
 
 export default async function sitemap() {
   const posts = await getAllPublishedPosts();

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import {
   Post,
   PostWithContent,
@@ -5,6 +6,7 @@ import {
   NotionBlockType,
   RichText,
 } from "@/types/notion";
+import { todayJst } from "@/lib/date";
 
 const NOTION_TOKEN = process.env.NOTION_TOKEN!;
 const DATABASE_ID = process.env.NOTION_DATABASE_ID!;
@@ -18,13 +20,6 @@ const notionHeaders = {
 // Notion S3画像URLは約1時間で期限切れになるため、60秒でリバリデートする
 // S3 URL有効期限（1時間）より十分短いため画像の期限切れは発生しない
 const REVALIDATE = 60;
-
-async function notionFetch(
-  url: string,
-  init?: RequestInit & { next?: { revalidate?: number } }
-): Promise<Response> {
-  return fetch(url, init);
-}
 
 // Notion API raw response types
 type RawRichTextItem = {
@@ -160,8 +155,9 @@ function rawBlockToNotionBlock(block: RawBlock): NotionBlock {
   return { id: block.id, type, richText, language, imageUrl, caption };
 }
 
-export async function getPublishedPosts(): Promise<Post[]> {
-  const res = await notionFetch(
+// cache(): 同一リクエスト内（generateMetadata とページ本体など）の重複呼び出しを1回にまとめる
+export const getPublishedPosts = cache(async (): Promise<Post[]> => {
+  const res = await fetch(
     `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
     {
       method: "POST",
@@ -173,7 +169,7 @@ export async function getPublishedPosts(): Promise<Post[]> {
             { property: "公開", checkbox: { equals: true } },
             {
               or: [
-                { property: "応募締切", date: { on_or_after: new Date().toISOString().split("T")[0] } },
+                { property: "応募締切", date: { on_or_after: todayJst() } },
                 { property: "応募締切", date: { is_empty: true } },
               ],
             },
@@ -187,11 +183,11 @@ export async function getPublishedPosts(): Promise<Post[]> {
   if (!res.ok) throw new Error(`Notion API error: ${res.status}`);
   const data = await res.json() as NotionQueryResult;
   return data.results.map(pageToPost);
-}
+});
 
 // 公開中の全記事（締切経過分も含む）。記事ページ・sitemap用。
-export async function getAllPublishedPosts(): Promise<Post[]> {
-  const res = await notionFetch(
+export const getAllPublishedPosts = cache(async (): Promise<Post[]> => {
+  const res = await fetch(
     `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
     {
       method: "POST",
@@ -207,18 +203,18 @@ export async function getAllPublishedPosts(): Promise<Post[]> {
   if (!res.ok) throw new Error(`Notion API error: ${res.status}`);
   const data = await res.json() as NotionQueryResult;
   return data.results.map(pageToPost);
-}
+});
 
-export async function getPostById(id: string): Promise<Post | null> {
-  const res = await notionFetch(`https://api.notion.com/v1/pages/${id}`, {
+export const getPostById = cache(async (id: string): Promise<Post | null> => {
+  const res = await fetch(`https://api.notion.com/v1/pages/${id}`, {
     headers: notionHeaders,
     next: { revalidate: REVALIDATE },
   });
   if (!res.ok) return null;
   return pageToPost(await res.json() as RawPage);
-}
+});
 
-export async function getPostBlocks(pageId: string): Promise<NotionBlock[]> {
+export const getPostBlocks = cache(async (pageId: string): Promise<NotionBlock[]> => {
   const blocks: NotionBlock[] = [];
   let cursor: string | undefined;
 
@@ -226,7 +222,7 @@ export async function getPostBlocks(pageId: string): Promise<NotionBlock[]> {
     const url = `https://api.notion.com/v1/blocks/${pageId}/children?page_size=100${
       cursor ? `&start_cursor=${cursor}` : ""
     }`;
-    const res = await notionFetch(url, {
+    const res = await fetch(url, {
       headers: notionHeaders,
       next: { revalidate: REVALIDATE },
     });
@@ -237,7 +233,7 @@ export async function getPostBlocks(pageId: string): Promise<NotionBlock[]> {
   } while (cursor);
 
   return blocks;
-}
+});
 
 export async function getPostWithContent(id: string): Promise<PostWithContent | null> {
   const post = await getPostById(id);
@@ -252,8 +248,8 @@ export async function getAllPublishedSlugs(): Promise<string[]> {
 }
 
 // slugで1件取得。締切経過後も記事ページが404にならないよう、締切では絞らない。
-export async function getPostBySlug(slug: string): Promise<Post | null> {
-  const res = await notionFetch(
+export const getPostBySlug = cache(async (slug: string): Promise<Post | null> => {
+  const res = await fetch(
     `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
     {
       method: "POST",
@@ -281,7 +277,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     return post?.isPublished ? post : null;
   }
   return null;
-}
+});
 
 export async function getPostWithContentBySlug(slug: string): Promise<PostWithContent | null> {
   const post = await getPostBySlug(slug);

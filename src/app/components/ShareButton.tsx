@@ -1,11 +1,12 @@
 "use client";
 import { useState } from "react";
+import { BASE_URL } from "@/constants/site";
 
 export default function ShareButton({ slug, title }: { slug: string; title: string }) {
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
-    const url = `https://www.beelog-jp.com/posts/${slug}`;
+    const url = `${BASE_URL}/posts/${slug}`;
     await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

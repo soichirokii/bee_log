@@ -4,6 +4,7 @@ import "./globals.css";
 import PageTransition from "./components/PageTransition";
 import LinePopup from "./components/LinePopup";
 import { Analytics } from "@vercel/analytics/react";
+import { BASE_URL } from "@/constants/site";
 
 // ── フォント定義（ビルド時ダウンロード → ローカル配信 → FOUT ゼロ） ──────────
 const notoSansJP = Noto_Sans_JP({
@@ -20,8 +21,6 @@ const inter = Inter({
   variable: "--font-inter",
   display: "swap",
 });
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? "https://www.beelog-jp.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
