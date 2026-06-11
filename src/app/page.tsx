@@ -1,8 +1,15 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { getPublishedPosts } from "@/lib/notion";
 import TopPageClient from "./TopPageClient";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default async function Home() {
   const posts = await getPublishedPosts();

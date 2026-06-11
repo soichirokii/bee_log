@@ -189,6 +189,26 @@ export async function getPublishedPosts(): Promise<Post[]> {
   return data.results.map(pageToPost);
 }
 
+// 公開中の全記事（締切経過分も含む）。記事ページ・sitemap用。
+export async function getAllPublishedPosts(): Promise<Post[]> {
+  const res = await notionFetch(
+    `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
+    {
+      method: "POST",
+      headers: notionHeaders,
+      body: JSON.stringify({
+        sorts: [{ property: "応募締切", direction: "descending" }],
+        filter: { property: "公開", checkbox: { equals: true } },
+      }),
+      next: { revalidate: REVALIDATE },
+    }
+  );
+
+  if (!res.ok) throw new Error(`Notion API error: ${res.status}`);
+  const data = await res.json() as NotionQueryResult;
+  return data.results.map(pageToPost);
+}
+
 export async function getPostById(id: string): Promise<Post | null> {
   const res = await notionFetch(`https://api.notion.com/v1/pages/${id}`, {
     headers: notionHeaders,
@@ -227,13 +247,40 @@ export async function getPostWithContent(id: string): Promise<PostWithContent | 
 }
 
 export async function getAllPublishedSlugs(): Promise<string[]> {
-  const posts = await getPublishedPosts();
+  const posts = await getAllPublishedPosts();
   return posts.map((p) => p.slug);
 }
 
+// slugで1件取得。締切経過後も記事ページが404にならないよう、締切では絞らない。
 export async function getPostBySlug(slug: string): Promise<Post | null> {
-  const posts = await getPublishedPosts();
-  return posts.find((p) => p.slug === slug) ?? null;
+  const res = await notionFetch(
+    `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
+    {
+      method: "POST",
+      headers: notionHeaders,
+      body: JSON.stringify({
+        page_size: 1,
+        filter: {
+          and: [
+            { property: "公開", checkbox: { equals: true } },
+            { property: "slug", rich_text: { equals: slug } },
+          ],
+        },
+      }),
+      next: { revalidate: REVALIDATE },
+    }
+  );
+
+  if (!res.ok) throw new Error(`Notion API error: ${res.status}`);
+  const data = await res.json() as NotionQueryResult;
+  if (data.results[0]) return pageToPost(data.results[0]);
+
+  // slug未設定の記事はページIDをslugとして配信しているため、ID形式ならフォールバック
+  if (/^[0-9a-f]{32}$|^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(slug)) {
+    const post = await getPostById(slug);
+    return post?.isPublished ? post : null;
+  }
+  return null;
 }
 
 export async function getPostWithContentBySlug(slug: string): Promise<PostWithContent | null> {

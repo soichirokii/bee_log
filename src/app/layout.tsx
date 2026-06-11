@@ -72,9 +72,6 @@ export const metadata: Metadata = {
       "10代のための探究・課外活動メディア。コンテスト、インターン、留学、イベントなどの挑戦の機会を届けます。",
     images: ["/ogp.png"],
   },
-  alternates: {
-    canonical: BASE_URL,
-  },
 };
 
 export default function RootLayout({

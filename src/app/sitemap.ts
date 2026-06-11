@@ -1,13 +1,13 @@
-import { getPublishedPosts } from "@/lib/notion";
+import { getAllPublishedPosts } from "@/lib/notion";
 
 const BASE_URL = "https://www.beelog-jp.com";
 
 export default async function sitemap() {
-  const posts = await getPublishedPosts();
+  const posts = await getAllPublishedPosts();
 
   const postUrls = posts.map((post) => ({
     url: `${BASE_URL}/posts/${post.slug}`,
-    lastModified: new Date(),
+    lastModified: new Date(post.createdAt),
     changeFrequency: "weekly" as const,
     priority: 0.8,
   }));
@@ -24,6 +24,12 @@ export default async function sitemap() {
       lastModified: new Date(),
       changeFrequency: "daily" as const,
       priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/about`,
+      lastModified: new Date(),
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
     },
     ...postUrls,
   ];

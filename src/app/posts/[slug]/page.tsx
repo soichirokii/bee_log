@@ -1,4 +1,4 @@
-import { getPostWithContentBySlug, getAllPublishedSlugs, getPublishedPosts } from "@/lib/notion";
+import { getPostWithContentBySlug, getPostBySlug, getAllPublishedSlugs, getPublishedPosts } from "@/lib/notion";
 import { Post, PostWithContent } from "@/types/notion";
 import { NotionBlock, RichText } from "@/types/notion";
 import { notFound } from "next/navigation";
@@ -26,9 +26,10 @@ export async function generateMetadata(props: {
 }): Promise<Metadata> {
   const { slug } = await props.params;
   try {
-    const post = await getPostWithContentBySlug(slug);
+    const post = await getPostBySlug(slug);
     if (!post) return { title: "Not Found" };
-    const ogImage = post.imageUrl ?? "https://www.beelog-jp.com/ogp.png";
+    // Notion S3の画像URLは約1時間で失効するため、OGPには固定画像を使う
+    const ogImage = "https://www.beelog-jp.com/ogp.png";
     return {
       title: post.title,
       description: post.summary,
