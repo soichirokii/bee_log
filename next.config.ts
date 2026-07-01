@@ -8,9 +8,10 @@ const ContentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline' https://use.typekit.net https://fonts.googleapis.com",
   // フォントファイル
   "font-src 'self' https://use.typekit.net https://fonts.gstatic.com",
-  // 画像：Notion S3・Imgur・OGP 等
+  // 画像：Cloudinary（移行先）・Notion S3・Imgur・OGP 等
   [
     "img-src 'self' data: blob:",
+    "https://res.cloudinary.com",
     "https://i.imgur.com",
     "https://*.notion.so",
     "https://*.amazonaws.com",
@@ -43,6 +44,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
     remotePatterns: [
+      { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "**.notion.so" },
       { protocol: "https", hostname: "**.amazonaws.com" },
       { protocol: "https", hostname: "prod-files-secure.s3.us-west-2.amazonaws.com" },
