@@ -4,6 +4,7 @@ import { NotionBlock, RichText } from "@/types/notion";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
+import FallbackImage from "@/components/FallbackImage";
 import Link from "next/link";
 import ShareButton from "@/app/components/ShareButton";
 import MobileApplyButton from "@/app/components/MobileApplyButton";
@@ -110,7 +111,7 @@ function BlockRenderer({ block }: { block: NotionBlock }) {
       return block.imageUrl ? (
         <figure className="my-6">
           <div className="relative w-full aspect-video overflow-hidden">
-            <Image src={`/api/notion-image?blockId=${block.id}`} alt={block.caption?.[0]?.plain_text ?? ""} fill className="object-cover" />
+            <FallbackImage src={`/api/notion-image?blockId=${block.id}`} alt={block.caption?.[0]?.plain_text ?? ""} fill className="object-cover" />
           </div>
           {block.caption && block.caption.length > 0 && (
             <figcaption className="text-center text-sm text-gray-400 mt-2">
@@ -176,7 +177,7 @@ function RelatedCard({ post }: { post: Post }) {
         <span className="text-white text-lg font-bold tracking-widest">VIEW MORE</span>
       </div>
       <div className="w-full aspect-video bg-gray-200 relative overflow-hidden">
-        <Image
+        <FallbackImage
           src={post.imageUrl ? `/api/notion-image?pageId=${post.id}` : "/noimage.svg"}
           alt={post.title}
           fill
@@ -314,7 +315,7 @@ export default async function PostDetailPage({
       <div className="px-[5vw] md:px-16 pt-8">
         <div className="relative w-full h-48 md:h-80 bg-gray-200 overflow-hidden">
           {post.imageUrl ? (
-            <Image src={`/api/notion-image?pageId=${post.id}`} alt={post.title} fill className="object-cover" />
+            <FallbackImage src={`/api/notion-image?pageId=${post.id}`} alt={post.title} fill className="object-cover" />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />
           )}
