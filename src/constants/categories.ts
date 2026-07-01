@@ -5,7 +5,7 @@ export const CATEGORIES = [
 
 // カテゴリタグの共通デザイン（色分けは廃止し、全ページ・全カテゴリで統一）
 export const CATEGORY_TAG_CLASS =
-  "bg-[#FFFFEE] text-[#092040] border border-[#092040]/20 rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap";
+  "bg-[#FFFFEE] text-[#092040] border border-[#092040] rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap";
 
 export const SEASON_TAGS = ["夏休み", "冬休み", "春休み"];
 export const GRADES = ["中学生", "高校生", "大学生"];
