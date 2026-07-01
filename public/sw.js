@@ -1,7 +1,9 @@
-// v2: キャッシュを一切持たない素通しSW。
-// 旧バージョンのSWがprecacheした古いアセット（古いnoimage等）が
-// 一部端末で配信され続ける問題があったため、activate時に全キャッシュを一掃する。
-const SW_VERSION = 'v2-purge-legacy-cache';
+// v3: リクエストを一切横取りしないSW。
+// v2の素通し(respondWith(fetch(e.request)))は、/api/notion-image の
+// 302リダイレクト画像(→Cloudinary、クロスオリジン)をopaque応答にしてしまい、
+// 通常リロード時に画像がグレー(表示不可)になっていた。
+// respondWithを呼ばず全てブラウザ標準処理に任せることで解消する。
+const SW_VERSION = 'v3-no-intercept';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
@@ -18,7 +20,6 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// 常にネットワークから取得（キャッシュしない）
-self.addEventListener('fetch', (e) => {
-  e.respondWith(fetch(e.request));
-});
+// respondWith を呼ばない = 全リクエストをブラウザ標準のネットワーク処理に委ねる。
+// （PWAインストール可能性のために fetch ハンドラ自体は残す）
+self.addEventListener('fetch', () => {});
