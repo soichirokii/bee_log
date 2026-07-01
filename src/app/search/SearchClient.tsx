@@ -8,7 +8,7 @@ import Image from "next/image";
 import FallbackImage from "@/components/FallbackImage";
 import { useRouter } from "next/navigation";
 import Footer from "../components/Footer";
-import { CATEGORIES, CATEGORY_BG, SEASON_TAGS, GRADES, FORMATS } from "@/constants/categories";
+import { CATEGORIES, CATEGORY_TAG_CLASS, SEASON_TAGS, GRADES, FORMATS } from "@/constants/categories";
 import { daysUntilJst } from "@/lib/date";
 
 function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
@@ -205,7 +205,6 @@ function Navbar({ keyword, setKeyword, searchVisible, onSearch }: {
 function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: string) => void }) {
   const router = useRouter();
   const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
-  const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
   const seasonTag = post.tags.find((t) => SEASON_TAGS.includes(t));
   const periodLabel = getPeriodLabel(post.period);
 
@@ -240,7 +239,7 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
       </div>
       <div className="p-4 bg-[#FFFFF0]">
         <div className="flex items-center gap-2 text-xs mb-2 flex-wrap">
-          {post.category && <span className={`px-3 py-1 rounded-full font-medium text-xs whitespace-nowrap ${categoryStyle}`}>{post.category}</span>}
+          {post.category && <span className={CATEGORY_TAG_CLASS}>{post.category}</span>}
           {post.organizer && <span className="text-gray-400">{post.organizer}</span>}
         </div>
         <h3 className="font-bold text-[#092040] text-xl line-clamp-2">{post.title}</h3>
@@ -655,7 +654,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
                       <button
                         key={cat}
                         onClick={() => { setSelectedCategories([cat]); setSelectedGrades([]); setSelectedFormats([]); setSelectedPeriods([]); setFreeOnly(false); setKeyword(""); setPage(1); }}
-                        className={`text-xs font-bold px-3 py-1.5 rounded-full ${CATEGORY_BG[cat] ?? "bg-gray-100 text-gray-700"}`}
+                        className={`${CATEGORY_TAG_CLASS} transition-colors hover:bg-[#FCBC2A]`}
                       >
                         {cat}
                       </button>

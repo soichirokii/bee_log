@@ -9,7 +9,7 @@ import Link from "next/link";
 import ShareButton from "@/app/components/ShareButton";
 import MobileApplyButton from "@/app/components/MobileApplyButton";
 import Footer from "@/app/components/Footer";
-import { CATEGORY_BG } from "@/constants/categories";
+import { CATEGORY_TAG_CLASS } from "@/constants/categories";
 import { BASE_URL } from "@/constants/site";
 import { daysUntilJst } from "@/lib/date";
 
@@ -167,7 +167,6 @@ function getRelatedPosts(allPosts: Post[], current: PostWithContent, count = 3):
 /* ── 関連活動カード（サーバーコンポーネント）── */
 function RelatedCard({ post }: { post: Post }) {
   const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
-  const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
 
   return (
     <Link href={`/posts/${post.slug}`}
@@ -195,7 +194,7 @@ function RelatedCard({ post }: { post: Post }) {
       <div className="p-4 bg-[#FFFFF0]">
         <div className="flex items-center gap-2 mb-2 flex-wrap">
           {post.category && (
-            <span className={`px-3 py-1 rounded-full font-medium text-xs whitespace-nowrap ${categoryStyle}`}>
+            <span className={CATEGORY_TAG_CLASS}>
               {post.category}
             </span>
           )}
@@ -225,7 +224,6 @@ export default async function PostDetailPage({
   const relatedPosts = getRelatedPosts(allPosts, post);
 
   const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
-  const categoryStyle = post.category ? CATEGORY_BG[post.category] ?? "bg-gray-100 text-gray-700" : "";
 
   const postUrl = `${BASE_URL}/posts/${post.slug}`;
 
@@ -322,7 +320,7 @@ export default async function PostDetailPage({
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute bottom-6 left-6 right-6">
             {post.category && (
-              <span className={`text-xs font-bold px-3 py-1 rounded-full mb-3 inline-block ${categoryStyle}`}>
+              <span className={`${CATEGORY_TAG_CLASS} mb-3 inline-block`}>
                 {post.category}
               </span>
             )}
