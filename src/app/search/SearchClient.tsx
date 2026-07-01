@@ -220,7 +220,7 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
       </div>
       <div className="w-full aspect-video bg-gray-200 relative overflow-hidden">
         {post.imageUrl
-          ? <Image src={post.imageUrl} alt={post.title} fill className="object-cover" onError={(e) => { e.currentTarget.src = "/noimage.svg"; }} />
+          ? <Image src={`/api/notion-image?pageId=${post.id}`} alt={post.title} fill className="object-cover" />
           : <Image src="/noimage.svg" alt="No Image" fill className="object-cover" />}
         <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
           {post.isFeatured && <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>}
@@ -277,10 +277,6 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
     searchParams.get("period")?.split(",").filter(Boolean) ?? []
   );
   const [freeOnly, setFreeOnly] = useState(searchParams.get("free") === "1");
-  const [sortOrder, setSortOrder] = useState<"newest" | "deadline">(
-    searchParams.get("sort") === "deadline" ? "deadline" : "newest"
-  );
-  const [sortOpen, setSortOpen] = useState(false);
   const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
   const [filterOpen, setFilterOpen] = useState(false);
   const [mobileSearchVisible, setMobileSearchVisible] = useState(false);
@@ -309,7 +305,6 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
     setSelectedFormats(searchParams.get("format") ? [searchParams.get("format")!] : []);
     setSelectedPeriods(searchParams.get("period")?.split(",").filter(Boolean) ?? []);
     setFreeOnly(searchParams.get("free") === "1");
-    setSortOrder((searchParams.get("sort") ?? "newest") as "newest" | "deadline");
     setPage(Number(searchParams.get("page")) || 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [searchParams]);
@@ -323,11 +318,10 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
     if (selectedFormats.length) params.set("format", selectedFormats[0]);
     if (selectedPeriods.length) params.set("period", selectedPeriods.join(","));
     if (freeOnly) params.set("free", "1");
-    if (sortOrder !== "newest") params.set("sort", sortOrder);
     if (page > 1) params.set("page", String(page));
     skipUrlToStateRef.current = true;
     router.replace(`/search?${params.toString()}`, { scroll: false });
-  }, [selectedCategories, selectedGrades, selectedFormats, selectedPeriods, freeOnly, sortOrder, page]);
+  }, [selectedCategories, selectedGrades, selectedFormats, selectedPeriods, freeOnly, page]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -392,9 +386,8 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
     if (selectedFormats.length) params.set("format", selectedFormats[0]);
     if (selectedPeriods.length) params.set("period", selectedPeriods.join(","));
     if (freeOnly) params.set("free", "1");
-    if (sortOrder !== "newest") params.set("sort", sortOrder);
     router.push(`/search?${params.toString()}`);
-  }, [keyword, selectedCategories, selectedGrades, selectedFormats, selectedPeriods, freeOnly, sortOrder, router]);
+  }, [keyword, selectedCategories, selectedGrades, selectedFormats, selectedPeriods, freeOnly, router]);
 
   const activeFilterCount = selectedCategories.length + selectedGrades.length + selectedFormats.length + selectedPeriods.length + (freeOnly ? 1 : 0);
 
@@ -408,19 +401,18 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
       );
     }
     if (selectedCategories.length > 0) result = result.filter((p) => selectedCategories.includes(p.category));
-    if (selectedGrades.length > 0) result = result.filter((p) => p.targetGrade.some((g) => selectedGrades.includes(g)));
+    if (selectedGrades.length > 0) result = result.filter((p) => selectedGrades.every((g) => p.targetGrade.includes(g)));
     if (selectedFormats.length > 0) result = result.filter((p) => selectedFormats.includes(p.format));
     if (selectedPeriods.length > 0) result = result.filter((p) => { const l = getPeriodLabel(p.period); return l !== null && selectedPeriods.includes(l); });
     if (freeOnly) result = result.filter((p) => p.fee === "無料" || p.fee === "0円" || p.fee === "0");
-    if (sortOrder === "deadline") {
-      result = [...result].sort((a, b) => {
-        if (!a.deadline) return 1;
-        if (!b.deadline) return -1;
-        return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
-      });
-    }
+    // 常に締切が近い順で表示（締切なしは末尾）
+    result = [...result].sort((a, b) => {
+      if (!a.deadline) return 1;
+      if (!b.deadline) return -1;
+      return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+    });
     return result;
-  }, [posts, keyword, selectedCategories, selectedGrades, selectedFormats, selectedPeriods, freeOnly, sortOrder]);
+  }, [posts, keyword, selectedCategories, selectedGrades, selectedFormats, selectedPeriods, freeOnly]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -543,7 +535,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
           </div>
         </aside>
         <main className="flex-1 md:px-6 md:py-6">
-          {/* PC：検索窓＋ソート */}
+          {/* PC：検索窓 */}
           <div className="hidden md:flex gap-2 mb-4 items-center">
             {/* ③ PC 検索アイコン focus アニメーション */}
             <div ref={setPcSearchRef} className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
@@ -557,23 +549,6 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
               className="bg-[#092040] text-white font-bold px-5 py-2.5 rounded-2xl text-sm hover:opacity-90 transition-opacity shrink-0">
               検索
             </button>
-            <div className="relative">
-              <button onClick={() => setSortOpen(!sortOpen)}
-                className="bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-4 py-3 text-sm text-[#092040] font-bold whitespace-nowrap relative pr-8">
-                {sortOrder === "newest" ? "新着順" : "締切順"}
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs">{sortOpen ? "▲" : "▼"}</span>
-              </button>
-              {sortOpen && (
-                <div className="absolute right-0 top-14 bg-[#FFFFF0] rounded-2xl shadow-xl z-20 overflow-hidden w-36 border-2 border-[#092040]">
-                  {[{ value: "newest", label: "新着順" }, { value: "deadline", label: "締切順" }].map((opt) => (
-                    <button key={opt.value} onClick={() => { setSortOrder(opt.value as typeof sortOrder); setSortOpen(false); }}
-                      className={`w-full text-left px-5 py-3 text-sm font-bold transition-colors ${sortOrder === opt.value ? "bg-[#092040] text-white" : "text-[#092040] hover:bg-gray-50"}`}>
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
 
           {/* モバイル：検索窓 */}
@@ -592,7 +567,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
   </button>
 </div>
 
-          {/* モバイル：絞り込み＋ソート */}
+          {/* モバイル：絞り込み */}
           <div className="md:hidden flex gap-2 mb-[3vw]">
             <button onClick={() => setFilterOpen(true)}
               className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl py-3 flex items-center justify-center gap-2">
@@ -602,23 +577,6 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
               <span className="text-[#092040] font-bold text-sm">絞り込み</span>
               {activeFilterCount > 0 && <span className="bg-[#EF4444] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">{activeFilterCount}</span>}
             </button>
-            <div className="relative flex-1">
-              <button onClick={() => setSortOpen(!sortOpen)}
-                className="w-full bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl py-3 flex items-center justify-center gap-2">
-                <span className="text-[#092040] font-bold text-sm">{sortOrder === "newest" ? "新着順" : "締切順"}</span>
-                <span className="text-[#092040] text-xs">{sortOpen ? "▲" : "▼"}</span>
-              </button>
-              {sortOpen && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-[#FFFFF0] rounded-2xl shadow-xl z-20 overflow-hidden border-2 border-[#092040]">
-                  {[{ value: "newest", label: "新着順" }, { value: "deadline", label: "締切順" }].map((opt) => (
-                    <button key={opt.value} onClick={(e) => { e.stopPropagation(); setSortOrder(opt.value as typeof sortOrder); setSortOpen(false); }}
-                      className={`w-full text-left px-4 py-3 text-sm font-bold ${sortOrder === opt.value ? "bg-[#092040] text-white" : "text-[#092040]"}`}>
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
           </div>
 
           {/* ⑤ アクティブフィルターチップ（PC） */}

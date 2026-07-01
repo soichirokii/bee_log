@@ -110,7 +110,7 @@ function BlockRenderer({ block }: { block: NotionBlock }) {
       return block.imageUrl ? (
         <figure className="my-6">
           <div className="relative w-full aspect-video overflow-hidden">
-            <Image src={block.imageUrl} alt={block.caption?.[0]?.plain_text ?? ""} fill className="object-cover" />
+            <Image src={`/api/notion-image?blockId=${block.id}`} alt={block.caption?.[0]?.plain_text ?? ""} fill className="object-cover" />
           </div>
           {block.caption && block.caption.length > 0 && (
             <figcaption className="text-center text-sm text-gray-400 mt-2">
@@ -177,7 +177,7 @@ function RelatedCard({ post }: { post: Post }) {
       </div>
       <div className="w-full aspect-video bg-gray-200 relative overflow-hidden">
         <Image
-          src={post.imageUrl ?? "/noimage.svg"}
+          src={post.imageUrl ? `/api/notion-image?pageId=${post.id}` : "/noimage.svg"}
           alt={post.title}
           fill
           className="object-cover"
@@ -233,7 +233,7 @@ export default async function PostDetailPage({
     "@type": "Article",
     headline: post.title,
     description: post.summary,
-    image: post.imageUrl ?? `${BASE_URL}/ogp.png`,
+    image: post.imageUrl ? `${BASE_URL}/api/notion-image?pageId=${post.id}` : `${BASE_URL}/ogp.png`,
     datePublished: post.createdAt,
     author: { "@type": "Organization", name: post.organizer || "BEE log" },
     publisher: { "@type": "Organization", name: "BEE log", url: BASE_URL },
@@ -265,8 +265,11 @@ export default async function PostDetailPage({
         <Link href="/" className="text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] transition-all duration-200 hover:bg-[#FCBC2A]">
           HOME
         </Link>
-        <Link href="/search" className="text-base font-bold px-6 py-2.5 rounded-full bg-[#FCBC2A] text-[#092040] transition-all duration-200 hover:bg-[#092040] hover:text-white">
+        <Link href="/search" className="text-base font-bold px-6 py-2.5 rounded-full mr-3 bg-[#FCBC2A] text-[#092040] transition-all duration-200 hover:bg-[#092040] hover:text-white">
           活動を探す
+        </Link>
+        <Link href="/about" className="text-base font-bold px-6 py-2.5 rounded-full text-[#092040] transition-all duration-200 hover:bg-[#FCBC2A]">
+          About us
         </Link>
       </nav>
 
@@ -311,7 +314,7 @@ export default async function PostDetailPage({
       <div className="px-[5vw] md:px-16 pt-8">
         <div className="relative w-full h-48 md:h-80 bg-gray-200 overflow-hidden">
           {post.imageUrl ? (
-            <Image src={post.imageUrl} alt={post.title} fill className="object-cover" />
+            <Image src={`/api/notion-image?pageId=${post.id}`} alt={post.title} fill className="object-cover" />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />
           )}

@@ -399,6 +399,7 @@ img {
 /* ── Center (黄色) ── */
 .bubble-center {
   margin-inline: auto;
+  align-self: center;
 }
 
 .bubble-center::before {
