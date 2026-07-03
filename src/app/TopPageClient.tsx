@@ -483,6 +483,15 @@ function TopPageInner({ posts, keyword, setKeyword, setPcSearchRef, mobileSearch
         </div>
       </div>
 
+      <section className="flex justify-center py-12 md:py-16 px-[5vw] md:px-0">
+        <Link
+          href="/search"
+          className="bg-[#092040] text-white font-bold text-base md:text-lg px-10 py-4 rounded-2xl hover:opacity-90 hover:-translate-y-0.5 transition-all duration-300 shadow-md hover:shadow-lg"
+        >
+          すべての活動を見る
+        </Link>
+      </section>
+
       <Footer />
     </div>
   );

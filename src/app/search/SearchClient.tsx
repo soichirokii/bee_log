@@ -424,7 +424,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
         <h3 className="text-sm font-bold text-[#092040] mb-2">カテゴリ</h3>
         {CATEGORIES.map((cat) => (
           <label key={cat} className="flex items-center gap-2 mb-2 cursor-pointer">
-            <input type="checkbox" checked={selectedCategories.includes(cat)} onChange={() => toggleItem(selectedCategories, setSelectedCategories, cat)} className="accent-[#092040] w-4 h-4" />
+            <input type="checkbox" checked={selectedCategories.includes(cat)} onChange={() => toggleItem(selectedCategories, setSelectedCategories, cat)} className="relative appearance-none shrink-0 w-4 h-4 border-2 border-[#092040] rounded bg-[#FFFFF0] checked:bg-[#092040] checked:after:content-[''] checked:after:absolute checked:after:left-[4px] checked:after:top-[1px] checked:after:w-[4px] checked:after:h-[8px] checked:after:border-white checked:after:border-b-2 checked:after:border-r-2 checked:after:rotate-45 focus:outline-none cursor-pointer" />
             <span className="text-sm text-[#092040] font-medium">{cat}</span>
           </label>
         ))}
@@ -447,7 +447,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
             <input type="radio" name="format" checked={selectedFormats.includes(fmt)}
               onChange={() => setSelectedFormats(selectedFormats.includes(fmt) ? [] : [fmt])}
               onClick={() => { if (selectedFormats.includes(fmt)) setSelectedFormats([]); }}
-              className="accent-[#092040] w-4 h-4" />
+              className="relative appearance-none shrink-0 w-4 h-4 border-2 border-[#092040] rounded-full bg-[#FFFFF0] checked:bg-[#092040] checked:after:content-[''] checked:after:absolute checked:after:inset-[3px] checked:after:rounded-full checked:after:bg-white focus:outline-none cursor-pointer" />
             <span className="text-sm text-[#092040] font-medium">{fmt}</span>
           </label>
         ))}
@@ -456,7 +456,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
         <h3 className="text-sm font-bold text-[#092040] mb-2">活動期間</h3>
         {["長期", "中期", "短期"].map((period) => (
           <label key={period} className="flex items-center gap-2 mb-2 cursor-pointer">
-            <input type="checkbox" checked={selectedPeriods.includes(period)} onChange={() => toggleItem(selectedPeriods, setSelectedPeriods, period)} className="accent-[#092040] w-4 h-4" />
+            <input type="checkbox" checked={selectedPeriods.includes(period)} onChange={() => toggleItem(selectedPeriods, setSelectedPeriods, period)} className="relative appearance-none shrink-0 w-4 h-4 border-2 border-[#092040] rounded bg-[#FFFFF0] checked:bg-[#092040] checked:after:content-[''] checked:after:absolute checked:after:left-[4px] checked:after:top-[1px] checked:after:w-[4px] checked:after:h-[8px] checked:after:border-white checked:after:border-b-2 checked:after:border-r-2 checked:after:rotate-45 focus:outline-none cursor-pointer" />
             <span className="text-sm text-[#092040] font-medium">{period}</span>
           </label>
         ))}
@@ -677,14 +677,18 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
           {totalPages > 1 && (() => {
             const btnBase = "w-10 h-10 rounded-full font-bold transition-colors bg-[#FFFFF0] border-2 border-[#092040] text-[#092040] hover:bg-[#FCBC2A] hover:border-[#FCBC2A]";
             const btnActive = "w-10 h-10 rounded-full font-bold border-2 border-[#092040] bg-[#092040] text-white";
-            const btnArrow = "w-10 h-10 rounded-full font-bold transition-colors bg-[#FFFFF0] border-2 border-[#092040] text-[#092040] hover:bg-[#FCBC2A] hover:border-[#FCBC2A] disabled:opacity-20 disabled:pointer-events-none";
+            const btnArrow = "w-10 h-10 rounded-full font-bold transition-colors bg-[#FFFFF0] border-2 border-[#092040] text-[#092040] hover:bg-[#FCBC2A] hover:border-[#FCBC2A] disabled:opacity-20 disabled:pointer-events-none flex items-center justify-center";
             const left = Math.max(1, page - 2);
             const right = Math.min(totalPages, page + 2);
             const windowPages = Array.from({ length: right - left + 1 }, (_, i) => left + i);
             return (
               <div className="flex justify-center items-center gap-2 pb-6">
                 <button onClick={() => goToPage(Math.max(1, page - 1))} disabled={page === 1}
-                  className={btnArrow}>‹</button>
+                  aria-label="前のページ" className={btnArrow}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 6 9 12 15 18" />
+                  </svg>
+                </button>
                 {left > 1 && (
                   <>
                     <button onClick={() => goToPage(1)} className={btnBase}>1</button>
@@ -701,7 +705,11 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
                   </>
                 )}
                 <button onClick={() => goToPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}
-                  className={btnArrow}>›</button>
+                  aria-label="次のページ" className={btnArrow}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 6 15 12 9 18" />
+                  </svg>
+                </button>
               </div>
             );
           })()}
