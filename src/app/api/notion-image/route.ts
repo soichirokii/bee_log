@@ -35,6 +35,9 @@ export async function GET(request: NextRequest) {
       });
       if (!res.ok) return NextResponse.redirect(new URL(NOIMAGE, origin));
       const page = await res.json();
+      if (page.properties?.["公開"]?.checkbox !== true) {
+        return NextResponse.redirect(new URL(NOIMAGE, origin));
+      }
       const files = page.properties?.["ファイル&メディア"]?.files;
       const url: string | undefined = files?.[0]?.file?.url ?? files?.[0]?.external?.url;
       if (!url) return NextResponse.redirect(new URL(NOIMAGE, origin));

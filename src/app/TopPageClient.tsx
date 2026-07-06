@@ -398,7 +398,10 @@ function TopPageInner({ posts, keyword, setKeyword, setPcSearchRef, mobileSearch
         <div className="mb-[6vw]">
           <div className="flex items-center justify-between mb-[3vw]">
             <h2 className="text-[#092040] text-[5vw] font-black">おすすめの活動</h2>
-            <Link href="/search" className="text-[#092040] text-[3vw] opacity-60">VIEW MORE →</Link>
+            <Link href="/search" className="group inline-flex items-center gap-[2vw]">
+              <span className="text-[#092040] text-[3vw] font-extrabold underline underline-offset-4">VIEW MORE</span>
+              <span className="flex items-center justify-center w-[7vw] h-[7vw] rounded-full bg-[#FCBC2A] text-[#092040] text-[3.5vw] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-active:translate-x-1 group-active:scale-110 motion-reduce:transition-none motion-reduce:transform-none">→</span>
+            </Link>
           </div>
           <MobileSlider posts={featuredPosts} />
           <div className="flex flex-col gap-[4vw] mt-[4vw]">
@@ -450,7 +453,10 @@ function TopPageInner({ posts, keyword, setKeyword, setPcSearchRef, mobileSearch
             <section className="mb-10">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[#092040] text-2xl font-black">おすすめ</h2>
-                <Link href="/search" className="text-[#092040] text-sm hover:underline opacity-60">VIEW MORE →</Link>
+                <Link href="/search" className="group inline-flex items-center gap-3">
+                  <span className="text-[#092040] text-sm font-extrabold underline underline-offset-4">VIEW MORE</span>
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FCBC2A] text-[#092040] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:translate-x-1 group-hover:scale-110 motion-reduce:transition-none motion-reduce:transform-none">→</span>
+                </Link>
               </div>
               <ScrollHint>
                 {featuredPosts.map((post) => (
@@ -468,7 +474,10 @@ function TopPageInner({ posts, keyword, setKeyword, setPcSearchRef, mobileSearch
               <section key={cat} className="mb-10">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-[#092040] text-2xl font-black">{cat}</h2>
-                  <Link href={`/search?category=${encodeURIComponent(cat)}`} className="text-[#092040] text-sm hover:underline opacity-60">VIEW MORE →</Link>
+                  <Link href={`/search?category=${encodeURIComponent(cat)}`} className="group inline-flex items-center gap-3">
+                    <span className="text-[#092040] text-sm font-extrabold underline underline-offset-4">VIEW MORE</span>
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FCBC2A] text-[#092040] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:translate-x-1 group-hover:scale-110 motion-reduce:transition-none motion-reduce:transform-none">→</span>
+                  </Link>
                 </div>
                 <ScrollHint>
                   {filtered.map((post) => (
@@ -486,9 +495,10 @@ function TopPageInner({ posts, keyword, setKeyword, setPcSearchRef, mobileSearch
       <section className="flex justify-center py-12 md:py-16 px-[5vw] md:px-0">
         <Link
           href="/search"
-          className="bg-[#092040] text-white font-bold text-base md:text-lg px-10 py-4 rounded-2xl hover:opacity-90 hover:-translate-y-0.5 transition-all duration-300 shadow-md hover:shadow-lg"
+          className="group inline-flex items-center gap-2 bg-[#FCBC2A] text-[#092040] font-bold text-base md:text-lg px-8 py-3.5 rounded-full shadow-[0_4px_0_#092040] transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:scale-[1.04] hover:shadow-[0_6px_0_#092040] active:translate-y-px active:scale-[0.97] active:shadow-[0_2px_0_#092040] motion-reduce:transition-none"
         >
           すべての活動を見る
+          <span className="inline-block transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:translate-x-1 motion-reduce:transition-none">→</span>
         </Link>
       </section>
 
