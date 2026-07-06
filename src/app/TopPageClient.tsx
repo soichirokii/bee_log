@@ -219,49 +219,16 @@ function ScrollHint({ children }: { children: React.ReactNode }) {
   );
 }
 
-function TopPageInner({ posts, keyword, setKeyword, mobileSearchRef }: {
+function TopPageInner({ posts, keyword, setKeyword }: {
   posts: Post[];
   keyword: string;
   setKeyword: (v: string) => void;
-  mobileSearchRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const router = useRouter();
   const featuredPosts = useMemo(() => posts.filter((p) => p.isFeatured), [posts]);
-  const [mobileSearchVisible, setMobileSearchVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => setMobileSearchVisible(!entry.isIntersecting),
-      { threshold: 0, rootMargin: "0px" }
-    );
-    const el = mobileSearchRef.current;
-    if (el) observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <div className="min-h-screen bg-[#FFFFF0]">
-
-      {/* モバイル固定検索バー */}
-      {mobileSearchVisible && (
-        <div className="md:hidden fixed top-[var(--navbar-h,17vw)] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw] animate-fadeInDown">
-  <div className="flex items-center gap-[2vw]">
-    <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
-      <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
-      <input
-        type="search"
-        placeholder="活動を検索..."
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
-        onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-        className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent"
-      />
-    </div>
-    <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
-      className="bg-[#092040] text-white font-bold text-sm px-[3vw] py-2.5 rounded-2xl shrink-0">検索</button>
-  </div>
-</div>
-      )}
 
       {/* モバイル */}
       <div className="md:hidden px-[5vw] pb-[10vw]">
@@ -272,7 +239,7 @@ function TopPageInner({ posts, keyword, setKeyword, mobileSearchRef }: {
         </div>
         <div className="mb-[5vw]">
           <div className="flex items-center gap-[2vw]">
-            <div ref={mobileSearchRef} className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
+            <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
               <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
               <input type="search" placeholder="活動名、主催者などで検索..." value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
@@ -396,15 +363,13 @@ function TopPageInner({ posts, keyword, setKeyword, mobileSearchRef }: {
 }
 
 export default function TopPageClient({ posts }: { posts: Post[] }) {
-  const router = useRouter();
   const [keyword, setKeyword] = useState("");
-  const mobileSearchRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <>
-      <Navbar search={{ keyword, setKeyword, onSearch: () => router.push(`/search?q=${encodeURIComponent(keyword)}`) }} />
+      <Navbar />
       <Suspense fallback={<div className="min-h-screen bg-[#FFFFF0]" />}>
-        <TopPageInner posts={posts} keyword={keyword} setKeyword={setKeyword} mobileSearchRef={mobileSearchRef} />
+        <TopPageInner posts={posts} keyword={keyword} setKeyword={setKeyword} />
       </Suspense>
     </>
   );

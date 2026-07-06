@@ -9,6 +9,7 @@ import FallbackImage from "@/components/FallbackImage";
 import { useRouter } from "next/navigation";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
+import { FAB_BASE_CLASS } from "../components/MobileSearchFab";
 import { CATEGORIES, CATEGORY_TAG_CLASS, SEASON_TAGS, GRADES, FORMATS } from "@/constants/categories";
 import { daysUntilJst } from "@/lib/date";
 
@@ -146,11 +147,10 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
 
 const PAGE_SIZE = 12;
 
-function SearchInner({ posts, keyword, setKeyword, mobileSearchRef }: {
+function SearchInner({ posts, keyword, setKeyword }: {
   posts: Post[];
   keyword: string;
   setKeyword: (v: string) => void;
-  mobileSearchRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -169,7 +169,6 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef }: {
   const [freeOnly, setFreeOnly] = useState(searchParams.get("free") === "1");
   const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [mobileSearchVisible, setMobileSearchVisible] = useState(false);
   /* ⑦ ページ切替トランジション */
   const [cardsVisible, setCardsVisible] = useState(true);
   const skipUrlToStateRef = useRef(false);
@@ -212,16 +211,6 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef }: {
     skipUrlToStateRef.current = true;
     router.replace(`/search?${params.toString()}`, { scroll: false });
   }, [selectedCategories, selectedGrades, selectedFormats, selectedPeriods, freeOnly, page]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => setMobileSearchVisible(!entry.isIntersecting),
-      { threshold: 0 }
-    );
-    const el = mobileSearchRef.current;
-    if (el) observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
 
   /* ⑨ Pull-to-refresh イベント */
   useEffect(() => {
@@ -380,40 +369,42 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef }: {
         </div>
       )}
 
-      {/* モバイル固定検索バー */}
-      {mobileSearchVisible && (
-        <div className="md:hidden fixed top-[var(--navbar-h,17vw)] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw] animate-fadeInDown">
-  <div className="flex items-center gap-[2vw]">
-    {/* ③ アイコン focus アニメーション */}
-    <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
-      <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
-      <input
-        type="search"
-        placeholder="活動を検索..."
-        value={keyword}
-        onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
-        onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
-        className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent"
-      />
-    </div>
-    <button onClick={() => handleSearch()}
-      className="bg-[#092040] text-white font-bold text-sm px-[3vw] py-2.5 rounded-2xl shrink-0">
-      検索
-    </button>
-  </div>
-</div>
-      )}
+      {/* モバイル：絞り込みFAB(検索FABの上) */}
+      <button
+        type="button"
+        aria-label="絞り込み"
+        onClick={() => setFilterOpen(true)}
+        className={`${FAB_BASE_CLASS} bottom-[88px]`}
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">
+          <line x1="4" y1="6" x2="20" y2="6" /><line x1="8" y1="12" x2="16" y2="12" /><line x1="11" y1="18" x2="13" y2="18" />
+        </svg>
+        {activeFilterCount > 0 && (
+          <span className="absolute -top-1 -right-1 bg-[#EF4444] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold border-2 border-[#FFFFEE]">
+            {activeFilterCount}
+          </span>
+        )}
+      </button>
 
+      {/* モバイル：絞り込みボトムシート */}
       {filterOpen && (
         <div className="fixed inset-0 z-40 md:hidden" onClick={() => setFilterOpen(false)}>
-          <div className="absolute inset-0 bg-black/50" />
-          <div className="absolute bottom-0 left-0 right-0 bg-[#FFFFF0] rounded-t-3xl p-4 max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-black text-[#092040] text-lg">絞り込み</span>
-              <button onClick={() => setFilterOpen(false)} aria-label="フィルターを閉じる" className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-[#092040] text-xl font-bold hover:bg-gray-200 transition-colors focus-visible:outline-2 focus-visible:outline-[#FCBC2A]">×</button>
+          <div className="absolute inset-0 bg-black/30" />
+          <div
+            className="absolute bottom-0 left-0 right-0 bg-[#FFFFEE] border-t-2 border-[#092040] rounded-t-[24px] max-h-[80vh] overflow-y-auto animate-[bottomSheetIn_400ms_cubic-bezier(0.22,1,0.36,1)_forwards] motion-reduce:animate-none"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 rounded-full bg-[rgba(9,32,64,0.2)]" />
             </div>
-            <FilterPanel />
-            <button onClick={() => setFilterOpen(false)} className="w-full mt-4 bg-[#092040] text-white font-bold py-4 rounded-2xl">{filtered.length}件を表示</button>
+            <div className="px-4 pb-4">
+              <div className="flex items-center justify-between mb-4">
+                <span className="font-black text-[#092040] text-lg">絞り込み</span>
+                <button onClick={() => setFilterOpen(false)} aria-label="フィルターを閉じる" className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-[#092040] text-xl font-bold hover:bg-gray-200 transition-colors focus-visible:outline-2 focus-visible:outline-[#FCBC2A]">×</button>
+              </div>
+              <FilterPanel />
+              <button onClick={() => setFilterOpen(false)} className="w-full mt-4 bg-[#092040] text-white font-bold py-4 rounded-2xl">{filtered.length}件を表示</button>
+            </div>
           </div>
         </div>
       )}
@@ -444,7 +435,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef }: {
           {/* モバイル：検索窓 */}
 <div className="md:hidden mb-[3vw] flex items-center gap-[2vw]">
   {/* ③ モバイル検索アイコン focus アニメーション */}
-  <div ref={mobileSearchRef} className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
+  <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
     <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
     <input type="search" placeholder="活動を検索..." value={keyword}
       onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
@@ -456,18 +447,6 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef }: {
     検索
   </button>
 </div>
-
-          {/* モバイル：絞り込み */}
-          <div className="md:hidden flex gap-2 mb-[3vw]">
-            <button onClick={() => setFilterOpen(true)}
-              className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl py-3 flex items-center justify-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">
-                <line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/>
-              </svg>
-              <span className="text-[#092040] font-bold text-sm">絞り込み</span>
-              {activeFilterCount > 0 && <span className="bg-[#EF4444] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">{activeFilterCount}</span>}
-            </button>
-          </div>
 
           {/* ⑤ アクティブフィルターチップ（PC） */}
           {activeFilterCount > 0 && (
@@ -612,17 +591,11 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef }: {
 
 export default function SearchClient({ posts }: { posts: Post[] }) {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [keyword, setKeyword] = useState(searchParams.get("q") ?? "");
-  const mobileSearchRef = useRef<HTMLDivElement | null>(null);
-
-  const handleNavbarSearch = useCallback(() => {
-    router.push(`/search?q=${encodeURIComponent(keyword)}`);
-  }, [keyword, router]);
 
   return (
     <>
-      <Navbar search={{ keyword, setKeyword, onSearch: handleNavbarSearch }} />
+      <Navbar />
       {/* ④ スケルトンローディング */}
       <Suspense fallback={
         <div className="bg-[#FFFFF0] min-h-screen px-6 py-6">
@@ -631,7 +604,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
           </div>
         </div>
       }>
-        <SearchInner posts={posts} keyword={keyword} setKeyword={setKeyword} mobileSearchRef={mobileSearchRef} />
+        <SearchInner posts={posts} keyword={keyword} setKeyword={setKeyword} />
       </Suspense>
     </>
   );

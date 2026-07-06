@@ -3,6 +3,7 @@ import { Noto_Sans_JP, Inter } from "next/font/google";
 import "./globals.css";
 import PageTransition from "./components/PageTransition";
 import LinePopup from "./components/LinePopup";
+import MobileSearchFab from "./components/MobileSearchFab";
 import { Analytics } from "@vercel/analytics/react";
 import { BASE_URL } from "@/constants/site";
 
@@ -96,6 +97,7 @@ export default function RootLayout({
         `}} />
         <PageTransition />
         {children}
+        <MobileSearchFab />
         <LinePopup />
         <Analytics />
       </body>

@@ -3,19 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const NAV_LINKS = [
   { href: "/", label: "HOME" },
   { href: "/search", label: "活動を探す" },
   { href: "/about", label: "About us" },
 ] as const;
-
-export type NavbarSearch = {
-  keyword: string;
-  setKeyword: (v: string) => void;
-  onSearch: () => void;
-};
 
 function useScrolled(threshold: number) {
   const [scrolled, setScrolled] = useState(false);
@@ -29,17 +23,19 @@ function useScrolled(threshold: number) {
 }
 
 const LINK_CLASS =
-  "font-bold text-[#092040] rounded-full transition-[background-color,transform] ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-300 hover:bg-[#FCBC2A] hover:-translate-y-0.5 hover:scale-[1.05] active:translate-y-px active:scale-[0.96] motion-reduce:transition-none motion-reduce:transform-none";
+  "font-bold text-[#092040] rounded-full whitespace-nowrap transition-[background-color,transform] ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-300 hover:bg-[#FCBC2A] hover:-translate-y-0.5 hover:scale-[1.05] active:translate-y-px active:scale-[0.96] motion-reduce:transition-none motion-reduce:transform-none";
 
-const ICON_BTN_CLASS =
-  "flex items-center justify-center rounded-full shrink-0 transition-[background-color,transform] ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-300 hover:bg-[#FCBC2A] hover:-translate-y-0.5 hover:scale-[1.05] active:translate-y-px active:scale-[0.96] motion-reduce:transition-none motion-reduce:transform-none";
-
-export default function Navbar({ search }: { search?: NavbarSearch }) {
+export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const scrolled = useScrolled(80);
   const [menuOpen, setMenuOpen] = useState(false);
   const [quickSearchOpen, setQuickSearchOpen] = useState(false);
+  const [quickKeyword, setQuickKeyword] = useState("");
   const wrapRef = useRef<HTMLDivElement>(null);
+  const quickInputRef = useRef<HTMLInputElement>(null);
+
+  const showSearchButton = pathname === "/search" || pathname.startsWith("/posts/");
 
   // カプセル化しても下の固定検索窓(モバイル)が navbar の高さに追従できるよう、
   // 実際の高さを CSS 変数として公開する
@@ -51,16 +47,28 @@ export default function Navbar({ search }: { search?: NavbarSearch }) {
     const ro = new ResizeObserver(setVar);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [scrolled]);
+  }, []);
 
   useEffect(() => {
-    if (!quickSearchOpen) return;
-    const close = () => setQuickSearchOpen(false);
-    window.addEventListener("scroll", close, { passive: true });
-    return () => window.removeEventListener("scroll", close);
+    setQuickSearchOpen(false);
+    setQuickKeyword("");
+  }, [pathname]);
+
+  useEffect(() => {
+    if (quickSearchOpen) quickInputRef.current?.focus();
   }, [quickSearchOpen]);
 
-  const pillPad = scrolled ? "px-6 py-3 text-base" : "px-6 py-2.5 text-base";
+  const submitQuickSearch = () => {
+    if (!quickKeyword.trim()) return;
+    router.push(`/search?q=${encodeURIComponent(quickKeyword.trim())}`);
+  };
+
+  const closeQuickSearch = () => {
+    setQuickSearchOpen(false);
+    setQuickKeyword("");
+  };
+
+  const pillPad = scrolled ? "px-5 py-2.5 text-sm" : "px-6 py-2.5 text-base";
 
   return (
     <>
@@ -70,20 +78,25 @@ export default function Navbar({ search }: { search?: NavbarSearch }) {
         <nav
           className={`hidden md:flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             scrolled
-              ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-8 py-4"
-              : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFEE] px-16 py-4"
+              ? "w-[calc(100%-28px)] max-w-[560px] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[14px] py-2.5"
+              : "w-full mt-0 rounded-none border-0 border-b-2 border-dashed border-[rgba(9,32,64,0.18)] bg-[#FFFFEE] px-16 py-4"
           }`}
         >
-          <Link href="/" className="mr-8 shrink-0 transition-opacity duration-200 hover:opacity-70">
+          <Link href="/" className="group mr-8 shrink-0">
             <Image
               src="/Logo.svg"
               alt="BEE log"
               width={120}
               height={48}
-              className={`w-auto transition-[height] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "h-11" : "h-12"}`}
+              className={`w-auto transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:rotate-[20deg] group-hover:scale-[1.15] motion-reduce:transition-none motion-reduce:transform-none ${scrolled ? "h-11" : "h-12"}`}
             />
           </Link>
-          <div className="flex items-center gap-2">
+
+          <div
+            className={`flex items-center gap-2 min-w-0 transition-opacity duration-300 motion-reduce:transition-none ${
+              quickSearchOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+            }`}
+          >
             {NAV_LINKS.map(({ href, label }) => (
               <Link
                 key={href}
@@ -95,30 +108,42 @@ export default function Navbar({ search }: { search?: NavbarSearch }) {
             ))}
           </div>
 
-          {search && (
-            <div className="relative ml-auto">
+          {showSearchButton && (
+            <div className="ml-auto flex items-center shrink-0">
+              <div
+                className={`flex items-center overflow-hidden transition-[width,opacity,margin] duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+                  quickSearchOpen ? "w-[220px] opacity-100 mr-2" : "w-0 opacity-0 mr-0"
+                }`}
+              >
+                <input
+                  ref={quickInputRef}
+                  type="search"
+                  placeholder="検索"
+                  value={quickKeyword}
+                  onChange={(e) => setQuickKeyword(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") submitQuickSearch(); }}
+                  className="w-[190px] shrink-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent border-0 border-b-2 border-[#092040] py-1"
+                />
+                <button
+                  type="button"
+                  aria-label="検索を閉じる"
+                  onClick={closeQuickSearch}
+                  className="shrink-0 w-6 h-6 flex items-center justify-center text-[#092040]/60 hover:text-[#092040] text-lg leading-none"
+                >
+                  ×
+                </button>
+              </div>
               <button
                 type="button"
-                aria-label="検索を開く"
-                onClick={() => setQuickSearchOpen((v) => !v)}
-                className={`${ICON_BTN_CLASS} ${scrolled ? "w-10 h-10" : "w-10 h-10"}`}
+                aria-label={quickSearchOpen ? "検索を閉じる" : "検索を開く"}
+                onClick={() => (quickSearchOpen ? closeQuickSearch() : setQuickSearchOpen(true))}
+                className="w-9 h-9 flex items-center justify-center rounded-full bg-[#FCBC2A] border-2 border-[#092040] shadow-[0_3px_0_#092040] shrink-0 transition-transform duration-200 hover:scale-105 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none"
               >
-                <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-70" />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">
+                  <circle cx="11" cy="11" r="7" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
               </button>
-              {quickSearchOpen && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-[#FFFFEE] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 shadow-[0_4px_0_rgba(9,32,64,0.9)]">
-                  <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
-                  <input
-                    autoFocus
-                    type="search"
-                    placeholder="検索"
-                    value={search.keyword}
-                    onChange={(e) => search.setKeyword(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") search.onSearch(); }}
-                    className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent"
-                  />
-                </div>
-              )}
             </div>
           )}
         </nav>
@@ -127,18 +152,18 @@ export default function Navbar({ search }: { search?: NavbarSearch }) {
         <nav
           className={`md:hidden flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             scrolled
-              ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[6vw] py-[3.5vw]"
-              : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFEE] px-[5vw] py-[3vw]"
+              ? "w-[min(560px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[6vw] py-[3vw]"
+              : "w-full mt-0 rounded-none border-0 border-b-2 border-dashed border-[rgba(9,32,64,0.18)] bg-[#FFFFEE] px-[5vw] py-[3vw]"
           }`}
         >
           <div className="flex-1" />
-          <Link href="/" className="flex justify-center">
+          <Link href="/" className="group flex justify-center">
             <Image
               src="/Logo.svg"
               alt="BEE log"
               width={120}
               height={48}
-              className={`w-auto transition-[height] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "h-[9.5vw]" : "h-[10vw]"}`}
+              className={`w-auto transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:rotate-[20deg] group-hover:scale-[1.15] motion-reduce:transition-none motion-reduce:transform-none ${scrolled ? "h-[9.5vw]" : "h-[10vw]"}`}
             />
           </Link>
           <div className="flex-1 flex justify-end">
