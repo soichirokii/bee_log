@@ -9,6 +9,7 @@ import Link from "next/link";
 import ShareButton from "@/app/components/ShareButton";
 import MobileApplyButton from "@/app/components/MobileApplyButton";
 import Footer from "@/app/components/Footer";
+import Navbar from "@/app/components/Navbar";
 import { CATEGORY_TAG_CLASS } from "@/constants/categories";
 import { BASE_URL } from "@/constants/site";
 import { daysUntilJst } from "@/lib/date";
@@ -256,33 +257,7 @@ export default async function PostDetailPage({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
-      {/* PC Navbar */}
-      <nav className="hidden md:flex items-center px-16 py-4 bg-[#FFFFF0] border-b-2 border-[#092040] sticky top-0 z-50">
-        <Link href="/" className="mr-10 transition-opacity duration-200 hover:opacity-70">
-          <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-12 w-auto" />
-        </Link>
-        <Link href="/" className="text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] transition-all duration-200 hover:bg-[#FCBC2A]">
-          HOME
-        </Link>
-        <Link href="/search" className="text-base font-bold px-6 py-2.5 rounded-full mr-3 bg-[#FCBC2A] text-[#092040] transition-all duration-200 hover:bg-[#092040] hover:text-white">
-          活動を探す
-        </Link>
-        <Link href="/about" className="text-base font-bold px-6 py-2.5 rounded-full text-[#092040] transition-all duration-200 hover:bg-[#FCBC2A]">
-          About us
-        </Link>
-      </nav>
-
-      {/* Mobile Navbar */}
-      <nav className="md:hidden flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw] sticky top-0 z-50">
-        <div className="flex-1" />
-        <Link href="/" className="flex justify-center">
-          <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-[10vw] w-auto" />
-        </Link>
-        <div className="flex-1 flex justify-end">
-          <Link href="/search" className="bg-[#FCBC2A] text-[#092040] font-bold text-[3.5vw] px-[4vw] py-[2vw] rounded-full">探す</Link>
-        </div>
-      </nav>
-
+      <Navbar />
       {/* パンくずリスト */}
       <nav aria-label="パンくずリスト" className="px-[5vw] md:px-16 pt-4 pb-1">
         <ol className="flex items-center gap-1.5 text-xs text-[#092040]/60 flex-wrap">

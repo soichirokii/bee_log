@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useMemo, Suspense, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, Suspense, useEffect, useRef } from "react";
 import { Post } from "@/types/notion";
 import Link from "next/link";
 import Image from "next/image";
 import FallbackImage from "@/components/FallbackImage";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Footer from "./components/Footer";
+import Navbar from "./components/Navbar";
 import { CATEGORIES, CATEGORY_TAG_CLASS, SEASON_TAGS } from "@/constants/categories";
 import { daysUntilJst } from "@/lib/date";
 
@@ -20,118 +21,6 @@ function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
   const dayMatch = text.match(/(\d+)日/);
   if (dayMatch) { const d = parseInt(dayMatch[1]); return d >= 15 ? "長期" : d >= 7 ? "中期" : "短期"; }
   return null;
-}
-
-function PCNavbar({ keyword, setKeyword, searchVisible }: {
-  keyword: string;
-  setKeyword: (v: string) => void;
-  searchVisible: boolean;
-}) {
-  const pathname = usePathname();
-  const router = useRouter();
-
-  return (
-    <nav className="hidden md:flex items-center px-16 py-4 bg-[#FFFFF0] border-b-2 border-[#092040] sticky top-0 z-50 relative">
-      <Link href="/" className="mr-10 transition-opacity duration-200 hover:opacity-70">
-        <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-12 w-auto" />
-      </Link>
-      <Link href="/" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] transition-all duration-200 ${pathname === "/" ? "bg-[#FCBC2A] hover:bg-[#092040] hover:text-white" : "hover:bg-[#FCBC2A]"}`}>HOME</Link>
-      <Link href="/search" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] transition-all duration-200 ${pathname === "/search" ? "bg-[#FCBC2A] hover:bg-[#092040] hover:text-white" : "hover:bg-[#FCBC2A]"}`}>活動を探す</Link>
-      <Link href="/about" className={`text-base font-bold px-6 py-2.5 rounded-full text-[#092040] transition-all duration-200 ${pathname === "/about" ? "bg-[#FCBC2A] hover:bg-[#092040] hover:text-white" : "hover:bg-[#FCBC2A]"}`}>About us</Link>
-
-      {/* スティッキー検索窓 */}
-      <div className={`absolute right-8 top-1/2 -translate-y-1/2 transition-all duration-300 flex items-center gap-2 ${searchVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`}>
-          <div className="bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
-            <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
-            <input
-              type="search"
-              placeholder="検索"
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-              className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent"
-            />
-          </div>
-          <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
-            className="bg-[#092040] text-white font-bold px-5 py-2.5 rounded-2xl text-sm hover:opacity-90 transition-opacity shrink-0">検索</button>
-        </div>
-    </nav>
-  );
-}
-
-const MOBILE_NAV_LINKS = [
-  { href: "/", label: "HOME" },
-  { href: "/search", label: "活動を探す" },
-  { href: "/about", label: "About us" },
-] as const;
-
-function MobileNavbar() {
-  const pathname = usePathname();
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  return (
-    <div className="md:hidden">
-      {/* 通常ヘッダー（fixed で確実に上部固定） */}
-      <div className="h-[16vw]" aria-hidden="true" />
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw]">
-        <div className="flex-1" />
-        <Link href="/" className="flex justify-center">
-          <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-[10vw] w-auto" />
-        </Link>
-        <div className="flex-1 flex justify-end">
-          <button
-            onClick={() => setMenuOpen(true)}
-            aria-label="メニューを開く"
-            className="p-2 flex flex-col justify-center gap-[5px]"
-          >
-            <span className="block w-[22px] h-[2px] bg-[#092040]" />
-            <span className="block w-[22px] h-[2px] bg-[#092040]" />
-            <span className="block w-[22px] h-[2px] bg-[#092040]" />
-          </button>
-        </div>
-      </nav>
-
-      {/* フルスクリーンオーバーレイ */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-[60] flex flex-col" role="dialog" aria-modal="true">
-          {/* ヘッダー行（アイボリー） */}
-          <div className="flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw] shrink-0">
-            <div className="flex-1" />
-            <Link href="/" onClick={() => setMenuOpen(false)} className="flex justify-center">
-              <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-[10vw] w-auto" />
-            </Link>
-            <div className="flex-1 flex justify-end">
-              <button
-                onClick={() => setMenuOpen(false)}
-                aria-label="メニューを閉じる"
-                className="p-2 flex flex-col justify-center gap-[5px]"
-              >
-                <span className="block w-[22px] h-[2px] bg-[#092040] origin-center translate-y-[7px] rotate-45" />
-                <span className="block w-[22px] h-[2px] bg-[#092040] opacity-0" />
-                <span className="block w-[22px] h-[2px] bg-[#092040] origin-center -translate-y-[7px] -rotate-45" />
-              </button>
-            </div>
-          </div>
-          {/* ナビリンク（クリームで残り全部） */}
-          <nav className="flex-1 bg-[#FFFFF0] flex flex-col items-center justify-center gap-12" role="menu">
-            {MOBILE_NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                role="menuitem"
-                onClick={() => setMenuOpen(false)}
-                className={`text-3xl font-bold tracking-wide transition-colors ${
-                  pathname === href ? "text-[#FCBC2A]" : "text-[#092040] hover:text-[#FCBC2A]"
-                }`}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      )}
-    </div>
-  );
 }
 
 function ActivityCard({ post }: { post: Post }) {
@@ -330,11 +219,10 @@ function ScrollHint({ children }: { children: React.ReactNode }) {
   );
 }
 
-function TopPageInner({ posts, keyword, setKeyword, setPcSearchRef, mobileSearchRef }: {
+function TopPageInner({ posts, keyword, setKeyword, mobileSearchRef }: {
   posts: Post[];
   keyword: string;
   setKeyword: (v: string) => void;
-  setPcSearchRef: (el: HTMLDivElement | null) => void;
   mobileSearchRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const router = useRouter();
@@ -356,7 +244,7 @@ function TopPageInner({ posts, keyword, setKeyword, setPcSearchRef, mobileSearch
 
       {/* モバイル固定検索バー */}
       {mobileSearchVisible && (
-        <div className="md:hidden fixed top-[17vw] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw] animate-fadeInDown">
+        <div className="md:hidden fixed top-[var(--navbar-h,17vw)] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw] animate-fadeInDown">
   <div className="flex items-center gap-[2vw]">
     <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
       <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
@@ -423,7 +311,7 @@ function TopPageInner({ posts, keyword, setKeyword, setPcSearchRef, mobileSearch
 
         <div className="px-16 py-8 bg-[#FFFFF0] border-b border-gray-100">
           <div className="max-w-3xl mx-auto">
-            <div ref={setPcSearchRef} className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3 mb-4">
               <div className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-5 py-4 flex items-center gap-3 group">
                 <Image src="/icons/Magnifying Glass.svg" alt="" width={22} height={22} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
                 <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
@@ -508,32 +396,15 @@ function TopPageInner({ posts, keyword, setKeyword, setPcSearchRef, mobileSearch
 }
 
 export default function TopPageClient({ posts }: { posts: Post[] }) {
+  const router = useRouter();
   const [keyword, setKeyword] = useState("");
   const mobileSearchRef = useRef<HTMLDivElement | null>(null);
-  const [pcSearchVisible, setPcSearchVisible] = useState(false);
-  const pcObserverRef = useRef<IntersectionObserver | null>(null);
-
-  const setPcSearchRef = useCallback((el: HTMLDivElement | null) => {
-    if (pcObserverRef.current) {
-      pcObserverRef.current.disconnect();
-      pcObserverRef.current = null;
-    }
-    if (el) {
-      const observer = new IntersectionObserver(
-        ([entry]) => setPcSearchVisible(!entry.isIntersecting),
-        { threshold: 0 }
-      );
-      observer.observe(el);
-      pcObserverRef.current = observer;
-    }
-  }, []);
 
   return (
     <>
-      <PCNavbar keyword={keyword} setKeyword={setKeyword} searchVisible={pcSearchVisible} />
-      <MobileNavbar />
+      <Navbar search={{ keyword, setKeyword, onSearch: () => router.push(`/search?q=${encodeURIComponent(keyword)}`) }} />
       <Suspense fallback={<div className="min-h-screen bg-[#FFFFF0]" />}>
-        <TopPageInner posts={posts} keyword={keyword} setKeyword={setKeyword} setPcSearchRef={setPcSearchRef} mobileSearchRef={mobileSearchRef} />
+        <TopPageInner posts={posts} keyword={keyword} setKeyword={setKeyword} mobileSearchRef={mobileSearchRef} />
       </Suspense>
     </>
   );

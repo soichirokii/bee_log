@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useMemo, Suspense, useEffect, useRef, useCallback } from "react";
-import { useSearchParams, usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Post } from "@/types/notion";
 import Link from "next/link";
 import Image from "next/image";
 import FallbackImage from "@/components/FallbackImage";
 import { useRouter } from "next/navigation";
 import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
 import { CATEGORIES, CATEGORY_TAG_CLASS, SEASON_TAGS, GRADES, FORMATS } from "@/constants/categories";
 import { daysUntilJst } from "@/lib/date";
 
@@ -91,116 +92,6 @@ function ResultsCount({ count }: { count: number }) {
   return <p className="text-[#092040] font-bold mb-4 text-base">{display} 件の活動が見つかりました</p>;
 }
 
-const MOBILE_NAV_LINKS = [
-  { href: "/", label: "HOME" },
-  { href: "/search", label: "活動を探す" },
-  { href: "/about", label: "About" },
-] as const;
-
-function Navbar({ keyword, setKeyword, searchVisible, onSearch }: {
-  keyword: string;
-  setKeyword: (v: string) => void;
-  searchVisible: boolean;
-  onSearch: () => void;
-}) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  return (
-    <>
-      {/* PC nav */}
-      <nav className="hidden md:flex items-center px-16 py-4 bg-[#FFFFF0] border-b-2 border-[#092040] sticky top-0 z-50 relative mb-0">
-        <Link href="/" className="mr-10 transition-opacity duration-200 hover:opacity-70">
-          <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-12 w-auto" />
-        </Link>
-        <Link href="/" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] transition-all duration-200 ${pathname === "/" ? "bg-[#FCBC2A] hover:bg-[#092040] hover:text-white" : "hover:bg-[#FCBC2A]"}`}>HOME</Link>
-        <Link href="/search" className={`text-base font-bold px-6 py-2.5 rounded-full mr-3 text-[#092040] transition-all duration-200 ${pathname === "/search" ? "bg-[#FCBC2A] hover:bg-[#092040] hover:text-white" : "hover:bg-[#FCBC2A]"}`}>活動を探す</Link>
-        <Link href="/about" className={`text-base font-bold px-6 py-2.5 rounded-full text-[#092040] transition-all duration-200 ${pathname === "/about" ? "bg-[#FCBC2A] hover:bg-[#092040] hover:text-white" : "hover:bg-[#FCBC2A]"}`}>About</Link>
-
-        {/* スティッキー検索窓（PC） */}
-        <div className={`absolute right-8 top-1/2 -translate-y-1/2 transition-all duration-300 flex items-center gap-2 ${searchVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4 pointer-events-none"}`}>
-          <div className="bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2">
-            <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0" />
-            <input
-              type="search"
-              placeholder="検索"
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") onSearch(); }}
-              className="flex-1 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent"
-            />
-          </div>
-          <button onClick={onSearch}
-            className="bg-[#092040] text-white font-bold px-5 py-2.5 rounded-2xl text-sm hover:opacity-90 transition-opacity shrink-0">検索</button>
-        </div>
-      </nav>
-
-      {/* Mobile nav */}
-      <div className="md:hidden">
-        {/* 通常ヘッダー（fixed で確実に上部固定） */}
-        <div className="h-[16vw]" aria-hidden="true" />
-        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw]">
-          <div className="flex-1" />
-          <Link href="/" className="flex justify-center">
-            <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-[10vw] w-auto" />
-          </Link>
-          <div className="flex-1 flex justify-end">
-            <button
-              onClick={() => setMenuOpen(true)}
-              aria-label="メニューを開く"
-              className="p-2 flex flex-col justify-center gap-[5px]"
-            >
-              <span className="block w-[22px] h-[2px] bg-[#092040]" />
-              <span className="block w-[22px] h-[2px] bg-[#092040]" />
-              <span className="block w-[22px] h-[2px] bg-[#092040]" />
-            </button>
-          </div>
-        </nav>
-
-        {/* フルスクリーンオーバーレイ */}
-        {menuOpen && (
-          <div className="fixed inset-0 z-[60] flex flex-col" role="dialog" aria-modal="true">
-            {/* ヘッダー行（アイボリー） */}
-            <div className="flex items-center bg-[#FFFFF0] border-b-2 border-[#092040] px-[5vw] py-[3vw] shrink-0">
-              <div className="flex-1" />
-              <Link href="/" onClick={() => setMenuOpen(false)} className="flex justify-center">
-                <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-[10vw] w-auto" />
-              </Link>
-              <div className="flex-1 flex justify-end">
-                <button
-                  onClick={() => setMenuOpen(false)}
-                  aria-label="メニューを閉じる"
-                  className="p-2 flex flex-col justify-center gap-[5px]"
-                >
-                  <span className="block w-[22px] h-[2px] bg-[#092040] origin-center translate-y-[7px] rotate-45" />
-                  <span className="block w-[22px] h-[2px] bg-[#092040] opacity-0" />
-                  <span className="block w-[22px] h-[2px] bg-[#092040] origin-center -translate-y-[7px] -rotate-45" />
-                </button>
-              </div>
-            </div>
-            {/* ナビリンク（クリームで残り全部） */}
-            <nav className="flex-1 bg-[#FFFFF0] flex flex-col items-center justify-center gap-12" role="menu">
-              {MOBILE_NAV_LINKS.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  role="menuitem"
-                  onClick={() => setMenuOpen(false)}
-                  className={`text-3xl font-bold tracking-wide transition-colors ${
-                    pathname === href ? "text-[#FCBC2A]" : "text-[#092040] hover:text-[#FCBC2A]"
-                  }`}
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
 
 function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: string) => void }) {
   const router = useRouter();
@@ -255,12 +146,11 @@ function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: str
 
 const PAGE_SIZE = 12;
 
-function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchRef }: {
+function SearchInner({ posts, keyword, setKeyword, mobileSearchRef }: {
   posts: Post[];
   keyword: string;
   setKeyword: (v: string) => void;
   mobileSearchRef: React.RefObject<HTMLDivElement | null>;
-  setPcSearchRef: (el: HTMLDivElement | null) => void;
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -492,7 +382,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
 
       {/* モバイル固定検索バー */}
       {mobileSearchVisible && (
-        <div className="md:hidden fixed top-[17vw] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw] animate-fadeInDown">
+        <div className="md:hidden fixed top-[var(--navbar-h,17vw)] left-0 right-0 z-40 bg-[#FFFFF0]/95 backdrop-blur-sm border-b border-gray-200 px-[5vw] py-[2vw] animate-fadeInDown">
   <div className="flex items-center gap-[2vw]">
     {/* ③ アイコン focus アニメーション */}
     <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
@@ -530,7 +420,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
 
       <div className="flex flex-1 gap-6 px-[5vw] md:px-0 py-[4vw] md:py-0">
         <aside className="w-64 shrink-0 hidden md:block">
-          <div className="sticky top-[73px] p-5">
+          <div className="sticky top-[calc(var(--navbar-h,73px)+16px)] p-5">
             <FilterPanel />
           </div>
         </aside>
@@ -538,7 +428,7 @@ function SearchInner({ posts, keyword, setKeyword, mobileSearchRef, setPcSearchR
           {/* PC：検索窓 */}
           <div className="hidden md:flex gap-2 mb-4 items-center">
             {/* ③ PC 検索アイコン focus アニメーション */}
-            <div ref={setPcSearchRef} className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
+            <div className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
               <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
               <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
                 onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
@@ -724,34 +614,15 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [keyword, setKeyword] = useState(searchParams.get("q") ?? "");
-  const pcSearchRef = useRef<HTMLDivElement | null>(null);
   const mobileSearchRef = useRef<HTMLDivElement | null>(null);
-  const [pcSearchVisible, setPcSearchVisible] = useState(false);
-  const observerRef = useRef<IntersectionObserver | null>(null);
 
   const handleNavbarSearch = useCallback(() => {
     router.push(`/search?q=${encodeURIComponent(keyword)}`);
   }, [keyword, router]);
 
-  const setPcSearchRefCallback = (el: HTMLDivElement | null) => {
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-      observerRef.current = null;
-    }
-    if (el) {
-      pcSearchRef.current = el;
-      const observer = new IntersectionObserver(
-        ([entry]) => setPcSearchVisible(!entry.isIntersecting),
-        { threshold: 0 }
-      );
-      observer.observe(el);
-      observerRef.current = observer;
-    }
-  };
-
   return (
     <>
-      <Navbar keyword={keyword} setKeyword={setKeyword} searchVisible={pcSearchVisible} onSearch={handleNavbarSearch} />
+      <Navbar search={{ keyword, setKeyword, onSearch: handleNavbarSearch }} />
       {/* ④ スケルトンローディング */}
       <Suspense fallback={
         <div className="bg-[#FFFFF0] min-h-screen px-6 py-6">
@@ -760,7 +631,7 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
           </div>
         </div>
       }>
-        <SearchInner posts={posts} keyword={keyword} setKeyword={setKeyword} mobileSearchRef={mobileSearchRef} setPcSearchRef={setPcSearchRefCallback} />
+        <SearchInner posts={posts} keyword={keyword} setKeyword={setKeyword} mobileSearchRef={mobileSearchRef} />
       </Suspense>
     </>
   );
