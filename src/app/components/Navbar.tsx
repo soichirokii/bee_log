@@ -76,7 +76,7 @@ export default function Navbar() {
       <div ref={wrapRef} className="fixed inset-x-0 top-0 z-50">
         {/* PC */}
         <nav
-          className={`hidden md:flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${showSearchButton ? "" : "justify-center"} ${
+          className={`hidden md:flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${!showSearchButton && scrolled ? "justify-center" : ""} ${
             scrolled
               ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-8 py-4"
               : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFEE] px-16 py-4"
