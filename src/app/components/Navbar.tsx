@@ -60,7 +60,7 @@ export default function Navbar({ search }: { search?: NavbarSearch }) {
     return () => window.removeEventListener("scroll", close);
   }, [quickSearchOpen]);
 
-  const pillPad = scrolled ? "px-4 py-1.5 text-sm" : "px-6 py-2.5 text-base";
+  const pillPad = scrolled ? "px-5 py-2 text-base" : "px-6 py-2.5 text-base";
 
   return (
     <>
@@ -70,7 +70,7 @@ export default function Navbar({ search }: { search?: NavbarSearch }) {
         <nav
           className={`hidden md:flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             scrolled
-              ? "w-[min(560px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-5 py-2"
+              ? "w-[min(680px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-6 py-3"
               : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFEE] px-16 py-4"
           }`}
         >
@@ -80,7 +80,7 @@ export default function Navbar({ search }: { search?: NavbarSearch }) {
               alt="BEE log"
               width={120}
               height={48}
-              className={`w-auto transition-[height] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "h-8" : "h-12"}`}
+              className={`w-auto transition-[height] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "h-10" : "h-12"}`}
             />
           </Link>
           <div className="flex items-center gap-2">
@@ -101,7 +101,7 @@ export default function Navbar({ search }: { search?: NavbarSearch }) {
                 type="button"
                 aria-label="検索を開く"
                 onClick={() => setQuickSearchOpen((v) => !v)}
-                className={`${ICON_BTN_CLASS} ${scrolled ? "w-8 h-8" : "w-10 h-10"}`}
+                className={`${ICON_BTN_CLASS} ${scrolled ? "w-9 h-9" : "w-10 h-10"}`}
               >
                 <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-70" />
               </button>
@@ -127,7 +127,7 @@ export default function Navbar({ search }: { search?: NavbarSearch }) {
         <nav
           className={`md:hidden flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             scrolled
-              ? "w-[min(560px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[4vw] py-[1.5vw]"
+              ? "w-[min(680px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[5vw] py-[2.5vw]"
               : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFEE] px-[5vw] py-[3vw]"
           }`}
         >
@@ -138,43 +138,31 @@ export default function Navbar({ search }: { search?: NavbarSearch }) {
               alt="BEE log"
               width={120}
               height={48}
-              className={`w-auto transition-[height] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "h-[7vw]" : "h-[10vw]"}`}
+              className={`w-auto transition-[height] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "h-[8.5vw]" : "h-[10vw]"}`}
             />
           </Link>
           <div className="flex-1 flex justify-end">
             <button
-              onClick={() => setMenuOpen(true)}
-              aria-label="メニューを開く"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
               className="p-2 flex flex-col justify-center gap-[5px]"
             >
-              <span className="block w-[22px] h-[2px] bg-[#092040]" />
-              <span className="block w-[22px] h-[2px] bg-[#092040]" />
-              <span className="block w-[22px] h-[2px] bg-[#092040]" />
+              <span className={`block w-[22px] h-[2px] bg-[#092040] transition-transform duration-200 motion-reduce:transition-none ${menuOpen ? "translate-y-[7px] rotate-45" : ""}`} />
+              <span className={`block w-[22px] h-[2px] bg-[#092040] transition-opacity duration-200 motion-reduce:transition-none ${menuOpen ? "opacity-0" : ""}`} />
+              <span className={`block w-[22px] h-[2px] bg-[#092040] transition-transform duration-200 motion-reduce:transition-none ${menuOpen ? "-translate-y-[7px] -rotate-45" : ""}`} />
             </button>
           </div>
         </nav>
       </div>
 
-      {/* モバイル フルスクリーンオーバーレイ */}
+      {/* モバイル フルスクリーンオーバーレイ: Navbar自体(丸まっている場合はその状態)はそのまま残し、下に被せる */}
       {menuOpen && (
-        <div className="md:hidden fixed inset-0 z-[60] flex flex-col" role="dialog" aria-modal="true">
-          <div className="flex items-center bg-[#FFFFEE] border-b-2 border-[#092040] px-[5vw] py-[3vw] shrink-0">
-            <div className="flex-1" />
-            <Link href="/" onClick={() => setMenuOpen(false)} className="flex justify-center">
-              <Image src="/Logo.svg" alt="BEE log" width={120} height={48} className="h-[10vw] w-auto" />
-            </Link>
-            <div className="flex-1 flex justify-end">
-              <button
-                onClick={() => setMenuOpen(false)}
-                aria-label="メニューを閉じる"
-                className="p-2 flex flex-col justify-center gap-[5px]"
-              >
-                <span className="block w-[22px] h-[2px] bg-[#092040] origin-center translate-y-[7px] rotate-45" />
-                <span className="block w-[22px] h-[2px] bg-[#092040] opacity-0" />
-                <span className="block w-[22px] h-[2px] bg-[#092040] origin-center -translate-y-[7px] -rotate-45" />
-              </button>
-            </div>
-          </div>
+        <div
+          className="md:hidden fixed inset-x-0 bottom-0 z-40 flex flex-col"
+          style={{ top: "var(--navbar-h, 80px)" }}
+          role="dialog"
+          aria-modal="true"
+        >
           <nav className="flex-1 bg-[#FFFFEE] flex flex-col items-center justify-center gap-12" role="menu">
             {NAV_LINKS.map(({ href, label }) => (
               <Link
