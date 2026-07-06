@@ -416,6 +416,28 @@ img {
   border-bottom-right-radius: 10px;
 }
 
+/* bubble-large は各ブレークポイントで border-radius が変わる(40/34/20px)。
+   テールをハードコードすると radius 変更のたびに繋ぎ目がズレて壊れるため、
+   --tail-r 変数(= その時点の border-radius)から比率で算出し、常に追従させる。
+   各ブレークポイントでは --tail-r の値だけ更新すればよい。 */
+.bubble-center.bubble-large {
+  --tail-r: 40px;
+}
+
+.bubble-center.bubble-large::before {
+  left: calc(var(--tail-r) * -0.3636);
+  width: calc(var(--tail-r) * 0.9091);
+  height: var(--tail-r);
+  border-bottom-right-radius: calc(var(--tail-r) * 0.7273) calc(var(--tail-r) * 0.6364);
+}
+
+.bubble-center.bubble-large::after {
+  left: calc(var(--tail-r) * -1.1818);
+  width: calc(var(--tail-r) * 1.1818);
+  height: var(--tail-r);
+  border-bottom-right-radius: calc(var(--tail-r) * 0.4545);
+}
+
 .bubble-small {
   font-size: 30px;
 }
@@ -1073,6 +1095,11 @@ img {
   .bubble-center::before { left: -6px;  width: 16px; height: 18px; border-bottom-right-radius: 12px 10px; }
   .bubble-center::after  { left: -20px; width: 20px; height: 18px; border-bottom-right-radius: 8px; }
 
+  /* bubble-large の border-radius: 34px に合わせてテールも追従(--tail-r 経由) */
+  .bubble-center.bubble-large {
+    --tail-r: 34px;
+  }
+
   .info-panel {
     padding: 72px 16px 70px;
   }
@@ -1326,7 +1353,14 @@ img {
   }
 
   .bubble-large {
+    padding: 12px 14px;
+    border-radius: 20px;
     font-size: clamp(1rem, 0.9rem + 0.46vw, 1.14rem);
+  }
+
+  /* border-radius が 20px に変わるため、テールも --tail-r 経由で追従させる */
+  .bubble-center.bubble-large {
+    --tail-r: 20px;
   }
 
   .map-caption {
