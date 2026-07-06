@@ -68,7 +68,7 @@ export default function Navbar() {
     setQuickKeyword("");
   };
 
-  const pillPad = scrolled ? "px-5 py-2.5 text-sm" : "px-6 py-2.5 text-base";
+  const pillPad = scrolled ? "px-6 py-3 text-base" : "px-6 py-2.5 text-base";
 
   return (
     <>
@@ -76,19 +76,19 @@ export default function Navbar() {
       <div ref={wrapRef} className="fixed inset-x-0 top-0 z-50">
         {/* PC */}
         <nav
-          className={`hidden md:flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+          className={`hidden md:flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${showSearchButton ? "" : "justify-center"} ${
             scrolled
-              ? "w-[calc(100%-28px)] max-w-[560px] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[14px] py-2.5"
-              : "w-full mt-0 rounded-none border-0 border-b-2 border-dashed border-[rgba(9,32,64,0.18)] bg-[#FFFFEE] px-16 py-4"
+              ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-8 py-4"
+              : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFEE] px-16 py-4"
           }`}
         >
-          <Link href="/" className="group mr-8 shrink-0">
+          <Link href="/" className="mr-8 shrink-0">
             <Image
               src="/Logo.svg"
               alt="BEE log"
               width={120}
               height={48}
-              className={`w-auto transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:rotate-[20deg] group-hover:scale-[1.15] motion-reduce:transition-none motion-reduce:transform-none ${scrolled ? "h-11" : "h-12"}`}
+              className={`w-auto transition-[height] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "h-11" : "h-12"}`}
             />
           </Link>
 
@@ -152,18 +152,18 @@ export default function Navbar() {
         <nav
           className={`md:hidden flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             scrolled
-              ? "w-[min(560px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[6vw] py-[3vw]"
-              : "w-full mt-0 rounded-none border-0 border-b-2 border-dashed border-[rgba(9,32,64,0.18)] bg-[#FFFFEE] px-[5vw] py-[3vw]"
+              ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[6vw] py-[3.5vw]"
+              : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFEE] px-[5vw] py-[3vw]"
           }`}
         >
           <div className="flex-1" />
-          <Link href="/" className="group flex justify-center">
+          <Link href="/" className="flex justify-center">
             <Image
               src="/Logo.svg"
               alt="BEE log"
               width={120}
               height={48}
-              className={`w-auto transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:rotate-[20deg] group-hover:scale-[1.15] motion-reduce:transition-none motion-reduce:transform-none ${scrolled ? "h-[9.5vw]" : "h-[10vw]"}`}
+              className={`w-auto transition-[height] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "h-[9.5vw]" : "h-[10vw]"}`}
             />
           </Link>
           <div className="flex-1 flex justify-end">
