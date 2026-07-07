@@ -82,8 +82,11 @@ export default function MobileSearchFab() {
       </div>
       <button
         type="button"
-        aria-label={open ? "検索を実行" : "活動を探す"}
-        onClick={() => (open ? submit() : setOpen(true))}
+        aria-label={open ? (keyword.trim() ? "検索を実行" : "検索を閉じる") : "活動を探す"}
+        onClick={() => {
+          if (!open) { setOpen(true); return; }
+          if (keyword.trim()) { submit(); } else { closeQuickSearch(); }
+        }}
         className="w-14 h-14 rounded-full bg-[#FCBC2A] border-2 border-[#092040] shadow-[0_4px_0_#092040] flex items-center justify-center shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:translate-y-px active:scale-[0.93] active:shadow-[0_2px_0_#092040] motion-reduce:transition-none motion-reduce:transform-none"
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">
