@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import { getPublishedPosts } from "@/lib/notion";
+import { getPublishedPosts, getPopularTags } from "@/lib/notion";
 import TopPageClient from "./TopPageClient";
 
 export const dynamic = "force-dynamic";
@@ -12,7 +12,10 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const posts = await getPublishedPosts();
+  const [posts, popularTags] = await Promise.all([
+    getPublishedPosts(),
+    getPopularTags(),
+  ]);
 
   return (
     <main>
@@ -25,7 +28,7 @@ export default async function Home() {
       </p>
 
       <Suspense fallback={<div className="min-h-screen bg-white" />}>
-        <TopPageClient posts={posts} />
+        <TopPageClient posts={posts} popularTags={popularTags} />
       </Suspense>
     </main>
   );

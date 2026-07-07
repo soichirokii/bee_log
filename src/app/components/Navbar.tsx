@@ -210,9 +210,9 @@ export default function Navbar() {
               aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
               className={`relative z-[60] w-10 h-10 flex flex-col items-center justify-center gap-[5px] rounded-full transition-colors duration-[400ms] motion-reduce:transition-none ${menuOpen ? "bg-[#092040]" : ""}`}
             >
-              <span className={`block w-[22px] h-[2px] transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFEE] translate-y-[7px] rotate-45" : "bg-[#092040]"}`} />
-              <span className={`block w-[22px] h-[2px] transition-[opacity,transform] duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFEE] opacity-0 scale-x-0" : "bg-[#092040]"}`} />
-              <span className={`block w-[22px] h-[2px] transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFEE] -translate-y-[7px] -rotate-45" : "bg-[#092040]"}`} />
+              <span className={`block w-[22px] h-[2px] transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFEE] translate-y-[7.5px] rotate-45" : "bg-[#092040]"}`} />
+              <span className={`block w-[22px] h-[2px] transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFEE] -rotate-45" : "bg-[#092040]"}`} />
+              <span className={`block w-[22px] h-[2px] transition-[opacity,transform] duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFEE] -translate-y-[7.5px] rotate-45 opacity-0" : "bg-[#092040]"}`} />
             </button>
           </div>
         </nav>

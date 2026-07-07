@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import {
   Post,
   PostWithContent,
@@ -204,6 +205,38 @@ export const getAllPublishedPosts = cache(async (): Promise<Post[]> => {
   const data = await res.json() as NotionQueryResult;
   return data.results.map(pageToPost);
 });
+
+// 人気のタグ（公開中の全活動のタグ出現数トップN）。リアルタイム性は不要なため6時間キャッシュ。
+// unstable_cache はページ側の dynamic = "force-dynamic" の影響を受けず、独立して6時間保持される。
+const DEFAULT_POPULAR_TAGS = ["アイデア", "起業", "ピッチ", "地域課題", "課題解決"];
+
+const computePopularTags = unstable_cache(
+  async (limit: number): Promise<string[]> => {
+    const posts = await getAllPublishedPosts();
+    const tagCount: Record<string, number> = {};
+    posts.forEach((post) => {
+      (post.tags ?? []).forEach((tag) => {
+        if (!tag) return;
+        tagCount[tag] = (tagCount[tag] ?? 0) + 1;
+      });
+    });
+    return Object.entries(tagCount)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([tag]) => tag);
+  },
+  ["popular-tags"],
+  { revalidate: 21600 }
+);
+
+export async function getPopularTags(limit: number = 5): Promise<string[]> {
+  try {
+    const tags = await computePopularTags(limit);
+    return tags.length > 0 ? tags : DEFAULT_POPULAR_TAGS;
+  } catch {
+    return DEFAULT_POPULAR_TAGS;
+  }
+}
 
 export const getPostById = cache(async (id: string): Promise<Post | null> => {
   const res = await fetch(`https://api.notion.com/v1/pages/${id}`, {

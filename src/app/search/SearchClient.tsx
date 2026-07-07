@@ -423,17 +423,14 @@ function SearchInner({ posts, keyword, setKeyword }: {
         </aside>
         <main className="flex-1 md:px-6 md:py-6">
           {/* PC：検索窓 */}
-          <div className="hidden md:flex gap-2 mb-4 items-center">
-            {/* ③ PC 検索アイコン focus アニメーション */}
-            <div className="flex-1 bg-white border-[3px] border-[#092040] focus-within:border-[#FCBC2A] rounded-2xl px-3 py-2.5 flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2" strokeLinecap="round" className="opacity-40 shrink-0">
-                <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
-                onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
-                onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
-                className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
-            </div>
+          <div className="hidden md:flex mb-4 items-center bg-[#FFFFF0] border-[3px] border-[#092040] focus-within:border-[#FCBC2A] rounded-2xl pl-5 pr-2 py-2 gap-3">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2" strokeLinecap="round" className="opacity-40 shrink-0">
+              <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
+              onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
+              onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
+              className="flex-1 min-w-0 border-none text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
             <button onClick={() => handleSearch()}
               className="bg-[#FCBC2A] text-[#092040] font-bold px-5 py-2 rounded-[10px] border-2 border-[#092040] text-sm shrink-0">
               検索
@@ -441,17 +438,14 @@ function SearchInner({ posts, keyword, setKeyword }: {
           </div>
 
           {/* モバイル：検索窓 */}
-<div className="md:hidden mb-[3vw] flex items-center gap-[2vw]">
-  {/* ③ モバイル検索アイコン focus アニメーション */}
-  <div className="flex-1 min-w-0 bg-white border-[3px] border-[#092040] focus-within:border-[#FCBC2A] rounded-2xl px-3 py-2.5 flex items-center gap-2">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2" strokeLinecap="round" className="opacity-40 shrink-0">
-      <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-    </svg>
-    <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
-      onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
-      onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
-      className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
-  </div>
+<div className="md:hidden mb-[3vw] flex items-center bg-[#FFFFF0] border-[3px] border-[#092040] focus-within:border-[#FCBC2A] rounded-2xl pl-5 pr-2 py-2 gap-3">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2" strokeLinecap="round" className="opacity-40 shrink-0">
+    <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+  <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
+    onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
+    onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
+    className="flex-1 min-w-0 border-none text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
   <button onClick={() => handleSearch()}
     className="bg-[#FCBC2A] text-[#092040] font-bold text-sm px-5 py-2 rounded-[10px] border-2 border-[#092040] shrink-0">
     検索

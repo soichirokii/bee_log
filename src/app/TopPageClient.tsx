@@ -219,10 +219,11 @@ function ScrollHint({ children }: { children: React.ReactNode }) {
   );
 }
 
-function TopPageInner({ posts, keyword, setKeyword }: {
+function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
   posts: Post[];
   keyword: string;
   setKeyword: (v: string) => void;
+  popularTags: string[];
 }) {
   const router = useRouter();
   const featuredPosts = useMemo(() => posts.filter((p) => p.isFeatured), [posts]);
@@ -238,16 +239,14 @@ function TopPageInner({ posts, keyword, setKeyword }: {
           </h1>
         </div>
         <div className="mb-[5vw]">
-          <div className="flex items-center gap-[2vw]">
-            <div className="flex-1 min-w-0 bg-white border-[3px] border-[#092040] focus-within:border-[#FCBC2A] rounded-2xl px-3 py-2.5 flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2" strokeLinecap="round" className="opacity-40 shrink-0">
-                <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-              <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-                className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
-            </div>
+          <div className="flex items-center bg-[#FFFFF0] border-[3px] border-[#092040] focus-within:border-[#FCBC2A] rounded-2xl pl-5 pr-2 py-2 gap-3">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2" strokeLinecap="round" className="opacity-40 shrink-0">
+              <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
+              className="flex-1 min-w-0 border-none text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
             <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
               className="bg-[#FCBC2A] text-[#092040] font-bold text-sm px-5 py-2 rounded-[10px] border-2 border-[#092040] shrink-0">検索</button>
           </div>
@@ -280,29 +279,23 @@ function TopPageInner({ posts, keyword, setKeyword }: {
 
         <div className="px-16 py-8 bg-[#FFFFF0] border-b border-gray-100">
           <div className="max-w-3xl mx-auto">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 bg-white border-[3px] border-[#092040] focus-within:border-[#FCBC2A] rounded-2xl px-5 py-4 flex items-center gap-3">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2" strokeLinecap="round" className="opacity-40 shrink-0">
-                  <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-                  className="flex-1 min-w-0 text-base outline-none text-[#092040] placeholder-[#092040]/40 bg-transparent" />
-              </div>
+            <div className="flex items-center bg-[#FFFFF0] border-[3px] border-[#092040] focus-within:border-[#FCBC2A] rounded-2xl pl-5 pr-2 py-2 gap-3 mb-4">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2" strokeLinecap="round" className="opacity-40 shrink-0">
+                <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
+                className="flex-1 min-w-0 border-none text-sm outline-none text-[#092040] placeholder-[#092040]/40 bg-transparent" />
               <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
-                className="bg-[#FCBC2A] text-[#092040] font-bold px-5 py-2 rounded-[10px] border-2 border-[#092040] shrink-0">検索</button>
+                className="bg-[#FCBC2A] text-[#092040] font-bold text-sm px-5 py-2 rounded-[10px] border-2 border-[#092040] shrink-0">検索</button>
             </div>
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <span className="text-[#092040] font-bold text-sm">人気のタグ:</span>
-              {(() => {
-                const tagCount: Record<string, number> = {};
-                posts.forEach((p) => p.tags.forEach((t) => { tagCount[t] = (tagCount[t] ?? 0) + 1; }));
-                return Object.entries(tagCount).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([tag]) => (
-                  <Link key={tag} href={`/search?q=${encodeURIComponent(tag)}`}
-                    className="bg-[#FCBC2A]/30 text-[#092040] font-bold text-sm px-4 py-2 hover:bg-[#FCBC2A] transition-colors">{tag}</Link>
-                ));
-              })()}
+              {popularTags.map((tag) => (
+                <Link key={tag} href={`/search?q=${encodeURIComponent(tag)}`}
+                  className="bg-[#FCBC2A]/30 text-[#092040] font-bold text-sm px-4 py-2 hover:bg-[#FCBC2A] transition-colors">{tag}</Link>
+              ))}
             </div>
           </div>
         </div>
@@ -366,14 +359,14 @@ function TopPageInner({ posts, keyword, setKeyword }: {
   );
 }
 
-export default function TopPageClient({ posts }: { posts: Post[] }) {
+export default function TopPageClient({ posts, popularTags }: { posts: Post[]; popularTags: string[] }) {
   const [keyword, setKeyword] = useState("");
 
   return (
     <>
       <Navbar />
       <Suspense fallback={<div className="min-h-screen bg-[#FFFFF0]" />}>
-        <TopPageInner posts={posts} keyword={keyword} setKeyword={setKeyword} />
+        <TopPageInner posts={posts} keyword={keyword} setKeyword={setKeyword} popularTags={popularTags} />
       </Suspense>
     </>
   );
