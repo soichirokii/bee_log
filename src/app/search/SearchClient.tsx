@@ -373,7 +373,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
       <button
         type="button"
         aria-label="絞り込み"
-        onClick={() => setFilterOpen(true)}
+        onClick={() => setFilterOpen((v) => !v)}
         className={`${FAB_BASE_CLASS} bottom-[88px]`}
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">
@@ -419,7 +419,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
           {/* PC：検索窓 */}
           <div className="hidden md:flex gap-2 mb-4 items-center">
             {/* ③ PC 検索アイコン focus アニメーション */}
-            <div className="flex-1 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
+            <div className="flex-1 bg-white border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] focus-within:-translate-y-px motion-reduce:transition-none motion-reduce:transform-none">
               <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
               <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
                 onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
@@ -427,7 +427,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
                 className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
             </div>
             <button onClick={() => handleSearch()}
-              className="bg-[#092040] text-white font-bold px-5 py-2.5 rounded-2xl text-sm hover:opacity-90 transition-opacity shrink-0">
+              className="bg-[#FCBC2A] text-[#092040] font-bold px-5 py-2 rounded-[10px] border-2 border-[#092040] text-sm hover:opacity-90 transition-opacity shrink-0">
               検索
             </button>
           </div>
@@ -435,15 +435,15 @@ function SearchInner({ posts, keyword, setKeyword }: {
           {/* モバイル：検索窓 */}
 <div className="md:hidden mb-[3vw] flex items-center gap-[2vw]">
   {/* ③ モバイル検索アイコン focus アニメーション */}
-  <div className="flex-1 min-w-0 bg-[#FFFFF0] border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group">
+  <div className="flex-1 min-w-0 bg-white border-2 border-[#092040] rounded-2xl px-3 py-2.5 flex items-center gap-2 group transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] focus-within:-translate-y-px motion-reduce:transition-none motion-reduce:transform-none">
     <Image src="/icons/Magnifying Glass.svg" alt="" width={16} height={16} className="opacity-40 shrink-0 transition-transform duration-200 group-focus-within:scale-125 group-focus-within:opacity-70" />
-    <input type="search" placeholder="活動を検索..." value={keyword}
+    <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
       onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
       onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
       className="flex-1 min-w-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
   </div>
   <button onClick={() => handleSearch()}
-    className="bg-[#092040] text-white font-bold text-sm px-[3vw] py-2.5 rounded-2xl shrink-0">
+    className="bg-[#FCBC2A] text-[#092040] font-bold text-sm px-5 py-2 rounded-[10px] border-2 border-[#092040] shrink-0">
     検索
   </button>
 </div>

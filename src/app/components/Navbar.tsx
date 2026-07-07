@@ -22,6 +22,18 @@ function useScrolled(threshold: number) {
   return scrolled;
 }
 
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const handler = () => setReduced(mq.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return reduced;
+}
+
 const LINK_CLASS =
   "font-bold text-[#092040] rounded-full whitespace-nowrap transition-[background-color,transform] ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-300 hover:bg-[#FCBC2A] hover:-translate-y-0.5 hover:scale-[1.05] active:translate-y-px active:scale-[0.96] motion-reduce:transition-none motion-reduce:transform-none";
 
@@ -29,13 +41,16 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const scrolled = useScrolled(80);
+  const reducedMotion = usePrefersReducedMotion();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOrigin, setMenuOrigin] = useState({ x: 0, y: 0 });
   const [quickSearchOpen, setQuickSearchOpen] = useState(false);
   const [quickKeyword, setQuickKeyword] = useState("");
   const wrapRef = useRef<HTMLDivElement>(null);
   const quickInputRef = useRef<HTMLInputElement>(null);
+  const hamburgerRef = useRef<HTMLButtonElement>(null);
 
-  const showSearchButton = pathname === "/search" || pathname.startsWith("/posts/");
+  const showSearchButton = scrolled;
 
   // カプセル化しても下の固定検索窓(モバイル)が navbar の高さに追従できるよう、
   // 実際の高さを CSS 変数として公開する
@@ -52,7 +67,15 @@ export default function Navbar() {
   useEffect(() => {
     setQuickSearchOpen(false);
     setQuickKeyword("");
+    setMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    if (!scrolled) {
+      setQuickSearchOpen(false);
+      setQuickKeyword("");
+    }
+  }, [scrolled]);
 
   useEffect(() => {
     if (quickSearchOpen) quickInputRef.current?.focus();
@@ -68,6 +91,14 @@ export default function Navbar() {
     setQuickKeyword("");
   };
 
+  const toggleMenu = () => {
+    if (!menuOpen && hamburgerRef.current) {
+      const rect = hamburgerRef.current.getBoundingClientRect();
+      setMenuOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    }
+    setMenuOpen((v) => !v);
+  };
+
   const pillPad = scrolled ? "px-6 py-3 text-base" : "px-6 py-2.5 text-base";
 
   return (
@@ -78,18 +109,20 @@ export default function Navbar() {
         <nav
           className={`hidden md:flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             scrolled
-              ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-8 py-4"
-              : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFEE] px-16 py-4"
+              ? "w-[min(560px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-3.5 py-2 overflow-hidden"
+              : "w-full mt-0 rounded-none border-0 border-b-2 border-[rgba(9,32,64,0.18)] bg-[#FFFFEE] px-16 py-4"
           }`}
         >
-          <Link href="/" className="mr-8 shrink-0">
-            <Image
-              src="/Logo.svg"
-              alt="BEE log"
-              width={120}
-              height={48}
-              className={`w-auto transition-[height] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "h-11" : "h-12"}`}
-            />
+          <Link href="/" className="group mr-8 shrink-0">
+            <span className="inline-block transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:rotate-[20deg] group-hover:scale-[1.15] motion-reduce:transition-none motion-reduce:transform-none">
+              <Image
+                src="/Logo.svg"
+                alt="BEE log"
+                width={120}
+                height={48}
+                className={`w-auto transition-[height] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "h-11" : "h-12"}`}
+              />
+            </span>
           </Link>
 
           <div
@@ -152,8 +185,8 @@ export default function Navbar() {
         <nav
           className={`md:hidden flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             scrolled
-              ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[6vw] py-[3.5vw]"
-              : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFEE] px-[5vw] py-[3vw]"
+              ? "w-[min(560px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[6vw] py-[3vw]"
+              : "w-full mt-0 rounded-none border-0 border-b-2 border-[rgba(9,32,64,0.18)] bg-[#FFFFEE] px-[5vw] py-[3vw]"
           }`}
         >
           <div className="flex-1" />
@@ -168,43 +201,55 @@ export default function Navbar() {
           </Link>
           <div className="flex-1 flex justify-end">
             <button
-              onClick={() => setMenuOpen((v) => !v)}
+              ref={hamburgerRef}
+              type="button"
+              onClick={toggleMenu}
               aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
-              className="p-2 flex flex-col justify-center gap-[5px]"
+              className={`relative z-[60] w-10 h-10 flex flex-col items-center justify-center gap-[5px] rounded-full transition-colors duration-[400ms] motion-reduce:transition-none ${menuOpen ? "bg-[#092040]" : ""}`}
             >
-              <span className={`block w-[22px] h-[2px] bg-[#092040] transition-transform duration-200 motion-reduce:transition-none ${menuOpen ? "translate-y-[7px] rotate-45" : ""}`} />
-              <span className={`block w-[22px] h-[2px] bg-[#092040] transition-opacity duration-200 motion-reduce:transition-none ${menuOpen ? "opacity-0" : ""}`} />
-              <span className={`block w-[22px] h-[2px] bg-[#092040] transition-transform duration-200 motion-reduce:transition-none ${menuOpen ? "-translate-y-[7px] -rotate-45" : ""}`} />
+              <span className={`block w-[22px] h-[2px] transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFEE] translate-y-[7px] rotate-45" : "bg-[#092040]"}`} />
+              <span className={`block w-[22px] h-[2px] transition-[opacity,transform] duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFEE] opacity-0 scale-x-0" : "bg-[#092040]"}`} />
+              <span className={`block w-[22px] h-[2px] transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFEE] -translate-y-[7px] -rotate-45" : "bg-[#092040]"}`} />
             </button>
           </div>
         </nav>
       </div>
 
-      {/* モバイル フルスクリーンオーバーレイ: Navbar自体(丸まっている場合はその状態)はそのまま残し、下に被せる */}
-      {menuOpen && (
-        <div
-          className="md:hidden fixed inset-x-0 bottom-0 z-40 flex flex-col"
-          style={{ top: "var(--navbar-h, 80px)" }}
-          role="dialog"
-          aria-modal="true"
+      {/* モバイル フルスクリーンメニュー: ハンバーガー起点のサークル展開 */}
+      <div
+        className="md:hidden fixed inset-0 z-40 bg-[#FCBC2A]"
+        style={{
+          clipPath: `circle(${menuOpen ? "150vmax" : "0px"} at ${menuOrigin.x}px ${menuOrigin.y}px)`,
+          transition: reducedMotion ? "none" : "clip-path 0.6s cubic-bezier(0.22,1,0.36,1)",
+          pointerEvents: menuOpen ? "auto" : "none",
+        }}
+        role="dialog"
+        aria-modal="true"
+        aria-hidden={!menuOpen}
+      >
+        <nav
+          className="h-full flex flex-col items-center justify-center gap-10"
+          role="menu"
+          style={{
+            opacity: menuOpen ? 1 : 0,
+            transition: reducedMotion ? "none" : `opacity 0.3s ease ${menuOpen ? "0.25s" : "0s"}`,
+          }}
         >
-          <nav className="flex-1 bg-[#FFFFEE] flex flex-col items-center justify-center gap-12" role="menu">
-            {NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                role="menuitem"
-                onClick={() => setMenuOpen(false)}
-                className={`text-3xl font-bold tracking-wide transition-colors ${
-                  pathname === href ? "text-[#FCBC2A]" : "text-[#092040] hover:text-[#FCBC2A]"
-                }`}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      )}
+          {NAV_LINKS.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              role="menuitem"
+              onClick={() => setMenuOpen(false)}
+              className={`text-[28px] font-black text-[#092040] px-6 py-2 rounded-full transition-transform motion-reduce:transform-none active:scale-95 ${
+                pathname === href ? "border-[2.5px] border-[#092040]" : ""
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
+      </div>
     </>
   );
 }

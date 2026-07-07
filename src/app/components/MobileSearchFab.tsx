@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 
 export const FAB_BASE_CLASS =
-  "fixed right-4 z-50 w-14 h-14 rounded-full bg-[#FCBC2A] border-2 border-[#092040] shadow-[0_4px_0_#092040] flex items-center justify-center transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-[3px] hover:scale-[1.07] hover:shadow-[0_6px_0_#092040] active:translate-y-px active:scale-[0.93] active:shadow-[0_2px_0_#092040] motion-reduce:transition-none motion-reduce:transform-none md:hidden";
+  "fixed right-4 z-50 w-14 h-14 rounded-full bg-[#FCBC2A] border-2 border-[#092040] shadow-[0_4px_0_#092040] flex items-center justify-center transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:translate-y-px active:scale-[0.93] active:shadow-[0_2px_0_#092040] motion-reduce:transition-none motion-reduce:transform-none md:hidden";
 
 export default function MobileSearchFab() {
   const pathname = usePathname();
