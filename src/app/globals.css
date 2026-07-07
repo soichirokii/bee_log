@@ -72,3 +72,7 @@ input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration {
   -webkit-appearance: none;
 }
+/* Safari は上記だけでは内部の装飾コンテナに縦線を描画し続けることがあるため個別に無効化 */
+input[type="search"]::-webkit-textfield-decoration-container {
+  -webkit-appearance: none;
+}

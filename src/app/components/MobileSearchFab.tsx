@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 export const FAB_BASE_CLASS =
@@ -10,14 +11,30 @@ export default function MobileSearchFab() {
   const router = useRouter();
 
   const isPostPage = pathname.startsWith("/posts/");
-  if (!isPostPage) return null;
+  const hasSearchBox = pathname === "/" || pathname === "/search";
+  const [searchBoxVisible, setSearchBoxVisible] = useState(true);
+
+  useEffect(() => {
+    if (!hasSearchBox) return;
+    const el = document.getElementById("search-box");
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setSearchBoxVisible(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [pathname, hasSearchBox]);
+
+  const visible = isPostPage || (hasSearchBox && !searchBoxVisible);
+  if (!visible) return null;
 
   return (
     <button
       type="button"
       aria-label="活動を探す"
       onClick={() => router.push("/search")}
-      className={`${FAB_BASE_CLASS} mobile-fab bottom-[104px]`}
+      className={`${FAB_BASE_CLASS} mobile-fab ${isPostPage ? "bottom-[104px]" : "bottom-6"}`}
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">
         <circle cx="11" cy="11" r="7" />

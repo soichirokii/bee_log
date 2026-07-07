@@ -158,7 +158,7 @@ export default function Navbar() {
                   value={quickKeyword}
                   onChange={(e) => setQuickKeyword(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") submitQuickSearch(); }}
-                  className="w-[190px] shrink-0 text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent border-0 border-b-2 border-[#092040] py-1"
+                  className="w-[190px] shrink-0 text-sm outline-none focus-visible:outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent border-0 border-b-2 border-[#092040] py-1"
                 />
                 <button
                   type="button"
@@ -223,7 +223,7 @@ export default function Navbar() {
         className="md:hidden fixed inset-0 z-40 bg-[#FCBC2A]"
         style={{
           clipPath: `circle(${menuOpen ? "150vmax" : "0px"} at ${menuOrigin.x}px ${menuOrigin.y}px)`,
-          transition: reducedMotion ? "none" : "clip-path 0.6s cubic-bezier(0.22,1,0.36,1)",
+          transition: reducedMotion ? "none" : "clip-path 0.9s cubic-bezier(0.22,1,0.36,1)",
           pointerEvents: menuOpen ? "auto" : "none",
         }}
         role="dialog"
@@ -235,7 +235,7 @@ export default function Navbar() {
           role="menu"
           style={{
             opacity: menuOpen ? 1 : 0,
-            transition: reducedMotion ? "none" : `opacity 0.3s ease ${menuOpen ? "0.25s" : "0s"}`,
+            transition: reducedMotion ? "none" : `opacity 0.45s ease ${menuOpen ? "0.35s" : "0s"}`,
           }}
         >
           {NAV_LINKS.map(({ href, label }) => (

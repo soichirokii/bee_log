@@ -238,15 +238,15 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
             Unlock Your<br />Potential
           </h1>
         </div>
-        <div className="mb-[5vw]">
-          <div className="flex items-center bg-[#FFFFF0] border-[3px] border-[#092040] focus-within:border-[#FCBC2A] rounded-2xl pl-5 pr-2 py-2 gap-3">
+        <div id="search-box" className="mb-[5vw]">
+          <div className="flex items-center bg-[#FFFFF0] border-[3px] border-[#092040] rounded-2xl pl-5 pr-2 py-2 gap-3">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2" strokeLinecap="round" className="opacity-40 shrink-0">
               <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
             <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-              className="flex-1 min-w-0 border-none text-sm outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
+              className="flex-1 min-w-0 border-none text-sm outline-none focus-visible:outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
             <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
               className="bg-[#FCBC2A] text-[#092040] font-bold text-sm px-5 py-2 rounded-[10px] border-2 border-[#092040] shrink-0">検索</button>
           </div>
@@ -255,7 +255,7 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
           <div className="flex items-center justify-between mb-[3vw]">
             <h2 className="text-[#092040] text-[5vw] font-black">おすすめの活動</h2>
             <Link href="/search" className="group inline-flex items-center gap-[2vw]">
-              <span className="text-[#092040] text-[3vw] font-extrabold underline underline-offset-4">VIEW MORE</span>
+              <span className="text-[#092040] text-[3vw] font-extrabold">VIEW MORE</span>
               <span className="flex items-center justify-center w-[7vw] h-[7vw] rounded-full bg-[#FCBC2A] text-[#092040] text-[3.5vw] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-active:translate-x-1 group-active:scale-110 motion-reduce:transition-none motion-reduce:transform-none">→</span>
             </Link>
           </div>
@@ -279,14 +279,14 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
 
         <div className="px-16 py-8 bg-[#FFFFF0] border-b border-gray-100">
           <div className="max-w-3xl mx-auto">
-            <div className="flex items-center bg-[#FFFFF0] border-[3px] border-[#092040] focus-within:border-[#FCBC2A] rounded-2xl pl-5 pr-2 py-2 gap-3 mb-4">
+            <div className="flex items-center bg-[#FFFFF0] border-[3px] border-[#092040] rounded-2xl pl-5 pr-2 py-2 gap-3 mb-4">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2" strokeLinecap="round" className="opacity-40 shrink-0">
                 <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
               <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-                className="flex-1 min-w-0 border-none text-sm outline-none text-[#092040] placeholder-[#092040]/40 bg-transparent" />
+                className="flex-1 min-w-0 border-none text-sm outline-none focus-visible:outline-none text-[#092040] placeholder-[#092040]/40 bg-transparent" />
               <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
                 className="bg-[#FCBC2A] text-[#092040] font-bold text-sm px-5 py-2 rounded-[10px] border-2 border-[#092040] shrink-0">検索</button>
             </div>
@@ -306,7 +306,7 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[#092040] text-2xl font-black">おすすめ</h2>
                 <Link href="/search" className="group inline-flex items-center gap-3">
-                  <span className="text-[#092040] text-sm font-extrabold underline underline-offset-4">VIEW MORE</span>
+                  <span className="text-[#092040] text-sm font-extrabold">VIEW MORE</span>
                   <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FCBC2A] text-[#092040] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:translate-x-1 group-hover:scale-110 motion-reduce:transition-none motion-reduce:transform-none">→</span>
                 </Link>
               </div>
@@ -327,7 +327,7 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-[#092040] text-2xl font-black">{cat}</h2>
                   <Link href={`/search?category=${encodeURIComponent(cat)}`} className="group inline-flex items-center gap-3">
-                    <span className="text-[#092040] text-sm font-extrabold underline underline-offset-4">VIEW MORE</span>
+                    <span className="text-[#092040] text-sm font-extrabold">VIEW MORE</span>
                     <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FCBC2A] text-[#092040] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:translate-x-1 group-hover:scale-110 motion-reduce:transition-none motion-reduce:transform-none">→</span>
                   </Link>
                 </div>
