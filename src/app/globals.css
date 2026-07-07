@@ -55,3 +55,7 @@
 .animate-blink {
   animation: blink 1.2s ease-in-out infinite;
 }
+
+body.menu-open .mobile-fab {
+  display: none;
+}

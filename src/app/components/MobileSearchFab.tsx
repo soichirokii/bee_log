@@ -10,15 +10,14 @@ export default function MobileSearchFab() {
   const router = useRouter();
 
   const isPostPage = pathname.startsWith("/posts/");
-  const visible = pathname === "/search" || isPostPage;
-  if (!visible) return null;
+  if (!isPostPage) return null;
 
   return (
     <button
       type="button"
       aria-label="活動を探す"
       onClick={() => router.push("/search")}
-      className={`${FAB_BASE_CLASS} ${isPostPage ? "bottom-[104px]" : "bottom-6"}`}
+      className={`${FAB_BASE_CLASS} mobile-fab bottom-[104px]`}
     >
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">
         <circle cx="11" cy="11" r="7" />

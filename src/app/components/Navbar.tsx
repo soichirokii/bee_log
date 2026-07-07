@@ -78,6 +78,11 @@ export default function Navbar() {
   }, [scrolled]);
 
   useEffect(() => {
+    document.body.classList.toggle("menu-open", menuOpen);
+    return () => document.body.classList.remove("menu-open");
+  }, [menuOpen]);
+
+  useEffect(() => {
     if (quickSearchOpen) quickInputRef.current?.focus();
   }, [quickSearchOpen]);
 
@@ -110,19 +115,17 @@ export default function Navbar() {
           className={`hidden md:flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             scrolled
               ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-8 py-4 overflow-hidden"
-              : "w-full mt-0 rounded-none border-0 border-b-2 border-[rgba(9,32,64,0.18)] bg-[#FFFFEE] px-16 py-4"
+              : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFEE] px-16 py-4"
           }`}
         >
-          <Link href="/" className="group mr-8 shrink-0">
-            <span className="inline-block transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:rotate-[20deg] group-hover:scale-[1.15] motion-reduce:transition-none motion-reduce:transform-none">
-              <Image
-                src="/Logo.svg"
-                alt="BEE log"
-                width={120}
-                height={48}
-                className={`w-auto transition-[height] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "h-11" : "h-12"}`}
-              />
-            </span>
+          <Link href="/" className="mr-8 shrink-0">
+            <Image
+              src="/Logo.svg"
+              alt="BEE log"
+              width={120}
+              height={48}
+              className={`w-auto transition-[height] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "h-11" : "h-12"}`}
+            />
           </Link>
 
           <div
@@ -186,7 +189,7 @@ export default function Navbar() {
           className={`md:hidden flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             scrolled
               ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[6vw] py-[3.5vw]"
-              : "w-full mt-0 rounded-none border-0 border-b-2 border-[rgba(9,32,64,0.18)] bg-[#FFFFEE] px-[5vw] py-[3vw]"
+              : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFEE] px-[5vw] py-[3vw]"
           }`}
         >
           <div className="flex-1" />
