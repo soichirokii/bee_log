@@ -76,7 +76,7 @@ export default function Navbar() {
       <div ref={wrapRef} className="fixed inset-x-0 top-0 z-50">
         {/* PC */}
         <nav
-          className={`hidden md:flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${!showSearchButton && scrolled ? "justify-center" : ""} ${
+          className={`hidden md:flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             scrolled
               ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-8 py-4"
               : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFEE] px-16 py-4"
@@ -137,9 +137,9 @@ export default function Navbar() {
                 type="button"
                 aria-label={quickSearchOpen ? "検索を閉じる" : "検索を開く"}
                 onClick={() => (quickSearchOpen ? closeQuickSearch() : setQuickSearchOpen(true))}
-                className="w-9 h-9 flex items-center justify-center rounded-full bg-[#FCBC2A] border-2 border-[#092040] shadow-[0_3px_0_#092040] shrink-0 transition-transform duration-200 hover:scale-105 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none"
+                className="w-11 h-11 flex items-center justify-center rounded-full bg-[#FCBC2A] border-2 border-[#092040] shadow-[0_3px_0_#092040] shrink-0 transition-transform duration-200 hover:scale-105 active:scale-95 motion-reduce:transition-none motion-reduce:transform-none"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">
                   <circle cx="11" cy="11" r="7" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
