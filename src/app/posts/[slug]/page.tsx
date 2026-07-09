@@ -16,6 +16,11 @@ import { daysUntilJst } from "@/lib/date";
 
 export const revalidate = 1800;
 
+// JSON-LD を <script> に埋め込む際、< をエスケープして </script> ブレイクアウトを防ぐ
+function safeJsonLd(obj: unknown): string {
+  return JSON.stringify(obj).replace(/</g, "\\u003c");
+}
+
 export async function generateStaticParams() {
   try {
     const slugs = await getAllPublishedSlugs();
@@ -254,8 +259,8 @@ export default async function PostDetailPage({
 
   return (
     <div className="min-h-screen bg-[#FFFFF0]">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(articleJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbJsonLd) }} />
 
       <Navbar />
       {/* パンくずリスト */}
