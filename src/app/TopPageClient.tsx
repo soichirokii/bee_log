@@ -219,17 +219,13 @@ function ScrollHint({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ステッカー風「VIEW MORE」ボタン。白フチ+Navy輪郭+ハードシャドウで貼ったシール感を出し、
-// セクションごとに回転角を互い違いにする。回転クラスは Tailwind JIT に拾わせるため文字列リテラルで保持。
-const STICKER_ROTATIONS = ["rotate-[-2deg]", "rotate-[1.5deg]", "rotate-[-1deg]"];
-
-function StickerViewMore({ href, index = 0, mobile = false }: { href: string; index?: number; mobile?: boolean }) {
-  const rotation = STICKER_ROTATIONS[index % STICKER_ROTATIONS.length];
+// ステッカー風「VIEW MORE」ボタン。白フチ+Navy輪郭+ハードシャドウで貼ったシール感を出す（傾きなし・水平）。
+function StickerViewMore({ href, mobile = false }: { href: string; mobile?: boolean }) {
   return (
     <Link
       href={href}
-      className={`group inline-flex items-center gap-1 rounded-full bg-[#FCBC2A] text-[#092040] font-black px-4 py-1.5 border-[3px] border-white shadow-[0_0_0_2px_#092040,3px_4px_0_rgba(9,32,64,0.9)] transition-transform duration-200 ease-out motion-reduce:transition-none ${rotation} ${
-        mobile ? "text-xs active:scale-95" : "text-sm hover:rotate-0 hover:-translate-y-0.5"
+      className={`group inline-flex items-center gap-1 rounded-full bg-[#FCBC2A] text-[#092040] font-black px-4 py-1.5 border-[3px] border-white shadow-[0_0_0_2px_#092040,3px_4px_0_rgba(9,32,64,0.9)] transition-transform duration-200 ease-out motion-reduce:transition-none ${
+        mobile ? "text-xs active:scale-95" : "text-sm hover:-translate-y-0.5"
       }`}
     >
       VIEW MORE
@@ -280,7 +276,7 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
         <div className="mb-[6vw]">
           <div className="flex items-center justify-between mb-[3vw]">
             <h2 className="text-[#092040] text-[5vw] font-black">おすすめの活動</h2>
-            <StickerViewMore href="/search" index={0} mobile />
+            <StickerViewMore href="/search" mobile />
           </div>
           <MobileSlider posts={featuredPosts} />
           <div className="flex flex-col gap-[4vw] mt-[4vw]">
@@ -328,7 +324,7 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
             <section className="mb-10">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[#092040] text-2xl font-black">おすすめ</h2>
-                <StickerViewMore href="/search" index={0} />
+                <StickerViewMore href="/search" />
               </div>
               <ScrollHint>
                 {featuredPosts.map((post) => (
@@ -339,11 +335,11 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
               </ScrollHint>
             </section>
           )}
-          {categorySections.map(({ cat, filtered }, i) => (
+          {categorySections.map(({ cat, filtered }) => (
             <section key={cat.slug} className="mb-10">
               <div className="flex items-center justify-between mb-4">
                 <Link href={`/search?category=${encodeURIComponent(cat.name)}`} className="text-[#092040] text-2xl font-black hover:opacity-70 transition-opacity">{cat.name}</Link>
-                <StickerViewMore href={`/search?category=${encodeURIComponent(cat.name)}`} index={i + 1} />
+                <StickerViewMore href={`/search?category=${encodeURIComponent(cat.name)}`} />
               </div>
               <ScrollHint>
                 {filtered.map((post) => (
