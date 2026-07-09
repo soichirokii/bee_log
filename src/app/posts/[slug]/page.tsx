@@ -10,7 +10,7 @@ import ShareButton from "@/app/components/ShareButton";
 import MobileApplyButton from "@/app/components/MobileApplyButton";
 import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
-import { CATEGORY_TAG_CLASS, getCategoryByName } from "@/constants/categories";
+import { CATEGORY_TAG_CLASS } from "@/constants/categories";
 import { BASE_URL } from "@/constants/site";
 import { daysUntilJst } from "@/lib/date";
 import { toCloudinaryUrl } from "@/lib/cloudinary-url";
@@ -240,11 +240,8 @@ export default async function PostDetailPage({
   const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
 
   const postUrl = `${BASE_URL}/posts/${post.slug}`;
-  // カテゴリの静的ページへ内部リンク。定数に無いカテゴリは検索ページへフォールバック
-  const categorySlug = post.category ? getCategoryByName(post.category)?.slug : undefined;
-  const categoryHref = categorySlug
-    ? `/category/${categorySlug}`
-    : `/search?category=${encodeURIComponent(post.category)}`;
+  // カテゴリ絞り込みは検索ページで行う
+  const categoryHref = `/search?category=${encodeURIComponent(post.category)}`;
 
   const articleJsonLd = {
     "@context": "https://schema.org",

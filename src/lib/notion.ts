@@ -189,9 +189,6 @@ async function fetchOpenPublishedPosts(revalidate: number): Promise<Post[]> {
 // cache(): 同一リクエスト内（generateMetadata とページ本体など）の重複呼び出しを1回にまとめる
 export const getPublishedPosts = cache((): Promise<Post[]> => fetchOpenPublishedPosts(REVALIDATE));
 
-// カテゴリページ（ISR revalidate=3600）用。ページ側の revalidate と揃えた1時間キャッシュで取得する。
-export const getPublishedPostsForCategory = cache((): Promise<Post[]> => fetchOpenPublishedPosts(3600));
-
 // 公開中の全記事（締切経過分も含む）。記事ページ・sitemap用。
 export const getAllPublishedPosts = cache(async (): Promise<Post[]> => {
   const res = await fetch(

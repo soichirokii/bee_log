@@ -342,8 +342,8 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
           {categorySections.map(({ cat, filtered }, i) => (
             <section key={cat.slug} className="mb-10">
               <div className="flex items-center justify-between mb-4">
-                <Link href={`/category/${cat.slug}`} className="text-[#092040] text-2xl font-black hover:opacity-70 transition-opacity">{cat.name}</Link>
-                <StickerViewMore href={`/category/${cat.slug}`} index={i + 1} />
+                <Link href={`/search?category=${encodeURIComponent(cat.name)}`} className="text-[#092040] text-2xl font-black hover:opacity-70 transition-opacity">{cat.name}</Link>
+                <StickerViewMore href={`/search?category=${encodeURIComponent(cat.name)}`} index={i + 1} />
               </div>
               <ScrollHint>
                 {filtered.map((post) => (
@@ -356,18 +356,6 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
           ))}
         </div>
       </div>
-
-      {/* カテゴリから探す（全カテゴリへの内部リンク） */}
-      <section className="px-[5vw] md:px-16 pt-8 pb-2">
-        <h2 className="text-[#092040] text-lg md:text-2xl font-black mb-4">カテゴリから探す</h2>
-        <div className="flex flex-wrap gap-2">
-          {CATEGORIES.map((cat) => (
-            <Link key={cat.slug} href={`/category/${cat.slug}`} className={`${CATEGORY_TAG_CLASS} transition-colors hover:bg-[#FCBC2A]`}>
-              {cat.name}
-            </Link>
-          ))}
-        </div>
-      </section>
 
       <section className="flex justify-center py-12 md:py-16 px-[5vw] md:px-0">
         <Link
