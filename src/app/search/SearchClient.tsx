@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { FAB_BASE_CLASS } from "../components/MobileSearchFab";
-import { CATEGORIES, CATEGORY_TAG_CLASS, SEASON_TAGS, GRADES, FORMATS } from "@/constants/categories";
+import { CATEGORY_NAMES, CATEGORY_TAG_CLASS, SEASON_TAGS, GRADES, FORMATS } from "@/constants/categories";
 import { daysUntilJst } from "@/lib/date";
 
 function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
@@ -301,7 +301,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
       <h2 className="font-bold text-[#092040] text-lg mb-4">絞り込み検索</h2>
       <div className="mb-5">
         <h3 className="text-sm font-bold text-[#092040] mb-2">カテゴリ</h3>
-        {CATEGORIES.map((cat) => (
+        {CATEGORY_NAMES.map((cat) => (
           <label key={cat} className="flex items-center gap-2 mb-2 cursor-pointer">
             <input type="checkbox" checked={selectedCategories.includes(cat)} onChange={() => toggleItem(selectedCategories, setSelectedCategories, cat)} className="relative appearance-none shrink-0 w-4 h-4 border-2 border-[#092040] rounded bg-[#FFFFF0] checked:bg-[#092040] checked:after:content-[''] checked:after:absolute checked:after:left-[4px] checked:after:top-[1px] checked:after:w-[4px] checked:after:h-[8px] checked:after:border-white checked:after:border-b-2 checked:after:border-r-2 checked:after:rotate-45 focus:outline-none cursor-pointer" />
             <span className="text-sm text-[#092040] font-medium">{cat}</span>
@@ -523,7 +523,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
                 <div className="mt-2 w-full">
                   <p className="text-xs text-gray-400 mb-3">他のカテゴリも見てみよう</p>
                   <div className="flex flex-wrap justify-center gap-2">
-                    {CATEGORIES.map((cat) => (
+                    {CATEGORY_NAMES.map((cat) => (
                       <button
                         key={cat}
                         onClick={() => { setSelectedCategories([cat]); setSelectedGrades([]); setSelectedFormats([]); setSelectedPeriods([]); setFreeOnly(false); setKeyword(""); setPage(1); }}

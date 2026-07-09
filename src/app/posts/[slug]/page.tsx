@@ -10,11 +10,16 @@ import ShareButton from "@/app/components/ShareButton";
 import MobileApplyButton from "@/app/components/MobileApplyButton";
 import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
-import { CATEGORY_TAG_CLASS } from "@/constants/categories";
+import { CATEGORY_TAG_CLASS, getCategoryByName } from "@/constants/categories";
 import { BASE_URL } from "@/constants/site";
 import { daysUntilJst } from "@/lib/date";
+import { toCloudinaryUrl } from "@/lib/cloudinary-url";
 
 export const revalidate = 1800;
+
+// OGP用（1200x630・f_jpgでTwitterのWebP非対応環境に対応）と本文/JSON-LD用（16:9）の変換
+const OGP_TRANSFORM = "c_fill,g_auto,w_1200,h_630,f_jpg,q_auto";
+const CARD_TRANSFORM = "c_fill,g_auto,ar_16:9,f_auto,q_auto,w_1200";
 
 // JSON-LD を <script> に埋め込む際、< をエスケープして </script> ブレイクアウトを防ぐ
 function safeJsonLd(obj: unknown): string {
@@ -37,8 +42,11 @@ export async function generateMetadata(props: {
   try {
     const post = await getPostBySlug(slug);
     if (!post) return { title: "Not Found" };
-    // Notion S3の画像URLは約1時間で失効するため、OGPには固定画像を使う
-    const ogImage = `${BASE_URL}/ogp.png`;
+    // カバー画像がCloudinary（永続URL）なら記事別OGP、それ以外は固定画像にフォールバック
+    const ogImage =
+      post.imageUrl?.includes("res.cloudinary.com")
+        ? toCloudinaryUrl(post.imageUrl, OGP_TRANSFORM)
+        : `${BASE_URL}/ogp.png`;
     return {
       title: post.title,
       description: post.summary,
@@ -56,7 +64,7 @@ export async function generateMetadata(props: {
         card: "summary_large_image",
         title: post.title,
         description: post.summary,
-        images: [ogImage],
+        images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
       },
     };
   } catch {
@@ -232,13 +240,20 @@ export default async function PostDetailPage({
   const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
 
   const postUrl = `${BASE_URL}/posts/${post.slug}`;
+  // カテゴリの静的ページへ内部リンク。定数に無いカテゴリは検索ページへフォールバック
+  const categorySlug = post.category ? getCategoryByName(post.category)?.slug : undefined;
+  const categoryHref = categorySlug
+    ? `/category/${categorySlug}`
+    : `/search?category=${encodeURIComponent(post.category)}`;
 
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
     description: post.summary,
-    image: post.imageUrl ? `${BASE_URL}/api/notion-image?pageId=${post.id}` : `${BASE_URL}/ogp.png`,
+    image: post.imageUrl?.includes("res.cloudinary.com")
+      ? toCloudinaryUrl(post.imageUrl, CARD_TRANSFORM)
+      : `${BASE_URL}/ogp.png`,
     datePublished: post.createdAt,
     author: { "@type": "Organization", name: post.organizer || "BEE log" },
     publisher: { "@type": "Organization", name: "BEE log", url: BASE_URL },
@@ -251,7 +266,7 @@ export default async function PostDetailPage({
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "ホーム", item: BASE_URL },
       ...(post.category
-        ? [{ "@type": "ListItem", position: 2, name: post.category, item: `${BASE_URL}/search?category=${encodeURIComponent(post.category)}` }]
+        ? [{ "@type": "ListItem", position: 2, name: post.category, item: `${BASE_URL}${categoryHref}` }]
         : []),
       { "@type": "ListItem", position: post.category ? 3 : 2, name: post.title },
     ],
@@ -274,7 +289,7 @@ export default async function PostDetailPage({
               <li aria-hidden="true" className="select-none">›</li>
               <li>
                 <Link
-                  href={`/search?category=${encodeURIComponent(post.category)}`}
+                  href={categoryHref}
                   className="hover:text-[#092040] transition-colors font-medium"
                 >
                   {post.category}
@@ -300,9 +315,9 @@ export default async function PostDetailPage({
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute bottom-6 left-6 right-6">
             {post.category && (
-              <span className={`${CATEGORY_TAG_CLASS} mb-3 inline-block`}>
+              <Link href={categoryHref} className={`${CATEGORY_TAG_CLASS} mb-3 inline-block hover:bg-[#FCBC2A] transition-colors`}>
                 {post.category}
-              </span>
+              </Link>
             )}
             <h1 className="text-white text-2xl md:text-4xl font-black leading-tight drop-shadow">{post.title}</h1>
             {post.organizer && <p className="text-white/70 text-sm mt-2">{post.organizer}</p>}

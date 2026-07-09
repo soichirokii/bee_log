@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CATEGORIES } from "@/constants/categories";
 
 export default function Footer() {
   return (
@@ -51,6 +52,19 @@ export default function Footer() {
             {/* お問い合わせ */}
             <div className="flex flex-col gap-4">
               <a href="mailto:beelog.jp@gmail.com" className="text-[#092040] font-bold text-sm hover:opacity-70 transition-opacity">お問い合わせ</a>
+            </div>
+
+            {/* カテゴリ */}
+            <div className="flex flex-col gap-3 min-w-[180px]">
+              <span className="text-[#092040] font-bold text-sm">カテゴリ</span>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                {CATEGORIES.map((cat) => (
+                  <Link key={cat.slug} href={`/category/${cat.slug}`}
+                    className="text-[#092040]/80 text-xs hover:text-[#092040] hover:opacity-100 transition-colors">
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>

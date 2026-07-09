@@ -1,5 +1,6 @@
 import { getAllPublishedPosts } from "@/lib/notion";
 import { BASE_URL } from "@/constants/site";
+import { CATEGORIES } from "@/constants/categories";
 
 export default async function sitemap() {
   const posts = await getAllPublishedPosts();
@@ -8,6 +9,13 @@ export default async function sitemap() {
     url: `${BASE_URL}/posts/${post.slug}`,
     lastModified: new Date(post.createdAt),
     changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
+
+  const categoryUrls = CATEGORIES.map((cat) => ({
+    url: `${BASE_URL}/category/${cat.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "daily" as const,
     priority: 0.8,
   }));
 
@@ -30,6 +38,7 @@ export default async function sitemap() {
       changeFrequency: "monthly" as const,
       priority: 0.5,
     },
+    ...categoryUrls,
     ...postUrls,
   ];
 }

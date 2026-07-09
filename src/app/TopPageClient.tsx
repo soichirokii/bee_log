@@ -320,13 +320,13 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
             </section>
           )}
           {CATEGORIES.map((cat) => {
-            const filtered = posts.filter((p) => p.category === cat);
+            const filtered = posts.filter((p) => p.category === cat.name);
             if (filtered.length === 0) return null;
             return (
-              <section key={cat} className="mb-10">
+              <section key={cat.slug} className="mb-10">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-[#092040] text-2xl font-black">{cat}</h2>
-                  <Link href={`/search?category=${encodeURIComponent(cat)}`} className="group inline-flex items-center gap-3">
+                  <Link href={`/category/${cat.slug}`} className="text-[#092040] text-2xl font-black hover:opacity-70 transition-opacity">{cat.name}</Link>
+                  <Link href={`/category/${cat.slug}`} className="group inline-flex items-center gap-3">
                     <span className="text-[#092040] text-sm font-extrabold">VIEW MORE</span>
                     <span className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FCBC2A] text-[#092040] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:translate-x-1 group-hover:scale-110 motion-reduce:transition-none motion-reduce:transform-none">→</span>
                   </Link>
@@ -343,6 +343,18 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
           })}
         </div>
       </div>
+
+      {/* カテゴリから探す（全カテゴリへの内部リンク） */}
+      <section className="px-[5vw] md:px-16 pt-8 pb-2">
+        <h2 className="text-[#092040] text-lg md:text-2xl font-black mb-4">カテゴリから探す</h2>
+        <div className="flex flex-wrap gap-2">
+          {CATEGORIES.map((cat) => (
+            <Link key={cat.slug} href={`/category/${cat.slug}`} className={`${CATEGORY_TAG_CLASS} transition-colors hover:bg-[#FCBC2A]`}>
+              {cat.name}
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <section className="flex justify-center py-12 md:py-16 px-[5vw] md:px-0">
         <Link

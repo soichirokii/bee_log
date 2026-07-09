@@ -156,8 +156,8 @@ function rawBlockToNotionBlock(block: RawBlock): NotionBlock {
   return { id: block.id, type, richText, language, imageUrl, caption };
 }
 
-// cache(): 同一リクエスト内（generateMetadata とページ本体など）の重複呼び出しを1回にまとめる
-export const getPublishedPosts = cache(async (): Promise<Post[]> => {
+// 公開中かつ締切未経過（または締切なし）の活動を取得。revalidate は呼び出し側の要件で切り替える。
+async function fetchOpenPublishedPosts(revalidate: number): Promise<Post[]> {
   const res = await fetch(
     `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
     {
@@ -177,14 +177,20 @@ export const getPublishedPosts = cache(async (): Promise<Post[]> => {
           ],
         },
       }),
-      next: { revalidate: REVALIDATE },
+      next: { revalidate },
     }
   );
 
   if (!res.ok) throw new Error(`Notion API error: ${res.status}`);
   const data = await res.json() as NotionQueryResult;
   return data.results.map(pageToPost);
-});
+}
+
+// cache(): 同一リクエスト内（generateMetadata とページ本体など）の重複呼び出しを1回にまとめる
+export const getPublishedPosts = cache((): Promise<Post[]> => fetchOpenPublishedPosts(REVALIDATE));
+
+// カテゴリページ（ISR revalidate=3600）用。ページ側の revalidate と揃えた1時間キャッシュで取得する。
+export const getPublishedPostsForCategory = cache((): Promise<Post[]> => fetchOpenPublishedPosts(3600));
 
 // 公開中の全記事（締切経過分も含む）。記事ページ・sitemap用。
 export const getAllPublishedPosts = cache(async (): Promise<Post[]> => {
