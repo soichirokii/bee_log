@@ -10,6 +10,7 @@ import ShareButton from "@/app/components/ShareButton";
 import MobileApplyButton from "@/app/components/MobileApplyButton";
 import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
+import ActivityCard from "@/app/components/ActivityCard";
 import { CATEGORY_TAG_CLASS } from "@/constants/categories";
 import { BASE_URL } from "@/constants/site";
 import { daysUntilJst } from "@/lib/date";
@@ -176,52 +177,6 @@ function getRelatedPosts(allPosts: Post[], current: PostWithContent, count = 3):
     .sort((a, b) => b.score - a.score)
     .slice(0, count)
     .map(({ post }) => post);
-}
-
-/* ── 関連活動カード（サーバーコンポーネント）── */
-function RelatedCard({ post }: { post: Post }) {
-  const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
-
-  return (
-    <Link href={`/posts/${post.slug}`}
-      className="group relative bg-[#FFFFF0] transition-all duration-300 overflow-hidden block">
-      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-70 transition-opacity duration-300 z-10 pointer-events-none" />
-      <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-        <span className="text-white text-lg font-bold tracking-widest">VIEW MORE</span>
-      </div>
-      <div className="w-full aspect-video bg-gray-200 relative overflow-hidden">
-        <FallbackImage
-          src={post.imageUrl ? `/api/notion-image?pageId=${post.id}` : "/noimage.svg"}
-          alt={post.title}
-          fill
-          className="object-cover"
-        />
-        {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && (
-          <div className="absolute top-2 right-2">
-            <span className="relative inline-flex">
-              <span className="absolute inset-0 bg-[#EF4444] rounded-full animate-ping opacity-60" />
-              <span className="relative bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>
-            </span>
-          </div>
-        )}
-      </div>
-      <div className="p-4 bg-[#FFFFF0]">
-        <div className="flex items-center gap-2 mb-2 flex-wrap">
-          {post.category && (
-            <span className={CATEGORY_TAG_CLASS}>
-              {post.category}
-            </span>
-          )}
-        </div>
-        <h3 className="font-bold text-[#092040] text-xl line-clamp-2">{post.title}</h3>
-        {post.deadline && (
-          <p className={`text-xs mt-2 ${daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? "text-[#EF4444] font-bold" : "text-gray-400"}`}>
-            締切: {new Date(post.deadline).toLocaleDateString("ja-JP")}
-          </p>
-        )}
-      </div>
-    </Link>
-  );
 }
 
 export default async function PostDetailPage({
@@ -471,7 +426,7 @@ export default async function PostDetailPage({
           <h2 className="font-bold text-xl text-[#092040] mb-6">関連する活動</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {relatedPosts.map((p) => (
-              <RelatedCard key={p.id} post={p} />
+              <ActivityCard key={p.id} post={p} deadlineStyle="date" />
             ))}
           </div>
         </section>

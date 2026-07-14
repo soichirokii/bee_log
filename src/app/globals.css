@@ -56,6 +56,40 @@
   animation: blink 1.2s ease-in-out infinite;
 }
 
+/* 活動カード：通常は直角、hoverで角丸がぷるっと付く。
+   transform/影は素早いease-out、border-radiusだけ少し遅れて
+   軽くオーバーシュートするスプリングで丸まり、こだわりを出す。 */
+.activity-card {
+  transition:
+    transform 300ms cubic-bezier(0, 0, 0.2, 1),
+    box-shadow 300ms cubic-bezier(0, 0, 0.2, 1),
+    border-radius 460ms cubic-bezier(0.34, 1.56, 0.64, 1) 40ms;
+}
+.activity-card-inner {
+  transition: border-radius 460ms cubic-bezier(0.34, 1.56, 0.64, 1) 40ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .activity-card,
+  .activity-card-inner {
+    transition-duration: 1ms;
+    transition-delay: 0ms;
+  }
+}
+
+/* Heroのスクロール誘導：honeyの短い線分がライン内を上から下へ流れ落ちる */
+@keyframes scrollLine {
+  0% { top: -36px; }
+  100% { top: 36px; }
+}
+
+.animate-scroll-line {
+  animation: scrollLine 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-scroll-line { animation: none; top: 0; }
+}
+
 body.menu-open .mobile-fab {
   display: none;
 }

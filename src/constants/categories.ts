@@ -19,6 +19,13 @@ export const CATEGORIES: Category[] = [
 // 後方互換: カテゴリ名だけの配列を参照している箇所（検索フィルタ等）向け
 export const CATEGORY_NAMES: string[] = CATEGORIES.map((c) => c.name);
 
+// Notionの日本語カテゴリ名を、Heroなどで使う英字大文字ラベルに変換する（slugベース）。
+// 例: "コンテスト・大会" → "CONTEST" / "留学・国際" → "STUDY ABROAD"
+export function categoryToEnglishLabel(name: string): string | null {
+  const cat = CATEGORIES.find((c) => c.name === name);
+  return cat ? cat.slug.replace(/-/g, " ").toUpperCase() : null;
+}
+
 // カテゴリタグの共通デザイン（色分けは廃止し、全ページ・全カテゴリで統一）
 export const CATEGORY_TAG_CLASS =
   "bg-[#FFFFEE] text-[#092040] border border-[#092040] rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap";

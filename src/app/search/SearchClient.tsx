@@ -3,27 +3,13 @@
 import { useState, useMemo, Suspense, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { Post } from "@/types/notion";
-import Link from "next/link";
-import Image from "next/image";
-import FallbackImage from "@/components/FallbackImage";
 import { useRouter } from "next/navigation";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
+import ActivityCard from "../components/ActivityCard";
 import { FAB_BASE_CLASS } from "../components/MobileSearchFab";
-import { CATEGORY_NAMES, CATEGORY_TAG_CLASS, SEASON_TAGS, GRADES, FORMATS } from "@/constants/categories";
-import { daysUntilJst } from "@/lib/date";
-
-function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
-  if (!period) return null;
-  const text = period.replace(/\s/g, "");
-  const monthMatch = text.match(/(\d+)ヶ?月/);
-  if (monthMatch) { const d = parseInt(monthMatch[1]) * 30; return d >= 15 ? "長期" : d >= 7 ? "中期" : "短期"; }
-  const weekMatch = text.match(/(\d+)週間?/);
-  if (weekMatch) { const d = parseInt(weekMatch[1]) * 7; return d >= 15 ? "長期" : d >= 7 ? "中期" : "短期"; }
-  const dayMatch = text.match(/(\d+)日/);
-  if (dayMatch) { const d = parseInt(dayMatch[1]); return d >= 15 ? "長期" : d >= 7 ? "中期" : "短期"; }
-  return null;
-}
+import { CATEGORY_NAMES, CATEGORY_TAG_CLASS, GRADES, FORMATS } from "@/constants/categories";
+import { getPeriodLabel } from "@/lib/period";
 
 /* ① カウントアップフック */
 function useCountUp(target: number, duration = 400) {
@@ -93,57 +79,6 @@ function ResultsCount({ count }: { count: number }) {
   return <p className="text-[#092040] font-bold mb-4 text-base">{display} 件の活動が見つかりました</p>;
 }
 
-
-function ActivityCard({ post, onTagClick }: { post: Post; onTagClick?: (tag: string) => void }) {
-  const router = useRouter();
-  const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
-  const seasonTag = post.tags.find((t) => SEASON_TAGS.includes(t));
-  const periodLabel = getPeriodLabel(post.period);
-
-  return (
-    <div
-      onClick={() => router.push(`/posts/${post.slug}`)}
-      className="group relative bg-[#FFFFF0] transition-all duration-300 cursor-pointer overflow-hidden"
-      style={{ fontFamily: "'toppan-bunkyu-midashi-gothic', sans-serif" }}
-    >
-      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-70 transition-opacity duration-300 z-10 pointer-events-none" />
-      <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-        <span className="text-white text-lg font-bold tracking-widest">VIEW MORE</span>
-      </div>
-      <div className="w-full aspect-video bg-gray-200 relative overflow-hidden">
-        {post.imageUrl
-          ? <FallbackImage src={`/api/notion-image?pageId=${post.id}`} alt={post.title} fill className="object-cover" />
-          : <Image src="/noimage.svg" alt="No Image" fill className="object-cover" />}
-        <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
-          {post.isFeatured && <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>}
-          {seasonTag && <span className="bg-[#F59E0B] text-white text-xs font-bold px-2 py-1 rounded-full">{seasonTag}</span>}
-          {periodLabel && <span className="bg-[#092040] text-white text-xs font-bold px-2 py-1 rounded-full">{periodLabel}</span>}
-        </div>
-        <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
-          {(post.fee === "無料" || post.fee === "0円" || post.fee === "0") && <span className="bg-[#4ADE80] text-white text-xs font-bold px-2 py-1 rounded-full">無料</span>}
-          {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && (
-              <span className="relative inline-flex">
-                <span className="absolute inset-0 bg-[#EF4444] rounded-full animate-ping opacity-60" />
-                <span className="relative bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>
-              </span>
-            )}
-        </div>
-      </div>
-      <div className="p-4 bg-[#FFFFF0]">
-        <div className="flex items-center gap-2 text-xs mb-2 flex-wrap">
-          {post.category && <span className={CATEGORY_TAG_CLASS}>{post.category}</span>}
-          {post.organizer && <span className="text-gray-400">{post.organizer}</span>}
-        </div>
-        <h3 className="font-bold text-[#092040] text-xl line-clamp-2">{post.title}</h3>
-        {post.deadline && daysLeft !== null && (
-          <p className={`text-xs mt-1.5 font-bold ${daysLeft < 0 ? "text-gray-400" : daysLeft === 0 ? "text-[#EF4444]" : daysLeft <= 7 ? "text-[#EF4444]" : "text-gray-400"}`}>
-            {daysLeft < 0 ? "締切済み" : daysLeft === 0 ? "本日締切" : `あと${daysLeft}日`}
-          </p>
-        )}
-      </div>
-    </div>
-  );
-}
 
 const PAGE_SIZE = 12;
 
@@ -541,7 +476,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
               style={{ opacity: cardsVisible ? 1 : 0, transition: "opacity 0.18s ease" }}>
               {paginated.map((post, i) => (
                 <FadeInCard key={post.id} delay={i * 40}>
-                  <ActivityCard post={post} onTagClick={(tag) => { setKeyword(tag); setPage(1); }} />
+                  <ActivityCard post={post} deadlineStyle="count" />
                 </FadeInCard>
               ))}
             </div>

@@ -3,71 +3,12 @@
 import { useState, useMemo, Suspense, useEffect, useRef } from "react";
 import { Post } from "@/types/notion";
 import Link from "next/link";
-import Image from "next/image";
 import FallbackImage from "@/components/FallbackImage";
 import { useRouter } from "next/navigation";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
-import { CATEGORIES, CATEGORY_TAG_CLASS, SEASON_TAGS } from "@/constants/categories";
-import { daysUntilJst } from "@/lib/date";
-
-function getPeriodLabel(period: string): "長期" | "中期" | "短期" | null {
-  if (!period) return null;
-  const text = period.replace(/\s/g, "");
-  const monthMatch = text.match(/(\d+)ヶ?月/);
-  if (monthMatch) { const d = parseInt(monthMatch[1]) * 30; return d >= 15 ? "長期" : d >= 7 ? "中期" : "短期"; }
-  const weekMatch = text.match(/(\d+)週間?/);
-  if (weekMatch) { const d = parseInt(weekMatch[1]) * 7; return d >= 15 ? "長期" : d >= 7 ? "中期" : "短期"; }
-  const dayMatch = text.match(/(\d+)日/);
-  if (dayMatch) { const d = parseInt(dayMatch[1]); return d >= 15 ? "長期" : d >= 7 ? "中期" : "短期"; }
-  return null;
-}
-
-function ActivityCard({ post }: { post: Post }) {
-  const router = useRouter();
-  const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
-  const seasonTag = post.tags.find((t) => SEASON_TAGS.includes(t));
-  const periodLabel = getPeriodLabel(post.period);
-
-  return (
-    <div
-      onClick={() => router.push(`/posts/${post.slug}`)}
-      className="group relative bg-[#FFFFF0] transition-all duration-300 cursor-pointer overflow-hidden"
-      style={{ fontFamily: "'toppan-bunkyu-midashi-gothic', sans-serif" }}
-    >
-      <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-70 transition-opacity duration-300 z-10 pointer-events-none" />
-      <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-        <span className="text-white text-lg font-bold tracking-widest">VIEW MORE</span>
-      </div>
-      <div className="w-full aspect-video bg-gray-200 relative overflow-hidden">
-        {post.imageUrl
-          ? <FallbackImage src={`/api/notion-image?pageId=${post.id}`} alt={post.title} fill className="object-cover" />
-          : <Image src="/noimage.svg" alt="No Image" fill className="object-cover" />}
-        <div className="absolute top-2 left-2 flex gap-1 flex-wrap max-w-[70%]">
-          {post.isFeatured && <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>}
-          {seasonTag && <span className="bg-[#F59E0B] text-white text-xs font-bold px-2 py-1 rounded-full">{seasonTag}</span>}
-          {periodLabel && <span className="bg-[#092040] text-white text-xs font-bold px-2 py-1 rounded-full">{periodLabel}</span>}
-        </div>
-        <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
-          {(post.fee === "無料" || post.fee === "0円" || post.fee === "0") && <span className="bg-[#4ADE80] text-white text-xs font-bold px-2 py-1 rounded-full">無料</span>}
-          {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && (
-              <span className="relative inline-flex">
-                <span className="absolute inset-0 bg-[#EF4444] rounded-full animate-ping opacity-60" />
-                <span className="relative bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>
-              </span>
-            )}
-        </div>
-      </div>
-      <div className="p-4 bg-[#FFFFF0]">
-        <div className="flex items-center gap-2 text-xs mb-2 flex-wrap">
-          {post.category && <span className={CATEGORY_TAG_CLASS}>{post.category}</span>}
-          {post.organizer && <span className="text-gray-400">{post.organizer}</span>}
-        </div>
-        <h3 className="font-bold text-[#092040] text-xl line-clamp-2">{post.title}</h3>
-      </div>
-    </div>
-  );
-}
+import ActivityCard from "./components/ActivityCard";
+import { CATEGORIES, categoryToEnglishLabel } from "@/constants/categories";
 
 function MobileSlider({ posts }: { posts: Post[] }) {
   const router = useRouter();
@@ -136,23 +77,59 @@ function HeroSlider({ posts }: { posts: Post[] }) {
     return () => clearInterval(timer);
   }, [featured.length]);
 
+  const categoryLabel = categoryToEnglishLabel(current.category);
+
   return (
-    <div className="relative w-full aspect-video overflow-hidden cursor-pointer"
+    <div className="group relative w-full aspect-video overflow-hidden cursor-pointer"
       onClick={() => router.push(`/posts/${current.slug}`)}>
       {current.imageUrl ? <FallbackImage src={`/api/notion-image?pageId=${current.id}`} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-100" />}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-      <div className="absolute bottom-4 left-4 right-4">
-        <h3 className="text-white font-black text-lg line-clamp-2">{current.title}</h3>
+      {/* テキスト可読性のためのボトムグラデ（写真は極力そのまま、下だけ軽く暗く。紺のかぶせは廃止） */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+
+      {/* スライドインジケーター（左上）：honey=アクティブ / cream35%=非アクティブ */}
+      {featured.length > 1 && (
+        <div className="absolute top-4 left-4 z-20 flex gap-1.5">
+          {featured.map((_, i) => (
+            <button key={i} onClick={(e) => { e.stopPropagation(); setIndex(i); }}
+              aria-label={`${i + 1}枚目を表示`}
+              className={`h-[3px] w-5 rounded-full transition-colors ${i === index ? "bg-[#FCBC2A]" : "bg-[#FFFFEE]/35"}`} />
+          ))}
+        </div>
+      )}
+
+      {/* テキスト情報（左下）：カテゴリ英字 / タイトル / CTA */}
+      <div className="absolute left-4 bottom-4 right-16 z-20 flex flex-col items-start gap-2">
+        {categoryLabel && (
+          <span className="text-[#FCBC2A] text-xs font-bold uppercase tracking-[0.2em]">{categoryLabel}</span>
+        )}
+        <h3 className="text-[#FFFFEE] text-2xl font-medium leading-tight line-clamp-2">{current.title}</h3>
+        <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-[#FCBC2A] text-[#092040] font-bold text-sm px-4 py-2">
+          詳細を見る
+          <span aria-hidden="true">→</span>
+        </span>
       </div>
+
+      {/* スクロール誘導：縦書きSCROLL＋縦ライン、honeyの線分が上から下へ流れ落ちる（右下・重なりなし） */}
+      <div className="pointer-events-none absolute right-4 bottom-4 z-20 flex flex-col items-center gap-1.5">
+        <span className="text-[#FFFFEE]/80 text-[10px] font-bold tracking-[0.2em] [writing-mode:vertical-rl]">SCROLL</span>
+        <span className="relative h-9 w-px overflow-hidden bg-[#FFFFEE]/25">
+          <span className="animate-scroll-line absolute left-0 top-[-36px] h-3 w-px bg-[#FCBC2A]" />
+        </span>
+      </div>
+
+      {/* 矢印（右/左・ホバー時表示）：直径44pxの円、cream90%背景、navy矢印、軽い影で写真上でも浮かせる */}
       {featured.length > 1 && (
         <>
-          <button onClick={(e) => { e.stopPropagation(); setIndex((i) => (i - 1 + featured.length) % featured.length); }} className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/30 text-white text-2xl w-10 h-10 rounded-full flex items-center justify-center">‹</button>
-          <button onClick={(e) => { e.stopPropagation(); setIndex((i) => (i + 1) % featured.length); }} className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/30 text-white text-2xl w-10 h-10 rounded-full flex items-center justify-center">›</button>
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-            {featured.map((_, i) => (
-              <button key={i} onClick={(e) => { e.stopPropagation(); setIndex(i); }} className={`w-2 h-2 rounded-full transition-colors ${i === index ? "bg-white" : "bg-white/40"}`} />
-            ))}
-          </div>
+          <button onClick={(e) => { e.stopPropagation(); setIndex((i) => (i - 1 + featured.length) % featured.length); }}
+            aria-label="前のスライド"
+            className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-[#FFFFEE]/90 text-[#092040] shadow-[0_4px_12px_rgba(9,32,64,0.15)] opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:transition-none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 6 9 12 15 18" /></svg>
+          </button>
+          <button onClick={(e) => { e.stopPropagation(); setIndex((i) => (i + 1) % featured.length); }}
+            aria-label="次のスライド"
+            className="absolute right-3 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-[#FFFFEE]/90 text-[#092040] shadow-[0_4px_12px_rgba(9,32,64,0.15)] opacity-0 transition-opacity duration-300 group-hover:opacity-100 motion-reduce:transition-none">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 6 15 12 9 18" /></svg>
+          </button>
         </>
       )}
     </div>
@@ -213,7 +190,7 @@ function ScrollHint({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <div ref={ref} className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+    <div ref={ref} className="flex gap-4 overflow-x-auto pt-1 pb-4 px-1 -mx-1 scrollbar-hide">
       {children}
     </div>
   );
