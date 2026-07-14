@@ -33,11 +33,11 @@ export default function ActivityCard({
   return (
     <Link
       href={`/posts/${post.slug}`}
-      className="activity-card group relative block bg-[#FFFFF0] shadow-[0_2px_8px_rgba(9,32,64,0.07)] hover:-translate-y-1 hover:rounded-2xl hover:shadow-[0_14px_28px_-8px_rgba(9,32,64,0.28)] motion-reduce:hover:translate-y-0"
+      className="activity-card group relative block bg-[#FFFFF0]"
       style={{ fontFamily: "'toppan-bunkyu-midashi-gothic', sans-serif" }}
     >
-      {/* 画像コンテナ：overflow-hidden はここだけ。通常は直角、hoverで上2つが角丸に */}
-      <div className="activity-card-inner relative w-full aspect-video overflow-hidden bg-gray-200 group-hover:rounded-t-2xl">
+      {/* 画像コンテナ：overflow-hidden はここだけ（角丸なし・常に直角） */}
+      <div className="relative w-full aspect-video overflow-hidden bg-gray-200">
         {post.imageUrl ? (
           <FallbackImage
             src={`/api/notion-image?pageId=${post.id}`}
@@ -54,8 +54,10 @@ export default function ActivityCard({
           />
         )}
 
-        {/* ピルの可読性を上げるボトムグラデ（hoverで表示） */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/35 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        {/* 右上起点の円形リビール＋VIEW MORE。clip-pathは .card-reveal / .activity-card:hover で定義 */}
+        <div className="card-reveal z-10">
+          <span className="text-[#FFFFEE] text-[13px] font-semibold tracking-[0.2em]">VIEW MORE</span>
+        </div>
 
         {/* 左上バッジ */}
         <div className="absolute top-2 left-2 z-20 flex gap-1 flex-wrap max-w-[70%]">
@@ -74,27 +76,15 @@ export default function ActivityCard({
             </span>
           )}
         </div>
-
-        {/* 「もっと見る →」ピル：通常は画像の下に隠れ、hoverでスライドイン */}
-        <span className="absolute right-2 bottom-[-28px] z-30 inline-flex items-center gap-1 rounded-full bg-[#FCBC2A] text-[#092040] text-xs font-bold px-3 py-1.5 shadow-[0_2px_6px_rgba(9,32,64,0.25)] transition-[bottom] duration-300 ease-out group-hover:bottom-2 motion-reduce:transition-none motion-reduce:group-hover:bottom-2">
-          もっと見る
-          <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-0.5 motion-reduce:transition-none">→</span>
-        </span>
       </div>
 
       {/* 本文 */}
-      <div className="activity-card-inner p-4 bg-[#FFFFF0] group-hover:rounded-b-2xl">
+      <div className="p-4 bg-[#FFFFF0]">
         <div className="flex items-center gap-2 text-xs mb-2 flex-wrap">
           {post.category && <span className={CATEGORY_TAG_CLASS}>{post.category}</span>}
           {post.organizer && <span className="text-gray-400">{post.organizer}</span>}
         </div>
-        {/* タイトルは inline 要素にして、hover時に文字幅ぶんだけ下線を出す
-            （block要素に下線を付けると全幅に伸びてしまうため） */}
-        <h3 className="text-[#092040] text-xl line-clamp-2">
-          <span className="inline font-bold border-b-[1.5px] border-transparent transition-colors duration-300 group-hover:border-[#FCBC2A]">
-            {post.title}
-          </span>
-        </h3>
+        <h3 className="text-[#092040] text-xl font-bold line-clamp-2">{post.title}</h3>
         {deadlineStyle === "count" && post.deadline && daysLeft !== null && (
           <p className={`text-xs mt-1.5 font-bold ${daysLeft < 0 ? "text-gray-400" : daysLeft === 0 ? "text-[#EF4444]" : daysLeft <= 7 ? "text-[#EF4444]" : "text-gray-400"}`}>
             {daysLeft < 0 ? "締切済み" : daysLeft === 0 ? "本日締切" : `あと${daysLeft}日`}
