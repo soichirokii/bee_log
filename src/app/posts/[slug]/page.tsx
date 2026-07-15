@@ -11,16 +11,15 @@ import MobileApplyButton from "@/app/components/MobileApplyButton";
 import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
 import ActivityCard from "@/app/components/ActivityCard";
-import { CATEGORY_TAG_CLASS } from "@/constants/categories";
+import { CATEGORY_TAG_CLASS, categoryHref as toCategoryHref } from "@/constants/categories";
 import { BASE_URL } from "@/constants/site";
 import { daysUntilJst } from "@/lib/date";
-import { toCloudinaryUrl } from "@/lib/cloudinary-url";
+import { toCloudinaryUrl, coverImageSrc, CARD_TRANSFORM } from "@/lib/cloudinary-url";
 
 export const revalidate = 1800;
 
-// OGP用（1200x630・f_jpgでTwitterのWebP非対応環境に対応）と本文/JSON-LD用（16:9）の変換
+// OGP用（1200x630・f_jpgでTwitterのWebP非対応環境に対応）の変換。本文/JSON-LDは共通のCARD_TRANSFORM
 const OGP_TRANSFORM = "c_fill,g_auto,w_1200,h_630,f_jpg,q_auto";
-const CARD_TRANSFORM = "c_fill,g_auto,ar_16:9,f_auto,q_auto,w_1200";
 
 // JSON-LD を <script> に埋め込む際、< をエスケープして </script> ブレイクアウトを防ぐ
 function safeJsonLd(obj: unknown): string {
@@ -195,8 +194,7 @@ export default async function PostDetailPage({
   const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
 
   const postUrl = `${BASE_URL}/posts/${post.slug}`;
-  // カテゴリ絞り込みは検索ページで行う
-  const categoryHref = `/search?category=${encodeURIComponent(post.category)}`;
+  const categoryHref = toCategoryHref(post.category);
 
   const articleJsonLd = {
     "@context": "https://schema.org",
@@ -207,6 +205,7 @@ export default async function PostDetailPage({
       ? toCloudinaryUrl(post.imageUrl, CARD_TRANSFORM)
       : `${BASE_URL}/ogp.png`,
     datePublished: post.createdAt,
+    dateModified: post.updatedAt,
     author: { "@type": "Organization", name: post.organizer || "BEE log" },
     publisher: { "@type": "Organization", name: "BEE log", url: BASE_URL },
     url: postUrl,
@@ -260,7 +259,7 @@ export default async function PostDetailPage({
       <div className="px-[5vw] md:px-16 pt-8">
         <div className="relative w-full h-48 md:h-80 bg-gray-200 overflow-hidden">
           {post.imageUrl ? (
-            <FallbackImage src={`/api/notion-image?pageId=${post.id}`} alt={post.title} fill className="object-cover" />
+            <FallbackImage src={coverImageSrc(post.imageUrl, post.id)} alt={post.title} fill className="object-cover" />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />
           )}

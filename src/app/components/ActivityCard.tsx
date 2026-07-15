@@ -7,6 +7,7 @@ import { Post } from "@/types/notion";
 import { CATEGORY_TAG_CLASS, SEASON_TAGS } from "@/constants/categories";
 import { daysUntilJst } from "@/lib/date";
 import { getPeriodLabel } from "@/lib/period";
+import { coverImageSrc } from "@/lib/cloudinary-url";
 
 // 締切表示の出し分け:
 //   "none"  … 表示しない（トップページ）
@@ -40,7 +41,7 @@ export default function ActivityCard({
       <div className="relative w-full aspect-video overflow-hidden bg-gray-200">
         {post.imageUrl ? (
           <FallbackImage
-            src={`/api/notion-image?pageId=${post.id}`}
+            src={coverImageSrc(post.imageUrl, post.id)}
             alt={post.title}
             fill
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
