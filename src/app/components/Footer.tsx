@@ -59,7 +59,7 @@ export default function Footer() {
               <span className="text-[#092040] font-bold text-sm">カテゴリ</span>
               <div className="grid grid-cols-2 gap-x-6 gap-y-2">
                 {CATEGORIES.map((cat) => (
-                  <Link key={cat.slug} href={`/search?category=${encodeURIComponent(cat.name)}`}
+                  <Link key={cat.slug} href={`/category/${cat.slug}`}
                     className="text-[#092040]/80 text-xs hover:text-[#092040] hover:opacity-100 transition-colors">
                     {cat.name}
                   </Link>
