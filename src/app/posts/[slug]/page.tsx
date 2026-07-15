@@ -11,7 +11,7 @@ import MobileApplyButton from "@/app/components/MobileApplyButton";
 import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
 import ActivityCard from "@/app/components/ActivityCard";
-import { CATEGORY_TAG_CLASS, categoryHref as toCategoryHref } from "@/constants/categories";
+import { CATEGORY_TAG_CLASS } from "@/constants/categories";
 import { BASE_URL } from "@/constants/site";
 import { daysUntilJst } from "@/lib/date";
 import { toCloudinaryUrl, coverImageSrc, CARD_TRANSFORM } from "@/lib/cloudinary-url";
@@ -194,7 +194,8 @@ export default async function PostDetailPage({
   const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
 
   const postUrl = `${BASE_URL}/posts/${post.slug}`;
-  const categoryHref = toCategoryHref(post.category);
+  // カテゴリ絞り込みは検索ページで行う
+  const categoryHref = `/search?category=${encodeURIComponent(post.category)}`;
 
   const articleJsonLd = {
     "@context": "https://schema.org",

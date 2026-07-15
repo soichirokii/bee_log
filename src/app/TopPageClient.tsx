@@ -9,7 +9,6 @@ import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import ActivityCard from "./components/ActivityCard";
 import { CATEGORIES, categoryToEnglishLabel } from "@/constants/categories";
-import { coverImageSrc } from "@/lib/cloudinary-url";
 
 function MobileSlider({ posts }: { posts: Post[] }) {
   const router = useRouter();
@@ -37,7 +36,7 @@ function MobileSlider({ posts }: { posts: Post[] }) {
     <div className="relative">
       <div className="overflow-hidden" onClick={() => router.push(`/posts/${current.slug}`)}>
         <div className={`relative w-full aspect-video transition-opacity duration-300 ${animating ? "opacity-0" : "opacity-100"}`}>
-          {current.imageUrl ? <FallbackImage src={coverImageSrc(current.imageUrl, current.id)} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />}
+          {current.imageUrl ? <FallbackImage src={`/api/notion-image?pageId=${current.id}`} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute top-[2vw] left-[2vw] flex gap-[1.5vw]">
             {current.isFeatured && <span className="bg-white text-[#092040] text-[2.5vw] font-bold px-[2.5vw] py-[1vw] rounded-full">おすすめ</span>}
@@ -83,7 +82,7 @@ function HeroSlider({ posts }: { posts: Post[] }) {
   return (
     <div className="group relative w-full aspect-video overflow-hidden cursor-pointer"
       onClick={() => router.push(`/posts/${current.slug}`)}>
-      {current.imageUrl ? <FallbackImage src={coverImageSrc(current.imageUrl, current.id)} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-100" />}
+      {current.imageUrl ? <FallbackImage src={`/api/notion-image?pageId=${current.id}`} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-100" />}
       {/* テキスト可読性のためのボトムグラデ（写真は極力そのまま、下だけ軽く暗く。紺のかぶせは廃止） */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
@@ -316,8 +315,8 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
           {categorySections.map(({ cat, filtered }) => (
             <section key={cat.slug} className="mb-10">
               <div className="flex items-center justify-between mb-4">
-                <Link href={`/category/${cat.slug}`} className="text-[#092040] text-2xl font-black hover:opacity-70 transition-opacity">{cat.name}</Link>
-                <StickerViewMore href={`/category/${cat.slug}`} />
+                <Link href={`/search?category=${encodeURIComponent(cat.name)}`} className="text-[#092040] text-2xl font-black hover:opacity-70 transition-opacity">{cat.name}</Link>
+                <StickerViewMore href={`/search?category=${encodeURIComponent(cat.name)}`} />
               </div>
               <ScrollHint>
                 {filtered.map((post) => (

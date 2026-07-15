@@ -26,16 +26,6 @@ export function categoryToEnglishLabel(name: string): string | null {
   return cat ? cat.slug.replace(/-/g, " ").toUpperCase() : null;
 }
 
-// カテゴリ名 → /category/[slug] のURL。未知のカテゴリは検索ページにフォールバック
-export function categoryHref(name: string): string {
-  const cat = CATEGORIES.find((c) => c.name === name);
-  return cat ? `/category/${cat.slug}` : `/search?category=${encodeURIComponent(name)}`;
-}
-
-export function slugToCategory(slug: string): Category | null {
-  return CATEGORIES.find((c) => c.slug === slug) ?? null;
-}
-
 // カテゴリタグの共通デザイン（色分けは廃止し、全ページ・全カテゴリで統一）
 export const CATEGORY_TAG_CLASS =
   "bg-[#FFFFEE] text-[#092040] border border-[#092040] rounded-full px-3 py-1 text-xs font-medium whitespace-nowrap";
