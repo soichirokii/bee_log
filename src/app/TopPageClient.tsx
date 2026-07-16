@@ -9,13 +9,13 @@ import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import ActivityCard from "./components/ActivityCard";
 import { CATEGORIES, categoryToEnglishLabel } from "@/constants/categories";
+import { coverImageSrc } from "@/lib/cloudinary-url";
 
 function MobileSlider({ posts }: { posts: Post[] }) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
   const [animating, setAnimating] = useState(false);
   const featured = posts.slice(0, 5);
-  if (featured.length === 0) return null;
 
   const goTo = (next: number) => {
     if (animating) return;
@@ -24,19 +24,21 @@ function MobileSlider({ posts }: { posts: Post[] }) {
   };
 
   useEffect(() => {
+    if (featured.length === 0) return;
     const timer = setInterval(() => {
       goTo((index + 1) % featured.length);
     }, 4000);
     return () => clearInterval(timer);
   }, [index, featured.length]);
 
+  if (featured.length === 0) return null;
   const current = featured[index];
 
   return (
     <div className="relative">
       <div className="overflow-hidden" onClick={() => router.push(`/posts/${current.slug}`)}>
         <div className={`relative w-full aspect-video transition-opacity duration-300 ${animating ? "opacity-0" : "opacity-100"}`}>
-          {current.imageUrl ? <FallbackImage src={`/api/notion-image?pageId=${current.id}`} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />}
+          {current.imageUrl ? <FallbackImage src={coverImageSrc(current.imageUrl, current.id)} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute top-[2vw] left-[2vw] flex gap-[1.5vw]">
             {current.isFeatured && <span className="bg-white text-[#092040] text-[2.5vw] font-bold px-[2.5vw] py-[1vw] rounded-full">おすすめ</span>}
@@ -67,22 +69,23 @@ function HeroSlider({ posts }: { posts: Post[] }) {
   const [index, setIndex] = useState(0);
   const router = useRouter();
   const featured = posts.filter((p) => p.isFeatured);
-  if (featured.length === 0) return <div className="w-full aspect-video bg-gray-100" />;
-  const current = featured[index];
 
   useEffect(() => {
+    if (featured.length === 0) return;
     const timer = setInterval(() => {
       setIndex((i) => (i + 1) % featured.length);
     }, 4000);
     return () => clearInterval(timer);
   }, [featured.length]);
 
+  if (featured.length === 0) return <div className="w-full aspect-video bg-gray-100" />;
+  const current = featured[index];
   const categoryLabel = categoryToEnglishLabel(current.category);
 
   return (
     <div className="group relative w-full aspect-video overflow-hidden cursor-pointer"
       onClick={() => router.push(`/posts/${current.slug}`)}>
-      {current.imageUrl ? <FallbackImage src={`/api/notion-image?pageId=${current.id}`} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-100" />}
+      {current.imageUrl ? <FallbackImage src={coverImageSrc(current.imageUrl, current.id)} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-100" />}
       {/* テキスト可読性のためのボトムグラデ（写真は極力そのまま、下だけ軽く暗く。紺のかぶせは廃止） */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 

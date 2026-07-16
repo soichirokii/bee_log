@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { getPublishedPosts, getPopularTags } from "@/lib/notion";
 import TopPageClient from "./TopPageClient";
 
-export const dynamic = "force-dynamic";
+// ISR: 60秒ごとに再生成しCDNからHTMLを配信（データ側のfetchキャッシュも60秒で、実質の更新頻度は従来と同じ）
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   alternates: {
