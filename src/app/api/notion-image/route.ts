@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { toCloudinaryUrl } from "@/lib/cloudinary-url";
+import { toCloudinaryUrl, CARD_TRANSFORM } from "@/lib/cloudinary-url";
 
 const notionHeaders = {
   Authorization: `Bearer ${process.env.NOTION_TOKEN!}`,
@@ -48,10 +48,6 @@ async function isBlockOnPublishedPage(
   return false;
 }
 
-// Cloudinary画像を全カード共通の見た目に揃える変換。
-// c_fill,g_auto: 16:9にスマート切り抜き（AIが重要部分を残す）/ f_auto,q_auto: 自動WebP化・容量最適化 / w_1200: 解像度上限
-const CLOUDINARY_TRANSFORM = "c_fill,g_auto,ar_16:9,f_auto,q_auto,w_1200";
-
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const pageId = searchParams.get("pageId");
@@ -75,7 +71,7 @@ export async function GET(request: NextRequest) {
       const files = page.properties?.["ファイル&メディア"]?.files;
       const url: string | undefined = files?.[0]?.file?.url ?? files?.[0]?.external?.url;
       if (!url) return NextResponse.redirect(new URL(NOIMAGE, origin));
-      return NextResponse.redirect(toCloudinaryUrl(url, CLOUDINARY_TRANSFORM), {
+      return NextResponse.redirect(toCloudinaryUrl(url, CARD_TRANSFORM), {
         status: 302,
         headers: { "Cache-Control": CACHE_HEADER },
       });
@@ -98,7 +94,7 @@ export async function GET(request: NextRequest) {
       const url: string | undefined =
         img?.type === "external" ? img.external?.url : img?.file?.url;
       if (!url) return new NextResponse(null, { status: 404 });
-      return NextResponse.redirect(toCloudinaryUrl(url, CLOUDINARY_TRANSFORM), {
+      return NextResponse.redirect(toCloudinaryUrl(url, CARD_TRANSFORM), {
         status: 302,
         headers: { "Cache-Control": CACHE_HEADER },
       });

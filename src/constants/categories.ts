@@ -6,14 +6,11 @@ export type Category = {
 export const CATEGORIES: Category[] = [
   { name: "コンテスト・大会", slug: "contest" },
   { name: "インターンシップ", slug: "internship" },
-  { name: "ボランティア", slug: "volunteer" },
   { name: "留学・国際", slug: "study-abroad" },
   { name: "研究・論文", slug: "research" },
   { name: "起業・ビジネス", slug: "business" },
-  { name: "奨学金", slug: "scholarship" },
   { name: "科学・テクノロジー", slug: "science-tech" },
   { name: "イベント", slug: "event" },
-  { name: "政治", slug: "politics" },
 ];
 
 // 後方互換: カテゴリ名だけの配列を参照している箇所（検索フィルタ等）向け

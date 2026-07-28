@@ -1,17 +1,9 @@
-import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { verifyCronAuth } from "@/lib/cron-auth";
 
 export async function POST(request: NextRequest) {
-  const authHeader = request.headers.get("Authorization");
-  const cronSecret = process.env.CRON_SECRET;
-  const expected = `Bearer ${cronSecret}`;
-  const authorized =
-    !!cronSecret &&
-    !!authHeader &&
-    authHeader.length === expected.length &&
-    timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
-  if (!authorized) {
+  if (!verifyCronAuth(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -1,6 +1,5 @@
 import { getPostWithContentBySlug, getPostBySlug, getAllPublishedSlugs, getPublishedPosts } from "@/lib/notion";
-import { Post, PostWithContent } from "@/types/notion";
-import { NotionBlock, RichText } from "@/types/notion";
+import { Post, PostWithContent, NotionBlock, RichText } from "@/types/notion";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -285,7 +284,7 @@ export default async function PostDetailPage({
           <div className="flex-1 p-6 md:p-8">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
               {post.deadline && (
-                <div className={`p-3 border-b border-gray-200 ${daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? "" : ""}`}>
+                <div className="p-3 border-b border-gray-200">
                   <div className="text-xs text-gray-400 mb-1">応募締切</div>
                   <div className={`text-sm font-bold flex items-center gap-1.5 ${daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? "text-[#EF4444]" : "text-[#092040]"}`}>
                     <Image src="/icons/Calendar.svg" alt="" width={16} height={16} />

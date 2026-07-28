@@ -10,6 +10,7 @@ import ActivityCard from "../components/ActivityCard";
 import { FAB_BASE_CLASS } from "../components/MobileSearchFab";
 import { CATEGORY_NAMES, CATEGORY_TAG_CLASS, GRADES, FORMATS } from "@/constants/categories";
 import { getPeriodLabel } from "@/lib/period";
+import { isFree } from "@/lib/fee";
 
 /* ① カウントアップフック */
 function useCountUp(target: number, duration = 400) {
@@ -117,6 +118,18 @@ function SearchInner({ posts, keyword, setKeyword }: {
   const [pullDist, setPullDist] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  // 現在のフィルター状態から検索クエリ（q〜free）を組み立てる。URL同期・検索実行で共通利用。
+  const buildBaseParams = () => {
+    const params = new URLSearchParams();
+    if (keyword.trim()) params.set("q", keyword.trim());
+    if (selectedCategories.length) params.set("category", selectedCategories.join(","));
+    if (selectedGrades.length) params.set("grade", selectedGrades.join(","));
+    if (selectedFormats.length) params.set("format", selectedFormats[0]);
+    if (selectedPeriods.length) params.set("period", selectedPeriods.join(","));
+    if (freeOnly) params.set("free", "1");
+    return params;
+  };
+
   // URL → 状態（シェアURLや戻るボタンで状態を復元）
   useEffect(() => {
     if (skipUrlToStateRef.current) {
@@ -133,15 +146,9 @@ function SearchInner({ posts, keyword, setKeyword }: {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [searchParams]);
 
-  // 状態 → URL（フィルター変更時にURLを更新）
+  // 状態 → URL（フィルター変更時にURLを更新。keyword入力中はURLを書き換えない＝depsに含めない）
   useEffect(() => {
-    const params = new URLSearchParams();
-    if (keyword.trim()) params.set("q", keyword.trim());
-    if (selectedCategories.length) params.set("category", selectedCategories.join(","));
-    if (selectedGrades.length) params.set("grade", selectedGrades.join(","));
-    if (selectedFormats.length) params.set("format", selectedFormats[0]);
-    if (selectedPeriods.length) params.set("period", selectedPeriods.join(","));
-    if (freeOnly) params.set("free", "1");
+    const params = buildBaseParams();
     if (page > 1) params.set("page", String(page));
     skipUrlToStateRef.current = true;
     router.replace(`/search?${params.toString()}`, { scroll: false });
@@ -193,14 +200,8 @@ function SearchInner({ posts, keyword, setKeyword }: {
   };
 
   const handleSearch = useCallback(() => {
-    const params = new URLSearchParams();
-    if (keyword.trim()) params.set("q", keyword.trim());
-    if (selectedCategories.length) params.set("category", selectedCategories.join(","));
-    if (selectedGrades.length) params.set("grade", selectedGrades.join(","));
-    if (selectedFormats.length) params.set("format", selectedFormats[0]);
-    if (selectedPeriods.length) params.set("period", selectedPeriods.join(","));
-    if (freeOnly) params.set("free", "1");
-    router.push(`/search?${params.toString()}`);
+    router.push(`/search?${buildBaseParams().toString()}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keyword, selectedCategories, selectedGrades, selectedFormats, selectedPeriods, freeOnly, router]);
 
   const activeFilterCount = selectedCategories.length + selectedGrades.length + selectedFormats.length + selectedPeriods.length + (freeOnly ? 1 : 0);
@@ -218,7 +219,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
     if (selectedGrades.length > 0) result = result.filter((p) => selectedGrades.every((g) => p.targetGrade.includes(g)));
     if (selectedFormats.length > 0) result = result.filter((p) => selectedFormats.includes(p.format));
     if (selectedPeriods.length > 0) result = result.filter((p) => { const l = getPeriodLabel(p.period); return l !== null && selectedPeriods.includes(l); });
-    if (freeOnly) result = result.filter((p) => p.fee === "無料" || p.fee === "0円" || p.fee === "0");
+    if (freeOnly) result = result.filter((p) => isFree(p.fee));
     // 常に締切が近い順で表示（締切なしは末尾）
     result = [...result].sort((a, b) => {
       if (!a.deadline) return 1;
@@ -309,7 +310,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
         type="button"
         aria-label={filterOpen ? "絞り込みを閉じる" : "絞り込み"}
         onClick={() => setFilterOpen((v) => !v)}
-        className={`${FAB_BASE_CLASS} mobile-fab bottom-[88px]`}
+        className={`${FAB_BASE_CLASS} mobile-fab bottom-[calc(env(safe-area-inset-bottom,0px)+6.25rem)]`}
       >
         {filterOpen ? (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">

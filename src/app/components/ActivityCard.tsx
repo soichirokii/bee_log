@@ -7,6 +7,7 @@ import { Post } from "@/types/notion";
 import { CATEGORY_TAG_CLASS, SEASON_TAGS } from "@/constants/categories";
 import { daysUntilJst } from "@/lib/date";
 import { getPeriodLabel } from "@/lib/period";
+import { isFree } from "@/lib/fee";
 import { coverImageSrc } from "@/lib/cloudinary-url";
 
 // 締切表示の出し分け:
@@ -29,7 +30,7 @@ export default function ActivityCard({
   const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
   const seasonTag = post.tags.find((t) => SEASON_TAGS.includes(t));
   const periodLabel = getPeriodLabel(post.period);
-  const isFree = post.fee === "無料" || post.fee === "0円" || post.fee === "0";
+  const free = isFree(post.fee);
 
   return (
     <Link
@@ -69,7 +70,7 @@ export default function ActivityCard({
 
         {/* 右上バッジ */}
         <div className="absolute top-2 right-2 z-20 flex flex-col gap-1 items-end">
-          {isFree && <span className="bg-[#4ADE80] text-white text-xs font-bold px-2 py-1 rounded-full">無料</span>}
+          {free && <span className="bg-[#4ADE80] text-white text-xs font-bold px-2 py-1 rounded-full">無料</span>}
           {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && (
             <span className="relative inline-flex">
               <span className="absolute inset-0 bg-[#EF4444] rounded-full animate-ping opacity-60" />
@@ -87,7 +88,7 @@ export default function ActivityCard({
         </div>
         <h3 className="text-[#092040] text-xl font-bold line-clamp-2">{post.title}</h3>
         {deadlineStyle === "count" && post.deadline && daysLeft !== null && (
-          <p className={`text-xs mt-1.5 font-bold ${daysLeft < 0 ? "text-gray-400" : daysLeft === 0 ? "text-[#EF4444]" : daysLeft <= 7 ? "text-[#EF4444]" : "text-gray-400"}`}>
+          <p className={`text-xs mt-1.5 font-bold ${daysLeft < 0 ? "text-gray-400" : daysLeft <= 7 ? "text-[#EF4444]" : "text-gray-400"}`}>
             {daysLeft < 0 ? "締切済み" : daysLeft === 0 ? "本日締切" : `あと${daysLeft}日`}
           </p>
         )}

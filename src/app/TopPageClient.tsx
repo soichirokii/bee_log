@@ -9,6 +9,7 @@ import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import ActivityCard from "./components/ActivityCard";
 import { CATEGORIES, categoryToEnglishLabel } from "@/constants/categories";
+import { isFree } from "@/lib/fee";
 import { coverImageSrc } from "@/lib/cloudinary-url";
 
 function MobileSlider({ posts }: { posts: Post[] }) {
@@ -42,7 +43,7 @@ function MobileSlider({ posts }: { posts: Post[] }) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute top-[2vw] left-[2vw] flex gap-[1.5vw]">
             {current.isFeatured && <span className="bg-white text-[#092040] text-[2.5vw] font-bold px-[2.5vw] py-[1vw] rounded-full">おすすめ</span>}
-            {(current.fee === "無料" || current.fee === "0円" || current.fee === "0") && <span className="bg-[#4ADE80] text-white text-[2.5vw] font-bold px-[2.5vw] py-[1vw] rounded-full">無料</span>}
+            {isFree(current.fee) && <span className="bg-[#4ADE80] text-white text-[2.5vw] font-bold px-[2.5vw] py-[1vw] rounded-full">無料</span>}
           </div>
           <div className="absolute bottom-[3vw] left-[3vw] right-[3vw]">
             <h3 className="text-white text-[4vw] font-black leading-tight drop-shadow line-clamp-2">{current.title}</h3>

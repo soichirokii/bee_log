@@ -16,6 +16,8 @@ export default function MobileSearchFab() {
   const [searchBoxVisible, setSearchBoxVisible] = useState(true);
   const [open, setOpen] = useState(false);
   const [keyword, setKeyword] = useState("");
+  // ソフトキーボードの高さ（visualViewportで検知）。0 = 閉じている。
+  const [keyboardInset, setKeyboardInset] = useState(0);
 
   useEffect(() => {
     if (!hasSearchBox) return;
@@ -38,6 +40,25 @@ export default function MobileSearchFab() {
     if (open) inputRef.current?.focus();
   }, [open]);
 
+  // ソフトキーボードの高さを visualViewport で監視。
+  // iOS/Android とも、キーボード表示時は visualViewport.height がその分縮む。
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const update = () => {
+      const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      // 数pxの誤差でチラつかないよう、実質キーボードのみ反応させる
+      setKeyboardInset(inset > 80 ? inset : 0);
+    };
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+    };
+  }, []);
+
   const visible = isPostPage || (hasSearchBox && !searchBoxVisible);
   if (!visible) return null;
 
@@ -53,9 +74,19 @@ export default function MobileSearchFab() {
     setKeyword("");
   };
 
+  // 通常時の位置（safe-area分を上乗せしてホームインジケーターに被らせない）。
+  // 記事ページは応募バーの上に出すため従来どおり高め。
+  const restBottom = isPostPage
+    ? "104px"
+    : "calc(env(safe-area-inset-bottom, 0px) + 2.25rem)";
+  // 検索窓を開いてキーボードが出ている間は、その真上に浮かせて隠れないようにする。
+  const bottom =
+    open && keyboardInset > 0 ? `${keyboardInset + 12}px` : restBottom;
+
   return (
     <div
-      className={`mobile-fab fixed right-4 z-50 flex items-center md:hidden ${isPostPage ? "bottom-[104px]" : "bottom-6"}`}
+      className="mobile-fab fixed right-4 z-50 flex items-center md:hidden transition-[bottom] duration-200 ease-out motion-reduce:transition-none"
+      style={{ bottom }}
     >
       <div
         className={`flex items-center overflow-hidden bg-[#FFFFF0] border-2 border-[#092040] rounded-full transition-[width,opacity,margin,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${

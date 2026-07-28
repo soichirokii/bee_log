@@ -181,7 +181,7 @@ function createForm() {
   // カテゴリ（プルダウン）
   form.addListItem()
     .setTitle("カテゴリ")
-    .setChoiceValues(["コンテスト", "研究・論文", "ボランティア", "インターン", "留学・海外", "講座・スクール", "その他"]);
+    .setChoiceValues(["コンテスト", "研究・論文", "インターン", "留学・海外", "講座・スクール", "その他"]);
 
   // 応募締切日（短文）
   form.addTextItem()

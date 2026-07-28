@@ -1,8 +1,8 @@
-import { timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getPublishedPosts } from "@/lib/notion";
 import { BASE_URL } from "@/constants/site";
 import { daysUntilJst } from "@/lib/date";
+import { verifyCronAuth } from "@/lib/cron-auth";
 
 // 必要な環境変数:
 //   LINE_CHANNEL_ACCESS_TOKEN ... LINE Messaging API のチャネルアクセストークン
@@ -13,15 +13,7 @@ import { daysUntilJst } from "@/lib/date";
 
 export async function GET(req: NextRequest) {
   // ── セキュリティ検証 ──────────────────────────────────────
-  const authHeader = req.headers.get("Authorization");
-  const cronSecret = process.env.CRON_SECRET;
-  const expected = `Bearer ${cronSecret}`;
-  const authorized =
-    !!cronSecret &&
-    !!authHeader &&
-    authHeader.length === expected.length &&
-    timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected));
-  if (!authorized) {
+  if (!verifyCronAuth(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
