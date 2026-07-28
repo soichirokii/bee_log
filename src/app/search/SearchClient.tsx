@@ -310,7 +310,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
         type="button"
         aria-label={filterOpen ? "絞り込みを閉じる" : "絞り込み"}
         onClick={() => setFilterOpen((v) => !v)}
-        className={`${FAB_BASE_CLASS} mobile-fab bottom-[calc(env(safe-area-inset-bottom,0px)+6.25rem)]`}
+        className={`${FAB_BASE_CLASS} mobile-fab bottom-[calc(env(safe-area-inset-bottom,0px)+7.5rem)]`}
       >
         {filterOpen ? (
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2.5" strokeLinecap="round">

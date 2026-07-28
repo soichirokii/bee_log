@@ -78,7 +78,7 @@ export default function MobileSearchFab() {
   // 記事ページは応募バーの上に出すため従来どおり高め。
   const restBottom = isPostPage
     ? "104px"
-    : "calc(env(safe-area-inset-bottom, 0px) + 2.25rem)";
+    : "calc(env(safe-area-inset-bottom, 0px) + 3.5rem)";
   // 検索窓を開いてキーボードが出ている間は、その真上に浮かせて隠れないようにする。
   const bottom =
     open && keyboardInset > 0 ? `${keyboardInset + 12}px` : restBottom;
