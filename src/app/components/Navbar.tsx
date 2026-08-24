@@ -114,8 +114,8 @@ export default function Navbar() {
         <nav
           className={`hidden md:flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             scrolled
-              ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-8 py-4 overflow-hidden"
-              : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFEE] px-16 py-4"
+              ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,240,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-8 py-4 overflow-hidden"
+              : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFF0] px-16 py-4"
           }`}
         >
           <Link href="/" className="mr-8 shrink-0">
@@ -188,8 +188,8 @@ export default function Navbar() {
         <nav
           className={`md:hidden flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
             scrolled
-              ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,238,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[6vw] py-[3.5vw]"
-              : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFEE] px-[5vw] py-[3vw]"
+              ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,240,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[6vw] py-[3.5vw]"
+              : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFF0] px-[5vw] py-[3vw]"
           }`}
         >
           <div className="flex-1" />
@@ -210,9 +210,9 @@ export default function Navbar() {
               aria-label={menuOpen ? "メニューを閉じる" : "メニューを開く"}
               className={`relative z-[60] w-10 h-10 flex flex-col items-center justify-center gap-[5px] rounded-full transition-colors duration-[400ms] motion-reduce:transition-none ${menuOpen ? "bg-[#092040]" : ""}`}
             >
-              <span className={`block w-[22px] h-[2px] transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFEE] translate-y-[7.5px] rotate-45" : "bg-[#092040]"}`} />
-              <span className={`block w-[22px] h-[2px] transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFEE] -rotate-45" : "bg-[#092040]"}`} />
-              <span className={`block w-[22px] h-[2px] transition-[opacity,transform] duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFEE] -translate-y-[7.5px] rotate-45 opacity-0" : "bg-[#092040]"}`} />
+              <span className={`block w-[22px] h-[2px] transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFF0] translate-y-[7.5px] rotate-45" : "bg-[#092040]"}`} />
+              <span className={`block w-[22px] h-[2px] transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFF0] -rotate-45" : "bg-[#092040]"}`} />
+              <span className={`block w-[22px] h-[2px] transition-[opacity,transform] duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] motion-reduce:transition-none motion-reduce:transform-none ${menuOpen ? "bg-[#FFFFF0] -translate-y-[7.5px] rotate-45 opacity-0" : "bg-[#092040]"}`} />
             </button>
           </div>
         </nav>

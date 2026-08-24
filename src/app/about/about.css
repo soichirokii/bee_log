@@ -1440,7 +1440,7 @@ img {
   display: flex;
   align-items: center;
   padding: 16px 64px;
-  background: #FFFFEE;
+  background: #FFFFF0;
   border-bottom: 2px solid var(--navy);
 }
 
@@ -1503,7 +1503,7 @@ img {
   display: flex;
   align-items: center;
   padding: 3vw 5vw;
-  background: #FFFFEE;
+  background: #FFFFF0;
   border-bottom: 2px solid var(--navy);
 }
 
@@ -1578,7 +1578,7 @@ img {
 .about-mobile-overlay-header {
   display: flex;
   align-items: center;
-  background: #FFFFEE;
+  background: #FFFFF0;
   border-bottom: 2px solid var(--navy);
   padding: 3vw 5vw;
   flex-shrink: 0;
