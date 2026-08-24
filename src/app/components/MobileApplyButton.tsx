@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ApplyButton from "@/app/components/ApplyButton";
 
 type Props = {
   applyUrl: string;
   daysLeft: number | null;
+  activityId: string;
+  slug: string;
 };
 
-export default function MobileApplyButton({ applyUrl, daysLeft }: Props) {
+export default function MobileApplyButton({ applyUrl, daysLeft, activityId, slug }: Props) {
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
@@ -44,10 +47,8 @@ export default function MobileApplyButton({ applyUrl, daysLeft }: Props) {
           </div>
         )}
         {applyUrl ? (
-          <a href={applyUrl} target="_blank" rel="noopener noreferrer"
-            className="flex-1 bg-[#092040] text-white font-bold text-center py-4 rounded-2xl transition-all duration-200 hover:bg-[#FCBC2A] hover:text-[#092040] active:scale-95">
-            応募する →
-          </a>
+          <ApplyButton applyUrl={applyUrl} activityId={activityId} slug={slug}
+            className="flex-1 bg-[#092040] text-white font-bold text-center py-4 rounded-2xl transition-all duration-200 hover:bg-[#FCBC2A] hover:text-[#092040] active:scale-95" />
         ) : (
           <div className="flex-1 bg-gray-100 text-gray-400 font-bold text-center py-4 rounded-2xl">
             応募URLなし

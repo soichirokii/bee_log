@@ -9,6 +9,7 @@
     "migrate-images": "npx ts-node --project tsconfig.json scripts/migrate-images.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.112.3",
     "@vercel/analytics": "^1.6.1",
     "cloudinary": "^2.10.0",
     "gsap": "^3.15.0",

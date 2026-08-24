@@ -9,6 +9,7 @@ import { daysUntilJst } from "@/lib/date";
 import { getPeriodLabel } from "@/lib/period";
 import { isFree } from "@/lib/fee";
 import { coverImageSrc } from "@/lib/cloudinary-url";
+import { track } from "@/lib/track";
 
 // 締切表示の出し分け:
 //   "none"  … 表示しない（トップページ）
@@ -37,6 +38,11 @@ export default function ActivityCard({
       href={`/posts/${post.slug}`}
       className="activity-card group relative block bg-[#FFFFF0]"
       style={{ fontFamily: "'toppan-bunkyu-midashi-gothic', sans-serif" }}
+      onClick={() => track("card_click", {
+        activity_id: post.id,
+        slug: post.slug,
+        metadata: { category: post.category, tags: post.tags },
+      })}
     >
       {/* 画像コンテナ：overflow-hidden はここだけ（角丸なし・常に直角） */}
       <div className="relative w-full aspect-video overflow-hidden bg-gray-200">
@@ -58,7 +64,7 @@ export default function ActivityCard({
 
         {/* 右上起点の円形リビール＋VIEW MORE。clip-pathは .card-reveal / .activity-card:hover で定義 */}
         <div className="card-reveal z-10">
-          <span className="text-[#FFFFEE] text-[13px] font-semibold tracking-[0.2em]">VIEW MORE</span>
+          <span className="text-[#FFFFF0] text-[13px] font-semibold tracking-[0.2em]">VIEW MORE</span>
         </div>
 
         {/* 左上バッジ */}

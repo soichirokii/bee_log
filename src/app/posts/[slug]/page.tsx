@@ -7,6 +7,8 @@ import FallbackImage from "@/components/FallbackImage";
 import Link from "next/link";
 import ShareButton from "@/app/components/ShareButton";
 import MobileApplyButton from "@/app/components/MobileApplyButton";
+import ApplyButton from "@/app/components/ApplyButton";
+import TrackPageView from "@/app/components/TrackPageView";
 import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
 import ActivityCard from "@/app/components/ActivityCard";
@@ -225,6 +227,7 @@ export default async function PostDetailPage({
 
   return (
     <div className="min-h-screen bg-[#FFFFF0]">
+      <TrackPageView activityId={post.id} slug={post.slug} category={post.category} tags={post.tags} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(articleJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbJsonLd) }} />
 
@@ -378,10 +381,8 @@ export default async function PostDetailPage({
           <div className="md:w-64 shrink-0">
             <div className="bg-[#FFFFF0] p-6 sticky top-24">
               {post.applyUrl ? (
-                <a id="apply-button-sidebar" href={post.applyUrl} target="_blank" rel="noopener noreferrer"
-                  className="block w-full bg-[#092040] text-white font-bold text-center py-4 rounded-xl transition-all duration-200 hover:bg-[#FCBC2A] hover:text-[#092040] hover:scale-[1.02] active:scale-95 mb-3">
-                  応募する →
-                </a>
+                <ApplyButton id="apply-button-sidebar" applyUrl={post.applyUrl} activityId={post.id} slug={post.slug}
+                  className="block w-full bg-[#092040] text-white font-bold text-center py-4 rounded-xl transition-all duration-200 hover:bg-[#FCBC2A] hover:text-[#092040] hover:scale-[1.02] active:scale-95 mb-3" />
               ) : (
                 <div className="w-full bg-gray-100 text-gray-400 font-bold text-center py-4 mb-3">
                   応募URLなし
@@ -431,7 +432,7 @@ export default async function PostDetailPage({
         </section>
       )}
 
-      <MobileApplyButton applyUrl={post.applyUrl} daysLeft={daysLeft} />
+      <MobileApplyButton applyUrl={post.applyUrl} daysLeft={daysLeft} activityId={post.id} slug={post.slug} />
       <div className="md:hidden h-24" />
       <Footer />
     </div>

@@ -8,6 +8,7 @@ import {
   RichText,
 } from "@/types/notion";
 import { todayJst } from "@/lib/date";
+import { getSupabase } from "@/lib/supabase";
 
 const NOTION_TOKEN = process.env.NOTION_TOKEN!;
 const DATABASE_ID = process.env.NOTION_DATABASE_ID!;
@@ -234,12 +235,35 @@ const computePopularTags = unstable_cache(
   { revalidate: 21600 }
 );
 
+const getTrackedPopularTags = unstable_cache(
+  async (limit: number): Promise<string[]> => {
+    const supabase = getSupabase();
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from("tag_stats")
+      .select("tag")
+      .order("view_count", { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data ?? []).map(({ tag }) => tag).filter(Boolean);
+  },
+  ["tracked-popular-tags"],
+  { revalidate: 21600 }
+);
+
 export async function getPopularTags(limit: number = 5): Promise<string[]> {
   try {
+    const trackedTags = await getTrackedPopularTags(limit);
+    if (trackedTags.length > 0) return trackedTags;
     const tags = await computePopularTags(limit);
     return tags.length > 0 ? tags : DEFAULT_POPULAR_TAGS;
   } catch {
-    return DEFAULT_POPULAR_TAGS;
+    try {
+      const tags = await computePopularTags(limit);
+      return tags.length > 0 ? tags : DEFAULT_POPULAR_TAGS;
+    } catch {
+      return DEFAULT_POPULAR_TAGS;
+    }
   }
 }
 

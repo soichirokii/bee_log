@@ -11,6 +11,7 @@ import { FAB_BASE_CLASS } from "../components/MobileSearchFab";
 import { CATEGORY_NAMES, CATEGORY_TAG_CLASS, GRADES, FORMATS } from "@/constants/categories";
 import { getPeriodLabel } from "@/lib/period";
 import { isFree } from "@/lib/fee";
+import { track } from "@/lib/track";
 
 /* ① カウントアップフック */
 function useCountUp(target: number, duration = 400) {
@@ -108,6 +109,8 @@ function SearchInner({ posts, keyword, setKeyword }: {
   /* ⑦ ページ切替トランジション */
   const [cardsVisible, setCardsVisible] = useState(true);
   const skipUrlToStateRef = useRef(false);
+  const skipFilterTrackingRef = useRef(true);
+  const previousKeywordRef = useRef(keyword);
   const goToPage = useCallback((p: number) => {
     setCardsVisible(false);
     setTimeout(() => { setPage(p); setCardsVisible(true); }, 180);
@@ -136,12 +139,19 @@ function SearchInner({ posts, keyword, setKeyword }: {
       skipUrlToStateRef.current = false;
       return;
     }
-    setKeyword(searchParams.get("q") ?? "");
-    setSelectedCategories(searchParams.get("category")?.split(",").filter(Boolean) ?? []);
-    setSelectedGrades(searchParams.get("grade")?.split(",").filter(Boolean) ?? []);
-    setSelectedFormats(searchParams.get("format") ? [searchParams.get("format")!] : []);
-    setSelectedPeriods(searchParams.get("period")?.split(",").filter(Boolean) ?? []);
-    setFreeOnly(searchParams.get("free") === "1");
+    const restoredKeyword = searchParams.get("q") ?? "";
+    const restoredCategories = searchParams.get("category")?.split(",").filter(Boolean) ?? [];
+    const restoredGrades = searchParams.get("grade")?.split(",").filter(Boolean) ?? [];
+    const restoredFormats = searchParams.get("format") ? [searchParams.get("format")!] : [];
+    const restoredPeriods = searchParams.get("period")?.split(",").filter(Boolean) ?? [];
+    const restoredFreeOnly = searchParams.get("free") === "1";
+    skipFilterTrackingRef.current = true;
+    setKeyword(restoredKeyword);
+    setSelectedCategories(restoredCategories);
+    setSelectedGrades(restoredGrades);
+    setSelectedFormats(restoredFormats);
+    setSelectedPeriods(restoredPeriods);
+    setFreeOnly(restoredFreeOnly);
     setPage(Number(searchParams.get("page")) || 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [searchParams]);
@@ -153,6 +163,37 @@ function SearchInner({ posts, keyword, setKeyword }: {
     skipUrlToStateRef.current = true;
     router.replace(`/search?${params.toString()}`, { scroll: false });
   }, [selectedCategories, selectedGrades, selectedFormats, selectedPeriods, freeOnly, page]);
+
+  // URL復元時は送らず、ユーザー操作で更新された後のフィルター状態だけを記録する。
+  // keywordだけは打鍵ごとの送信を避けるためデバウンスする。
+  useEffect(() => {
+    if (skipFilterTrackingRef.current) {
+      skipFilterTrackingRef.current = false;
+      previousKeywordRef.current = keyword;
+      return;
+    }
+
+    const metadata = {
+      keyword: keyword.trim(),
+      categories: selectedCategories,
+      grades: selectedGrades,
+      formats: selectedFormats,
+      periods: selectedPeriods,
+      freeOnly,
+    };
+    const keywordChanged = previousKeywordRef.current !== keyword;
+    previousKeywordRef.current = keyword;
+
+    if (!keywordChanged) {
+      void track("filter_apply", { metadata });
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      void track("filter_apply", { metadata });
+    }, 500);
+    return () => window.clearTimeout(timeoutId);
+  }, [keyword, selectedCategories, selectedGrades, selectedFormats, selectedPeriods, freeOnly]);
 
   /* ⑨ Pull-to-refresh イベント */
   useEffect(() => {
@@ -322,7 +363,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
           </svg>
         )}
         {!filterOpen && activeFilterCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-[#EF4444] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold border-2 border-[#FFFFEE]">
+          <span className="absolute -top-1 -right-1 bg-[#EF4444] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold border-2 border-[#FFFFF0]">
             {activeFilterCount}
           </span>
         )}
@@ -333,7 +374,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
         <div className="fixed inset-0 z-40 md:hidden" onClick={() => setFilterOpen(false)}>
           <div className="absolute inset-0 bg-black/30" />
           <div
-            className="absolute bottom-0 left-0 right-0 bg-[#FFFFEE] border-t-2 border-[#092040] rounded-t-[24px] max-h-[80vh] overflow-y-auto animate-[bottomSheetIn_400ms_cubic-bezier(0.22,1,0.36,1)_forwards] motion-reduce:animate-none"
+            className="absolute bottom-0 left-0 right-0 bg-[#FFFFF0] border-t-2 border-[#092040] rounded-t-[24px] max-h-[80vh] overflow-y-auto animate-[bottomSheetIn_400ms_cubic-bezier(0.22,1,0.36,1)_forwards] motion-reduce:animate-none"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-center pt-3 pb-1">
@@ -436,7 +477,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
 
           {/* ⑦ ページ切替トランジション + ⑥ カードfadeIn */}
           {paginated.length === 0 ? (
-            <div className="bg-[#FFFFEE] rounded-2xl p-10 text-center">
+            <div className="bg-[#FFFFF0] rounded-2xl p-10 text-center">
               <div className="flex flex-col items-center gap-4">
                 <p className="font-bold text-[#092040]">その活動、まだ載ってないかも🐝</p>
                 <p className="text-sm text-gray-400">条件を変えて探してみよう</p>
