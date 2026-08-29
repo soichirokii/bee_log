@@ -24,9 +24,11 @@ type DeadlineStyle = "none" | "count" | "date";
 export default function ActivityCard({
   post,
   deadlineStyle = "none",
+  imagePriority = false,
 }: {
   post: Post;
   deadlineStyle?: DeadlineStyle;
+  imagePriority?: boolean;
 }) {
   const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
   const seasonTag = post.tags.find((t) => SEASON_TAGS.includes(t));
@@ -51,6 +53,8 @@ export default function ActivityCard({
             src={coverImageSrc(post.imageUrl, post.id)}
             alt={post.title}
             fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            priority={imagePriority}
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           />
         ) : (
@@ -58,6 +62,8 @@ export default function ActivityCard({
             src="/noimage.svg"
             alt="No Image"
             fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            priority={imagePriority}
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           />
         )}
@@ -70,18 +76,15 @@ export default function ActivityCard({
         {/* 左上バッジ */}
         <div className="absolute top-2 left-2 z-20 flex gap-1 flex-wrap max-w-[70%]">
           {post.isFeatured && <span className="bg-white text-[#092040] text-xs font-bold px-2 py-1 rounded-full border border-gray-200">おすすめ</span>}
-          {seasonTag && <span className="bg-[#F59E0B] text-white text-xs font-bold px-2 py-1 rounded-full">{seasonTag}</span>}
+          {seasonTag && <span className="bg-[#F59E0B] text-[#092040] text-xs font-bold px-2 py-1 rounded-full">{seasonTag}</span>}
           {periodLabel && <span className="bg-[#092040] text-white text-xs font-bold px-2 py-1 rounded-full">{periodLabel}</span>}
         </div>
 
         {/* 右上バッジ */}
         <div className="absolute top-2 right-2 z-20 flex flex-col gap-1 items-end">
-          {free && <span className="bg-[#4ADE80] text-white text-xs font-bold px-2 py-1 rounded-full">無料</span>}
+          {free && <span className="bg-[#4ADE80] text-[#092040] text-xs font-bold px-2 py-1 rounded-full">無料</span>}
           {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && (
-            <span className="relative inline-flex">
-              <span className="absolute inset-0 bg-[#EF4444] rounded-full animate-ping opacity-60" />
-              <span className="relative bg-[#EF4444] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>
-            </span>
+            <span className="bg-[#DC2626] text-white text-xs font-bold px-2 py-1 rounded-full">締切間近</span>
           )}
         </div>
       </div>
@@ -90,16 +93,16 @@ export default function ActivityCard({
       <div className="p-4 bg-[#FFFFF0]">
         <div className="flex items-center gap-2 text-xs mb-2 flex-wrap">
           {post.category && <span className={CATEGORY_TAG_CLASS}>{post.category}</span>}
-          {post.organizer && <span className="text-gray-400">{post.organizer}</span>}
+          {post.organizer && <span className="text-gray-500">{post.organizer}</span>}
         </div>
         <h3 className="text-[#092040] text-xl font-bold line-clamp-2">{post.title}</h3>
         {deadlineStyle === "count" && post.deadline && daysLeft !== null && (
-          <p className={`text-xs mt-1.5 font-bold ${daysLeft < 0 ? "text-gray-400" : daysLeft <= 7 ? "text-[#EF4444]" : "text-gray-400"}`}>
+          <p className={`text-xs mt-1.5 font-bold ${daysLeft < 0 ? "text-gray-500" : daysLeft <= 7 ? "text-[#DC2626]" : "text-gray-500"}`}>
             {daysLeft < 0 ? "締切済み" : daysLeft === 0 ? "本日締切" : `あと${daysLeft}日`}
           </p>
         )}
         {deadlineStyle === "date" && post.deadline && (
-          <p className={`text-xs mt-2 ${daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? "text-[#EF4444] font-bold" : "text-gray-400"}`}>
+          <p className={`text-xs mt-2 ${daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? "text-[#DC2626] font-bold" : "text-gray-500"}`}>
             締切: {new Date(post.deadline).toLocaleDateString("ja-JP")}
           </p>
         )}

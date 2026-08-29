@@ -280,7 +280,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
         <h3 className="text-sm font-bold text-[#092040] mb-2">カテゴリ</h3>
         {CATEGORY_NAMES.map((cat) => (
           <label key={cat} className="flex items-center gap-2 mb-2 cursor-pointer">
-            <input type="checkbox" checked={selectedCategories.includes(cat)} onChange={() => toggleItem(selectedCategories, setSelectedCategories, cat)} className="relative appearance-none shrink-0 w-4 h-4 border-2 border-[#092040] rounded bg-[#FFFFF0] checked:bg-[#092040] checked:after:content-[''] checked:after:absolute checked:after:left-[4px] checked:after:top-[1px] checked:after:w-[4px] checked:after:h-[8px] checked:after:border-white checked:after:border-b-2 checked:after:border-r-2 checked:after:rotate-45 focus:outline-none cursor-pointer" />
+            <input type="checkbox" checked={selectedCategories.includes(cat)} onChange={() => toggleItem(selectedCategories, setSelectedCategories, cat)} className="relative appearance-none shrink-0 w-4 h-4 border-2 border-[#092040] rounded bg-[#FFFFF0] checked:bg-[#092040] checked:after:content-[''] checked:after:absolute checked:after:left-[4px] checked:after:top-[1px] checked:after:w-[4px] checked:after:h-[8px] checked:after:border-white checked:after:border-b-2 checked:after:border-r-2 checked:after:rotate-45 cursor-pointer" />
             <span className="text-sm text-[#092040] font-medium">{cat}</span>
           </label>
         ))}
@@ -290,7 +290,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
         <div className="flex flex-wrap gap-2">
           {GRADES.map((grade) => (
             <button key={grade} onClick={() => toggleItem(selectedGrades, setSelectedGrades, grade)}
-              className={`px-3 py-1 rounded-full text-sm font-medium border-2 transition-colors ${selectedGrades.includes(grade) ? "bg-[#092040] border-[#092040] text-white" : "border-[#092040] text-[#092040] hover:bg-[#092040]/10"}`}>
+              className={`min-w-11 min-h-11 px-3 rounded-full text-sm font-medium border-2 transition-colors ${selectedGrades.includes(grade) ? "bg-[#092040] border-[#092040] text-white" : "border-[#092040] text-[#092040] hover:bg-[#092040]/10"}`}>
               {grade}
             </button>
           ))}
@@ -303,7 +303,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
             <input type="radio" name="format" checked={selectedFormats.includes(fmt)}
               onChange={() => setSelectedFormats(selectedFormats.includes(fmt) ? [] : [fmt])}
               onClick={() => { if (selectedFormats.includes(fmt)) setSelectedFormats([]); }}
-              className="relative appearance-none shrink-0 w-4 h-4 border-2 border-[#092040] rounded-full bg-[#FFFFF0] checked:bg-[#092040] checked:after:content-[''] checked:after:absolute checked:after:inset-[3px] checked:after:rounded-full checked:after:bg-white focus:outline-none cursor-pointer" />
+              className="relative appearance-none shrink-0 w-4 h-4 border-2 border-[#092040] rounded-full bg-[#FFFFF0] checked:bg-[#092040] checked:after:content-[''] checked:after:absolute checked:after:inset-[3px] checked:after:rounded-full checked:after:bg-white cursor-pointer" />
             <span className="text-sm text-[#092040] font-medium">{fmt}</span>
           </label>
         ))}
@@ -312,14 +312,14 @@ function SearchInner({ posts, keyword, setKeyword }: {
         <h3 className="text-sm font-bold text-[#092040] mb-2">活動期間</h3>
         {["長期", "中期", "短期"].map((period) => (
           <label key={period} className="flex items-center gap-2 mb-2 cursor-pointer">
-            <input type="checkbox" checked={selectedPeriods.includes(period)} onChange={() => toggleItem(selectedPeriods, setSelectedPeriods, period)} className="relative appearance-none shrink-0 w-4 h-4 border-2 border-[#092040] rounded bg-[#FFFFF0] checked:bg-[#092040] checked:after:content-[''] checked:after:absolute checked:after:left-[4px] checked:after:top-[1px] checked:after:w-[4px] checked:after:h-[8px] checked:after:border-white checked:after:border-b-2 checked:after:border-r-2 checked:after:rotate-45 focus:outline-none cursor-pointer" />
+            <input type="checkbox" checked={selectedPeriods.includes(period)} onChange={() => toggleItem(selectedPeriods, setSelectedPeriods, period)} className="relative appearance-none shrink-0 w-4 h-4 border-2 border-[#092040] rounded bg-[#FFFFF0] checked:bg-[#092040] checked:after:content-[''] checked:after:absolute checked:after:left-[4px] checked:after:top-[1px] checked:after:w-[4px] checked:after:h-[8px] checked:after:border-white checked:after:border-b-2 checked:after:border-r-2 checked:after:rotate-45 cursor-pointer" />
             <span className="text-sm text-[#092040] font-medium">{period}</span>
           </label>
         ))}
       </div>
       <div className="flex items-center justify-between">
         <span className="text-sm font-bold text-[#092040]">無料のみ</span>
-        <button onClick={() => { setFreeOnly(!freeOnly); setPage(1); }}
+        <button onClick={() => { setFreeOnly(!freeOnly); setPage(1); }} role="switch" aria-checked={freeOnly} aria-label="無料のみ"
           className={`w-12 h-6 rounded-full transition-colors relative ${freeOnly ? "bg-[#092040]" : "bg-[#092040]/30"}`}>
           <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${freeOnly ? "left-7" : "left-1"}`} />
         </button>
@@ -383,7 +383,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
             <div className="px-4 pb-4">
               <div className="flex items-center justify-between mb-4">
                 <span className="font-black text-[#092040] text-lg">絞り込み</span>
-                <button onClick={() => setFilterOpen(false)} aria-label="フィルターを閉じる" className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-[#092040] text-xl font-bold hover:bg-gray-200 transition-colors focus-visible:outline-2 focus-visible:outline-[#FCBC2A]">×</button>
+                <button onClick={() => setFilterOpen(false)} aria-label="フィルターを閉じる" className="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 text-[#092040] text-xl font-bold hover:bg-gray-200 transition-colors">×</button>
               </div>
               <FilterPanel />
               <button onClick={() => setFilterOpen(false)} className="w-full mt-4 bg-[#092040] text-white font-bold py-4 rounded-2xl">{filtered.length}件を表示</button>
@@ -404,10 +404,10 @@ function SearchInner({ posts, keyword, setKeyword }: {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2" strokeLinecap="round" className="opacity-40 shrink-0">
               <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
+            <input type="search" aria-label="活動を検索" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
               onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
               onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
-              className="flex-1 min-w-0 border-none text-sm outline-none focus-visible:outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
+              className="flex-1 min-w-0 border-none text-sm text-[#092040] placeholder-[#092040]/50 bg-transparent" />
             <button onClick={() => handleSearch()}
               className="bg-[#FCBC2A] text-[#092040] font-bold px-5 py-2 rounded-[10px] border-2 border-[#092040] text-sm shrink-0">
               検索
@@ -419,10 +419,10 @@ function SearchInner({ posts, keyword, setKeyword }: {
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#092040" strokeWidth="2" strokeLinecap="round" className="opacity-40 shrink-0">
     <circle cx="11" cy="11" r="7" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
   </svg>
-  <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
+  <input type="search" aria-label="活動を検索" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
     onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
     onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
-    className="flex-1 min-w-0 border-none text-sm outline-none focus-visible:outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
+    className="flex-1 min-w-0 border-none text-sm text-[#092040] placeholder-[#092040]/50 bg-transparent" />
   <button onClick={() => handleSearch()}
     className="bg-[#FCBC2A] text-[#092040] font-bold text-sm px-5 py-2 rounded-[10px] border-2 border-[#092040] shrink-0">
     検索
@@ -480,7 +480,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
             <div className="bg-[#FFFFF0] rounded-2xl p-10 text-center">
               <div className="flex flex-col items-center gap-4">
                 <p className="font-bold text-[#092040]">その活動、まだ載ってないかも🐝</p>
-                <p className="text-sm text-gray-400">条件を変えて探してみよう</p>
+                <p className="text-sm text-gray-500">条件を変えて探してみよう</p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => { setSelectedCategories([]); setSelectedGrades([]); setSelectedFormats([]); setSelectedPeriods([]); setFreeOnly(false); setKeyword(""); setPage(1); }}
@@ -498,7 +498,7 @@ function SearchInner({ posts, keyword, setKeyword }: {
                   </a>
                 </div>
                 <div className="mt-2 w-full">
-                  <p className="text-xs text-gray-400 mb-3">他のカテゴリも見てみよう</p>
+                  <p className="text-xs text-gray-500 mb-3">他のカテゴリも見てみよう</p>
                   <div className="flex flex-wrap justify-center gap-2">
                     {CATEGORY_NAMES.map((cat) => (
                       <button

@@ -96,17 +96,18 @@ export default function MobileSearchFab() {
         <input
           ref={inputRef}
           type="search"
+          aria-label="活動を検索"
           placeholder="検索"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") submit(); }}
-          className="flex-1 min-w-0 text-sm outline-none focus-visible:outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent"
+          className="flex-1 min-w-0 text-sm text-[#092040] placeholder-[#092040]/50 bg-transparent"
         />
         <button
           type="button"
           aria-label="検索を閉じる"
           onClick={closeQuickSearch}
-          className="shrink-0 w-6 h-6 flex items-center justify-center text-[#092040]/60 hover:text-[#092040] text-lg leading-none"
+          className="shrink-0 w-11 h-11 flex items-center justify-center text-[#092040]/60 hover:text-[#092040] text-lg leading-none"
         >
           ×
         </button>

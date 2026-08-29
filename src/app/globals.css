@@ -11,6 +11,9 @@
 /* マウス操作時はフォーカスリングを非表示、キーボード操作時のみ表示 */
 :focus { outline: none; }
 :focus-visible {
+  outline: none;
+}
+html[data-keyboard-nav="true"] :focus-visible {
   outline: 2px solid #FCBC2A;
   outline-offset: 2px;
 }

@@ -35,10 +35,10 @@ export default function MobileApplyButton({ applyUrl, daysLeft, activityId, slug
         {daysLeft !== null && (
           <div className={`shrink-0 rounded-xl px-3 py-2 text-center ${daysLeft < 0 ? "bg-gray-100" : daysLeft <= 7 ? "bg-red-50" : "bg-gray-100"}`}>
             {daysLeft < 0 ? (
-              <div className="text-xs font-black text-gray-400 leading-none py-1">締切済み</div>
+              <div className="text-xs font-black text-gray-500 leading-none py-1">締切済み</div>
             ) : (
               <>
-                <div className="text-[10px] text-gray-400">締切まで</div>
+                <div className="text-[10px] text-gray-500">締切まで</div>
                 <div className={`text-lg font-black leading-none ${daysLeft <= 7 ? "text-[#EF4444]" : "text-[#092040]"}`}>
                   {daysLeft}<span className="text-xs font-bold">日</span>
                 </div>
@@ -50,7 +50,7 @@ export default function MobileApplyButton({ applyUrl, daysLeft, activityId, slug
           <ApplyButton applyUrl={applyUrl} activityId={activityId} slug={slug}
             className="flex-1 bg-[#092040] text-white font-bold text-center py-4 rounded-2xl transition-all duration-200 hover:bg-[#FCBC2A] hover:text-[#092040] active:scale-95" />
         ) : (
-          <div className="flex-1 bg-gray-100 text-gray-400 font-bold text-center py-4 rounded-2xl">
+          <div className="flex-1 bg-gray-100 text-gray-500 font-bold text-center py-4 rounded-2xl">
             応募URLなし
           </div>
         )}

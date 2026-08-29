@@ -39,7 +39,7 @@ function MobileSlider({ posts }: { posts: Post[] }) {
     <div className="relative">
       <div className="overflow-hidden" onClick={() => router.push(`/posts/${current.slug}`)}>
         <div className={`relative w-full aspect-video transition-opacity duration-300 ${animating ? "opacity-0" : "opacity-100"}`}>
-          {current.imageUrl ? <FallbackImage src={coverImageSrc(current.imageUrl, current.id)} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />}
+          {current.imageUrl ? <FallbackImage src={coverImageSrc(current.imageUrl, current.id)} alt={current.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute top-[2vw] left-[2vw] flex gap-[1.5vw]">
             {current.isFeatured && <span className="bg-white text-[#092040] text-[2.5vw] font-bold px-[2.5vw] py-[1vw] rounded-full">おすすめ</span>}
@@ -86,7 +86,7 @@ function HeroSlider({ posts }: { posts: Post[] }) {
   return (
     <div className="group relative w-full aspect-video overflow-hidden cursor-pointer"
       onClick={() => router.push(`/posts/${current.slug}`)}>
-      {current.imageUrl ? <FallbackImage src={coverImageSrc(current.imageUrl, current.id)} alt={current.title} fill className="object-cover" /> : <div className="w-full h-full bg-gray-100" />}
+      {current.imageUrl ? <FallbackImage src={coverImageSrc(current.imageUrl, current.id)} alt={current.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" /> : <div className="w-full h-full bg-gray-100" />}
       {/* テキスト可読性のためのボトムグラデ（写真は極力そのまま、下だけ軽く暗く。紺のかぶせは廃止） */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
@@ -249,7 +249,8 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
             <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-              className="flex-1 min-w-0 border-none text-sm outline-none focus-visible:outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent" />
+                aria-label="活動を検索"
+                className="flex-1 min-w-0 border-none text-sm text-[#092040] placeholder-[#092040]/50 bg-transparent" />
             <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
               className="bg-[#FCBC2A] text-[#092040] font-bold text-sm px-5 py-2 rounded-[10px] border-2 border-[#092040] shrink-0">検索</button>
           </div>
@@ -262,7 +263,7 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
           <MobileSlider posts={featuredPosts} />
           <div className="flex flex-col gap-[4vw] mt-[4vw]">
             {posts.slice(0, 4).map((post) => (
-              <ActivityCard key={post.id} post={post} />
+              <ActivityCard key={post.id} post={post} imagePriority={post === posts[0]} />
             ))}
           </div>
         </div>
@@ -286,7 +287,8 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
               <input type="search" placeholder="活動名、スキル、主催者などで検索..." value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") router.push(`/search?q=${encodeURIComponent(keyword)}`); }}
-                className="flex-1 min-w-0 border-none text-sm outline-none focus-visible:outline-none text-[#092040] placeholder-[#092040]/40 bg-transparent" />
+                aria-label="活動を検索"
+                className="flex-1 min-w-0 border-none text-sm text-[#092040] placeholder-[#092040]/40 bg-transparent" />
               <button onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
                 className="bg-[#FCBC2A] text-[#092040] font-bold text-sm px-5 py-2 rounded-[10px] border-2 border-[#092040] shrink-0">検索</button>
             </div>

@@ -154,17 +154,18 @@ export default function Navbar() {
                 <input
                   ref={quickInputRef}
                   type="search"
+                  aria-label="活動を検索"
                   placeholder="検索"
                   value={quickKeyword}
                   onChange={(e) => setQuickKeyword(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") submitQuickSearch(); }}
-                  className="w-[190px] shrink-0 text-sm outline-none focus-visible:outline-none text-[#092040] placeholder-[#092040]/50 bg-transparent border-0 border-b-2 border-[#092040] py-1"
+                  className="w-[190px] shrink-0 text-sm text-[#092040] placeholder-[#092040]/50 bg-transparent border-0 border-b-2 border-[#092040] py-1"
                 />
                 <button
                   type="button"
                   aria-label="検索を閉じる"
                   onClick={closeQuickSearch}
-                  className="shrink-0 w-6 h-6 flex items-center justify-center text-[#092040]/60 hover:text-[#092040] text-lg leading-none"
+                  className="shrink-0 w-11 h-11 flex items-center justify-center text-[#092040]/60 hover:text-[#092040] text-lg leading-none"
                 >
                   ×
                 </button>

@@ -89,6 +89,15 @@ export default function RootLayout({
       </head>
       <body className="bg-[#FFFFF0] font-sans">
         <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            var root = document.documentElement;
+            document.addEventListener('keydown', function(event) {
+              if (event.key === 'Tab') root.dataset.keyboardNav = 'true';
+            });
+            document.addEventListener('pointerdown', function() {
+              delete root.dataset.keyboardNav;
+            });
+          })();
           if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
               navigator.serviceWorker.register('/sw.js');

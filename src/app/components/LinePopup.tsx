@@ -48,7 +48,7 @@ export default function LinePopup() {
           <p className="text-[#092040] text-xs md:text-sm font-bold mb-1">
             締切・新着を毎週お届け🐝
           </p>
-          <p className="text-gray-400 text-[10px] md:text-xs mb-2 md:mb-3">
+          <p className="text-gray-500 text-[10px] md:text-xs mb-2 md:mb-3">
             見逃しゼロ！活動情報を週1でLINEに送ります
           </p>
           <Link

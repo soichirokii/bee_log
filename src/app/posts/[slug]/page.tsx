@@ -93,11 +93,11 @@ function RichTextRenderer({ items }: { items: RichText[] }) {
 function BlockRenderer({ block }: { block: NotionBlock }) {
   switch (block.type) {
     case "heading_1":
-      return <h1 className="text-2xl font-black text-[#092040] mt-8 mb-4"><RichTextRenderer items={block.richText} /></h1>;
+      return <h2 className="text-2xl font-black text-[#092040] mt-8 mb-4"><RichTextRenderer items={block.richText} /></h2>;
     case "heading_2":
-      return <h2 className="text-xl font-black text-[#092040] mt-6 mb-3 flex items-center gap-2"><span className="w-1 h-6 bg-[#FCBC2A] inline-block" /><RichTextRenderer items={block.richText} /></h2>;
+      return <h3 className="text-xl font-black text-[#092040] mt-6 mb-3 flex items-center gap-2"><span className="w-1 h-6 bg-[#FCBC2A] inline-block" /><RichTextRenderer items={block.richText} /></h3>;
     case "heading_3":
-      return <h3 className="text-lg font-bold text-[#092040] mt-4 mb-2"><RichTextRenderer items={block.richText} /></h3>;
+      return <h4 className="text-lg font-bold text-[#092040] mt-4 mb-2"><RichTextRenderer items={block.richText} /></h4>;
     case "paragraph":
       return (
         <p className="text-gray-700 leading-relaxed mb-4">
@@ -126,10 +126,10 @@ function BlockRenderer({ block }: { block: NotionBlock }) {
       return block.imageUrl ? (
         <figure className="my-6">
           <div className="relative w-full aspect-video overflow-hidden">
-            <FallbackImage src={`/api/notion-image?blockId=${block.id}`} alt={block.caption?.[0]?.plain_text ?? ""} fill className="object-cover" />
+            <FallbackImage src={`/api/notion-image?blockId=${block.id}`} alt={block.caption?.[0]?.plain_text ?? ""} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" />
           </div>
           {block.caption && block.caption.length > 0 && (
-            <figcaption className="text-center text-sm text-gray-400 mt-2">
+            <figcaption className="text-center text-sm text-gray-500 mt-2">
               <RichTextRenderer items={block.caption} />
             </figcaption>
           )}
@@ -262,7 +262,7 @@ export default async function PostDetailPage({
       <div className="px-[5vw] md:px-16 pt-8">
         <div className="relative w-full h-48 md:h-80 bg-gray-200 overflow-hidden">
           {post.imageUrl ? (
-            <FallbackImage src={coverImageSrc(post.imageUrl, post.id)} alt={post.title} fill className="object-cover" />
+            <FallbackImage src={coverImageSrc(post.imageUrl, post.id)} alt={post.title} fill sizes="(max-width: 768px) 100vw, 33vw" priority className="object-cover" />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />
           )}
@@ -288,7 +288,7 @@ export default async function PostDetailPage({
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
               {post.deadline && (
                 <div className="p-3 border-b border-gray-200">
-                  <div className="text-xs text-gray-400 mb-1">応募締切</div>
+                  <div className="text-xs text-gray-500 mb-1">応募締切</div>
                   <div className={`text-sm font-bold flex items-center gap-1.5 ${daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 ? "text-[#EF4444]" : "text-[#092040]"}`}>
                     <Image src="/icons/Calendar.svg" alt="" width={16} height={16} />
                     {new Date(post.deadline).toLocaleDateString("ja-JP")}
@@ -297,7 +297,7 @@ export default async function PostDetailPage({
               )}
               {post.period && (
                 <div className="p-3 border-b border-gray-200">
-                  <div className="text-xs text-gray-400 mb-1">活動期間</div>
+                  <div className="text-xs text-gray-500 mb-1">活動期間</div>
                   <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
                     <Image src="/icons/Clock.svg" alt="" width={16} height={16} />
                     {post.period}
@@ -306,7 +306,7 @@ export default async function PostDetailPage({
               )}
               {post.targetGrade.length > 0 && (
                 <div className="p-3 border-b border-gray-200">
-                  <div className="text-xs text-gray-400 mb-1">対象学年</div>
+                  <div className="text-xs text-gray-500 mb-1">対象学年</div>
                   <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
                     <Image src="/icons/Graduation Cap.svg" alt="" width={16} height={16} />
                     {post.targetGrade.join("・")}
@@ -315,7 +315,7 @@ export default async function PostDetailPage({
               )}
               {post.format && (
                 <div className="p-3 border-b border-gray-200">
-                  <div className="text-xs text-gray-400 mb-1">形式</div>
+                  <div className="text-xs text-gray-500 mb-1">形式</div>
                   <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
                     <Image src="/icons/PC.svg" alt="" width={16} height={16} />
                     {post.format}
@@ -324,7 +324,7 @@ export default async function PostDetailPage({
               )}
               {post.region && (
                 <div className="p-3 border-b border-gray-200">
-                  <div className="text-xs text-gray-400 mb-1">地域</div>
+                  <div className="text-xs text-gray-500 mb-1">地域</div>
                   <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
                     <Image src="/icons/Pin.svg" alt="" width={16} height={16} />
                     {post.region}
@@ -333,7 +333,7 @@ export default async function PostDetailPage({
               )}
               {post.fee && (
                 <div className="p-3 border-b border-gray-200">
-                  <div className="text-xs text-gray-400 mb-1">参加費</div>
+                  <div className="text-xs text-gray-500 mb-1">参加費</div>
                   <div className="text-sm font-bold text-[#092040] flex items-center gap-1.5">
                     <Image src="/icons/Dollar Bag.svg" alt="" width={16} height={16} />
                     {post.fee}
@@ -384,22 +384,22 @@ export default async function PostDetailPage({
                 <ApplyButton id="apply-button-sidebar" applyUrl={post.applyUrl} activityId={post.id} slug={post.slug}
                   className="block w-full bg-[#092040] text-white font-bold text-center py-4 rounded-xl transition-all duration-200 hover:bg-[#FCBC2A] hover:text-[#092040] hover:scale-[1.02] active:scale-95 mb-3" />
               ) : (
-                <div className="w-full bg-gray-100 text-gray-400 font-bold text-center py-4 mb-3">
+                <div className="w-full bg-gray-100 text-gray-500 font-bold text-center py-4 mb-3">
                   応募URLなし
                 </div>
               )}
-              <p className="text-xs text-gray-400 text-center mb-6">※ 外部サイトへ移動します</p>
+              <p className="text-xs text-gray-500 text-center mb-6">※ 外部サイトへ移動します</p>
 
               {daysLeft !== null && (
                 <div className="p-4 text-center mb-4">
                   {daysLeft < 0 ? (
                     <>
-                      <div className="text-xs text-gray-400 mb-1">締切</div>
-                      <div className="text-sm font-black text-gray-400">締切済み</div>
+                      <div className="text-xs text-gray-500 mb-1">締切</div>
+                      <div className="text-sm font-black text-gray-500">締切済み</div>
                     </>
                   ) : (
                     <>
-                      <div className="text-xs text-gray-400 mb-1">締切まで</div>
+                      <div className="text-xs text-gray-500 mb-1">締切まで</div>
                       <div className={`text-3xl font-black ${daysLeft <= 7 ? "text-[#EF4444]" : "text-[#092040]"}`}>
                         {daysLeft}<span className="text-sm font-bold ml-1">日</span>
                       </div>
