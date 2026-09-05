@@ -57,11 +57,25 @@ export default function Navbar() {
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    const setVar = () => document.documentElement.style.setProperty("--navbar-h", `${el.offsetHeight}px`);
+    let last = -1;
+    let raf = 0;
+    const setVar = () => {
+      raf = 0;
+      const h = Math.round(el.offsetHeight);
+      if (h === last) return;
+      last = h;
+      document.documentElement.style.setProperty("--navbar-h", `${h}px`);
+    };
     setVar();
-    const ro = new ResizeObserver(setVar);
+    const ro = new ResizeObserver(() => {
+      if (raf) return;
+      raf = requestAnimationFrame(setVar);
+    });
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      ro.disconnect();
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
   useEffect(() => {
@@ -112,9 +126,9 @@ export default function Navbar() {
       <div ref={wrapRef} className="fixed inset-x-0 top-0 z-50">
         {/* PC */}
         <nav
-          className={`hidden md:flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+          className={`hidden md:flex items-center mx-auto transition-[width,margin,padding,border-color,border-width,border-radius,background-color,box-shadow] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[backdrop-filter] motion-reduce:transition-none ${
             scrolled
-              ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,240,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-8 py-4 overflow-hidden"
+              ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-[42px] border-2 border-[#092040] bg-[rgba(255,255,240,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-8 py-4 overflow-hidden"
               : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFF0] px-16 py-4"
           }`}
         >
@@ -124,31 +138,38 @@ export default function Navbar() {
               alt="BEE log"
               width={120}
               height={48}
-              className={`w-auto transition-[height] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "h-11" : "h-12"}`}
+              className={`w-auto h-12 origin-left transition-transform duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "scale-[0.9167]" : "scale-100"}`}
             />
           </Link>
 
+          {/* scale はロゴの flex 上の幅を縮めないため、旧 h-11 時のリンク開始位置を transform で維持する */}
           <div
-            className={`flex items-center gap-2 min-w-0 transition-opacity duration-300 motion-reduce:transition-none ${
-              quickSearchOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+            className={`min-w-0 transition-transform duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+              scrolled ? "-translate-x-[9.387px]" : "translate-x-0"
             }`}
           >
-            {NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`${LINK_CLASS} ${pillPad} ${pathname === href ? "bg-[#FCBC2A]" : ""}`}
-              >
-                {label}
-              </Link>
-            ))}
+            <div
+              className={`flex items-center gap-2 min-w-0 transition-opacity duration-300 motion-reduce:transition-none ${
+                quickSearchOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+              }`}
+            >
+              {NAV_LINKS.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`${LINK_CLASS} ${pillPad} ${pathname === href ? "bg-[#FCBC2A]" : ""}`}
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
           </div>
 
           {showSearchButton && (
-            <div className="ml-auto flex items-center shrink-0">
+            <div className="relative ml-auto flex items-center shrink-0">
               <div
-                className={`flex items-center overflow-hidden transition-[width,opacity,margin] duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
-                  quickSearchOpen ? "w-[220px] opacity-100 mr-2" : "w-0 opacity-0 mr-0"
+                className={`absolute top-1/2 right-[3.25rem] w-[220px] flex items-center overflow-hidden -translate-y-1/2 transition-[transform,opacity] duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+                  quickSearchOpen ? "translate-x-0 opacity-100 pointer-events-auto" : "translate-x-2 opacity-0 pointer-events-none"
                 }`}
               >
                 <input
@@ -187,20 +208,20 @@ export default function Navbar() {
 
         {/* モバイル */}
         <nav
-          className={`md:hidden flex items-center mx-auto transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+          className={`md:hidden flex items-center mx-auto transition-[width,margin,padding,border-color,border-width,border-radius,background-color,box-shadow] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[backdrop-filter] motion-reduce:transition-none ${
             scrolled
-              ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-full border-2 border-[#092040] bg-[rgba(255,255,240,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[6vw] py-[3.5vw]"
+              ? "w-[min(800px,calc(100%-28px))] mt-3 rounded-[max(50px,9vw)] border-2 border-[#092040] bg-[rgba(255,255,240,0.82)] backdrop-blur-[8px] [-webkit-backdrop-filter:blur(8px)] shadow-[0_4px_0_rgba(9,32,64,0.9)] px-[6vw] py-[3.5vw]"
               : "w-full mt-0 rounded-none border-0 border-b-2 border-[#092040] bg-[#FFFFF0] px-[5vw] py-[3vw]"
           }`}
         >
           <div className="flex-1" />
-          <Link href="/" className="flex justify-center">
+          <Link href="/" className={`flex items-center justify-center ${scrolled ? "h-[9.5vw]" : "h-[10vw]"}`}>
             <Image
               src="/Logo.svg"
               alt="BEE log"
               width={120}
               height={48}
-              className={`w-auto transition-[height] duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "h-[9.5vw]" : "h-[10vw]"}`}
+              className={`w-auto h-[10vw] origin-center transition-transform duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${scrolled ? "scale-[0.95]" : "scale-100"}`}
             />
           </Link>
           <div className="flex-1 flex justify-end">
