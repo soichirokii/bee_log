@@ -39,7 +39,7 @@ function MobileSlider({ posts }: { posts: Post[] }) {
     <div className="relative">
       <div className="overflow-hidden" onClick={() => router.push(`/posts/${current.slug}`)}>
         <div className={`relative w-full aspect-video transition-opacity duration-300 ${animating ? "opacity-0" : "opacity-100"}`}>
-          {current.imageUrl ? <FallbackImage src={coverImageSrc(current.imageUrl, current.id)} alt={current.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />}
+          {current.imageUrl ? <FallbackImage src={coverImageSrc(current.imageUrl, current.id)} alt={current.title} fill sizes="(max-width: 768px) 100vw, 33vw" priority className="object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#FCBC2A] to-[#092040]" />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute top-[2vw] left-[2vw] flex gap-[1.5vw]">
             {current.isFeatured && <span className="bg-white text-[#092040] text-[2.5vw] font-bold px-[2.5vw] py-[1vw] rounded-full">おすすめ</span>}
@@ -86,7 +86,7 @@ function HeroSlider({ posts }: { posts: Post[] }) {
   return (
     <div className="group relative w-full aspect-video overflow-hidden cursor-pointer"
       onClick={() => router.push(`/posts/${current.slug}`)}>
-      {current.imageUrl ? <FallbackImage src={coverImageSrc(current.imageUrl, current.id)} alt={current.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" /> : <div className="w-full h-full bg-gray-100" />}
+      {current.imageUrl ? <FallbackImage src={coverImageSrc(current.imageUrl, current.id)} alt={current.title} fill sizes="(max-width: 768px) 100vw, 33vw" priority className="object-cover" /> : <div className="w-full h-full bg-gray-100" />}
       {/* テキスト可読性のためのボトムグラデ（写真は極力そのまま、下だけ軽く暗く。紺のかぶせは廃止） */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
@@ -230,6 +230,8 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
         .filter((s) => s.filtered.length > 0),
     [posts]
   );
+  const priorityFeaturedCount = Math.min(featuredPosts.length, 3);
+  const priorityFirstCategoryCount = Math.max(0, 3 - priorityFeaturedCount);
 
   return (
     <div className="min-h-screen bg-[#FFFFF0]">
@@ -310,24 +312,27 @@ function TopPageInner({ posts, keyword, setKeyword, popularTags }: {
                 <StickerViewMore href="/search" />
               </div>
               <ScrollHint>
-                {featuredPosts.map((post) => (
+                {featuredPosts.map((post, index) => (
                   <div key={post.id} className="shrink-0" style={{ width: "calc(33.333% - 11px)" }}>
-                    <ActivityCard post={post} />
+                    <ActivityCard post={post} imagePriority={index < priorityFeaturedCount} />
                   </div>
                 ))}
               </ScrollHint>
             </section>
           )}
-          {categorySections.map(({ cat, filtered }) => (
+          {categorySections.map(({ cat, filtered }, categoryIndex) => (
             <section key={cat.slug} className="mb-10">
               <div className="flex items-center justify-between mb-4">
                 <Link href={`/search?category=${encodeURIComponent(cat.name)}`} className="text-[#092040] text-2xl font-black hover:opacity-70 transition-opacity">{cat.name}</Link>
                 <StickerViewMore href={`/search?category=${encodeURIComponent(cat.name)}`} />
               </div>
               <ScrollHint>
-                {filtered.map((post) => (
+                {filtered.map((post, postIndex) => (
                   <div key={post.id} className="shrink-0" style={{ width: "calc(33.333% - 11px)" }}>
-                    <ActivityCard post={post} />
+                    <ActivityCard
+                      post={post}
+                      imagePriority={categoryIndex === 0 && postIndex < priorityFirstCategoryCount}
+                    />
                   </div>
                 ))}
               </ScrollHint>

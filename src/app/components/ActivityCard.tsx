@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import FallbackImage from "@/components/FallbackImage";
 import { Post } from "@/types/notion";
 import { CATEGORY_TAG_CLASS, SEASON_TAGS } from "@/constants/categories";
@@ -47,7 +46,7 @@ export default function ActivityCard({
       })}
     >
       {/* 画像コンテナ：overflow-hidden はここだけ（角丸なし・常に直角） */}
-      <div className="relative w-full aspect-video overflow-hidden bg-gray-200">
+      <div className="relative w-full aspect-video overflow-hidden bg-[#FFFFF0]">
         {post.imageUrl ? (
           <FallbackImage
             src={coverImageSrc(post.imageUrl, post.id)}
@@ -58,7 +57,7 @@ export default function ActivityCard({
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           />
         ) : (
-          <Image
+          <FallbackImage
             src="/noimage.svg"
             alt="No Image"
             fill
