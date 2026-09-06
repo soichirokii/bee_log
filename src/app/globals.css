@@ -36,16 +36,6 @@ html[data-keyboard-nav="true"] :focus-visible {
   animation: loading-bar 1.2s ease-in-out infinite;
 }
 
-/* 画像読み込み中のアイボリー地に、honey の帯を横切らせる。 */
-@keyframes image-shimmer {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(200%); }
-}
-
-.animate-image-shimmer {
-  animation: image-shimmer 1.2s ease-in-out infinite;
-}
-
 @keyframes fadeInDown {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -89,10 +79,6 @@ html[data-keyboard-nav="true"] :focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .card-reveal {
     transition-duration: 1ms;
-  }
-
-  .animate-image-shimmer {
-    animation: none;
   }
 }
 

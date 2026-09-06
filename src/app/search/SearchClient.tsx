@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Post } from "@/types/notion";
 import { useRouter } from "next/navigation";
 import Footer from "../components/Footer";
+import LoadingIndicator from "../components/LoadingIndicator";
 import Navbar from "../components/Navbar";
 import ActivityCard from "../components/ActivityCard";
 import { FAB_BASE_CLASS } from "../components/MobileSearchFab";
@@ -34,20 +35,6 @@ function useCountUp(target: number, duration = 400) {
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, [target, duration]);
   return display;
-}
-
-/* ④ スケルトンカード */
-function SkeletonCard() {
-  return (
-    <div className="bg-[#FFFFF0] overflow-hidden">
-      <div className="w-full aspect-video bg-gray-200 animate-pulse" />
-      <div className="p-4 space-y-2">
-        <div className="h-3 bg-gray-200 rounded-full w-1/3 animate-pulse" />
-        <div className="h-5 bg-gray-200 rounded-full w-full animate-pulse" />
-        <div className="h-5 bg-gray-200 rounded-full w-2/3 animate-pulse" />
-      </div>
-    </div>
-  );
 }
 
 /* ⑥ スクロールfadeInラッパー */
@@ -577,12 +564,15 @@ export default function SearchClient({ posts }: { posts: Post[] }) {
   return (
     <>
       <Navbar />
-      {/* ④ スケルトンローディング */}
+      {/* useSearchParams の解決中も全画面ローディングを表示する。 */}
       <Suspense fallback={
-        <div className="bg-[#FFFFF0] min-h-screen px-6 py-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
-          </div>
+        <div
+          role="status"
+          aria-busy="true"
+          aria-live="polite"
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-[#FFFFF0]"
+        >
+          <LoadingIndicator />
         </div>
       }>
         <SearchInner posts={posts} keyword={keyword} setKeyword={setKeyword} />
