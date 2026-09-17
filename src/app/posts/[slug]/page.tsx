@@ -207,9 +207,12 @@ function BlocksRenderer({ blocks }: { blocks: NotionBlock[] }) {
 }
 
 /* ── 関連活動スコアリング ── */
+// カテゴリ/タグ一致でスコア付けし、一致が count に満たない場合は新着記事で補完する。
+// これにより孤立記事でも必ず他記事への内部リンクが張られ、クロール導線が途切れない（SEO）。
 function getRelatedPosts(allPosts: Post[], current: PostWithContent, count = 3): Post[] {
-  return allPosts
-    .filter((p) => p.id !== current.id)
+  const others = allPosts.filter((p) => p.id !== current.id);
+
+  const scored = others
     .map((p) => {
       let score = 0;
       if (p.category && p.category === current.category) score += 10;
@@ -218,8 +221,17 @@ function getRelatedPosts(allPosts: Post[], current: PostWithContent, count = 3):
     })
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score)
-    .slice(0, count)
     .map(({ post }) => post);
+
+  if (scored.length >= count) return scored.slice(0, count);
+
+  // 不足分を新着（updatedAt降順）で補完。既に選ばれた記事は除外する。
+  const picked = new Set(scored.map((p) => p.id));
+  const fallback = others
+    .filter((p) => !picked.has(p.id))
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+
+  return [...scored, ...fallback].slice(0, count);
 }
 
 export default async function PostDetailPage({
