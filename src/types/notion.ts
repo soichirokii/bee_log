@@ -7,6 +7,7 @@ export type Post = {
   organizer: string;
   category: string;
   deadline: string | null;
+  eventStartDate?: string;
   period: string;
   targetGrade: string[];
   format: string;

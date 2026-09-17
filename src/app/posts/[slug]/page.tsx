@@ -1,6 +1,6 @@
 import { getPostWithContentBySlug, getPostBySlug, getAllPublishedSlugs, getPublishedPosts } from "@/lib/notion";
 import { Post, PostWithContent, NotionBlock, RichText } from "@/types/notion";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import FallbackImage from "@/components/FallbackImage";
@@ -16,15 +16,58 @@ import { CATEGORY_TAG_CLASS } from "@/constants/categories";
 import { BASE_URL } from "@/constants/site";
 import { daysUntilJst } from "@/lib/date";
 import { toCloudinaryUrl, coverImageSrc, CARD_TRANSFORM } from "@/lib/cloudinary-url";
+import { isFree } from "@/lib/fee";
+import { safeJsonLd } from "@/lib/json-ld";
 
 export const revalidate = 1800;
 
 // OGP用（1200x630・f_jpgでTwitterのWebP非対応環境に対応）の変換。本文/JSON-LDは共通のCARD_TRANSFORM
 const OGP_TRANSFORM = "c_fill,g_auto,w_1200,h_630,f_jpg,q_auto";
 
-// JSON-LD を <script> に埋め込む際、< をエスケープして </script> ブレイクアウトを防ぐ
-function safeJsonLd(obj: unknown): string {
-  return JSON.stringify(obj).replace(/</g, "\\u003c");
+const ISO_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?)?$/;
+const ONLINE_REGION_PATTERN = /オンライン|online|virtual/i;
+
+function isValidIsoDate(value: string | null | undefined): value is string {
+  if (!value) return false;
+
+  const match = ISO_DATE_PATTERN.exec(value);
+  if (!match || Number.isNaN(Date.parse(value))) return false;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  return date.getUTCFullYear() === year
+    && date.getUTCMonth() === month - 1
+    && date.getUTCDate() === day;
+}
+
+function getEventLocation(region: string, applyUrl: string, postUrl: string) {
+  const locationName = region.trim();
+  if (!locationName) return null;
+
+  if (ONLINE_REGION_PATTERN.test(locationName)) {
+    return {
+      location: { "@type": "VirtualLocation", url: applyUrl || postUrl },
+      eventAttendanceMode: "https://schema.org/OnlineEventAttendanceMode",
+    };
+  }
+
+  return {
+    location: { "@type": "Place", name: locationName, address: locationName },
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+  };
+}
+
+function getOfferPrice(fee: string) {
+  if (isFree(fee)) return { price: "0", priceCurrency: "JPY" };
+
+  const normalizedFee = fee.trim().replace(/[\s,￥¥]/g, "").replace(/円$/, "");
+  if (!/^\d+(?:\.\d+)?$/.test(normalizedFee)) return {};
+
+  const price = Number(normalizedFee);
+  return Number.isFinite(price) && price >= 0 ? { price, priceCurrency: "JPY" } : {};
 }
 
 export async function generateStaticParams() {
@@ -52,7 +95,7 @@ export async function generateMetadata(props: {
       title: post.title,
       description: post.summary,
       alternates: {
-        canonical: `${BASE_URL}/posts/${slug}`,
+        canonical: `${BASE_URL}/posts/${post.slug}`,
       },
       openGraph: {
         type: "article",
@@ -185,16 +228,20 @@ export default async function PostDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [post, allPosts] = await Promise.all([
-    getPostWithContentBySlug(slug),
-    getPublishedPosts(),
-  ]);
+  const post = await getPostWithContentBySlug(slug);
   if (!post) notFound();
+  if (slug !== post.slug) permanentRedirect(`/posts/${post.slug}`);
+
+  const allPosts = await getPublishedPosts();
   const relatedPosts = getRelatedPosts(allPosts, post);
 
   const daysLeft = post.deadline ? daysUntilJst(post.deadline) : null;
 
   const postUrl = `${BASE_URL}/posts/${post.slug}`;
+  const applyUrl = post.applyUrl.trim();
+  const imageUrl = post.imageUrl?.includes("res.cloudinary.com")
+    ? toCloudinaryUrl(post.imageUrl, CARD_TRANSFORM)
+    : `${BASE_URL}/ogp.png`;
   // カテゴリ絞り込みは検索ページで行う
   const categoryHref = `/search?category=${encodeURIComponent(post.category)}`;
 
@@ -203,15 +250,42 @@ export default async function PostDetailPage({
     "@type": "Article",
     headline: post.title,
     description: post.summary,
-    image: post.imageUrl?.includes("res.cloudinary.com")
-      ? toCloudinaryUrl(post.imageUrl, CARD_TRANSFORM)
-      : `${BASE_URL}/ogp.png`,
+    image: imageUrl,
     datePublished: post.createdAt,
     dateModified: post.updatedAt,
     author: { "@type": "Organization", name: post.organizer || "BEE log" },
     publisher: { "@type": "Organization", name: "BEE log", url: BASE_URL },
     url: postUrl,
   };
+
+  const eventLocation = getEventLocation(post.region, applyUrl, postUrl);
+  const organizerName = post.organizer.trim();
+  const eventJsonLd = isValidIsoDate(post.eventStartDate) && eventLocation
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Event",
+        name: post.title,
+        startDate: post.eventStartDate,
+        location: eventLocation.location,
+        eventAttendanceMode: eventLocation.eventAttendanceMode,
+        ...(organizerName
+          ? { organizer: { "@type": "Organization", name: organizerName } }
+          : {}),
+        ...(applyUrl
+          ? {
+              offers: {
+                "@type": "Offer",
+                url: applyUrl,
+                ...(isValidIsoDate(post.deadline) ? { validThrough: post.deadline } : {}),
+                ...getOfferPrice(post.fee),
+              },
+            }
+          : {}),
+        image: imageUrl,
+        description: post.summary,
+        url: postUrl,
+      }
+    : null;
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -229,6 +303,9 @@ export default async function PostDetailPage({
     <div className="min-h-screen bg-[#FFFFF0]">
       <TrackPageView activityId={post.id} slug={post.slug} category={post.category} tags={post.tags} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(articleJsonLd) }} />
+      {eventJsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(eventJsonLd) }} />
+      )}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(breadcrumbJsonLd) }} />
 
       <Navbar />

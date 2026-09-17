@@ -117,6 +117,7 @@ function pageToPost(page: RawPage): Post {
     organizer: props["主催者"]?.rich_text?.[0]?.plain_text ?? "",
     category: props["カテゴリ"]?.select?.name ?? "",
     deadline: props["応募締切"]?.date?.start ?? null,
+    eventStartDate: props["開催日"]?.date?.start,
     period: props["活動期間"]?.rich_text?.[0]?.plain_text ?? "",
     targetGrade: (props["対象学年"]?.multi_select ?? []).map((t) => t.name),
     format: props["形式"]?.select?.name ?? "",
