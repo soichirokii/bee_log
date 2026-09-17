@@ -35,7 +35,7 @@ function usePrefersReducedMotion() {
 }
 
 const LINK_CLASS =
-  "font-bold text-[#092040] rounded-full whitespace-nowrap transition-[background-color,transform] ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-300 hover:bg-[#FCBC2A] hover:-translate-y-0.5 hover:scale-[1.05] active:translate-y-px active:scale-[0.96] motion-reduce:transition-none motion-reduce:transform-none";
+  "font-bold text-[#092040] rounded-full whitespace-nowrap [transition:background-color_180ms_ease-out,transform_320ms_cubic-bezier(0.34,1.56,0.64,1)] hover:bg-[#FCBC2A] hover:-translate-y-0.5 hover:scale-[1.05] active:translate-y-px active:scale-[0.96] motion-reduce:transition-none motion-reduce:transform-none";
 
 export default function Navbar() {
   const pathname = usePathname();
