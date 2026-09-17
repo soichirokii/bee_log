@@ -6,6 +6,35 @@ import LinePopup from "./components/LinePopup";
 import MobileSearchFab from "./components/MobileSearchFab";
 import { Analytics } from "@vercel/analytics/react";
 import { BASE_URL } from "@/constants/site";
+import { safeJsonLd } from "@/lib/json-ld";
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "BEE log",
+  url: BASE_URL,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${BASE_URL}/search?q={search_term_string}`,
+    },
+    "query-input": "required name=search_term_string",
+  },
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "BEE log",
+  url: BASE_URL,
+  logo: `${BASE_URL}/ogp.png`,
+  sameAs: [
+    "https://www.instagram.com/beelog_jp?igsh=MTNieHBjanBkOTc4cA==",
+    "https://x.com/beelog_jp?s=21",
+    "https://lin.ee/FD2mNHZ",
+  ],
+};
 
 // ── フォント定義（ビルド時ダウンロード → ローカル配信 → FOUT ゼロ） ──────────
 const notoSansJP = Noto_Sans_JP({
@@ -88,6 +117,14 @@ export default function RootLayout({
         <meta name="theme-color" content="#092040" />
       </head>
       <body className="bg-[#FFFFF0] font-sans">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(organizationJsonLd) }}
+        />
         <script dangerouslySetInnerHTML={{ __html: `
           (function() {
             var root = document.documentElement;
