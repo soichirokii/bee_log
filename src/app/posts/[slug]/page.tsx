@@ -27,6 +27,10 @@ const OGP_TRANSFORM = "c_fill,g_auto,w_1200,h_630,f_jpg,q_auto";
 const ISO_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?)?$/;
 const ONLINE_REGION_PATTERN = /オンライン|online|virtual/i;
 
+// performer（出演者・登壇者）は、コンテスト・イベント系のカテゴリでのみ主催者を Organization として入れる。
+// インターン・留学・公開講座などには馴染まないため省略する。
+const EVENT_PERFORMER_CATEGORIES = new Set(["コンテスト・大会", "イベント", "起業・ビジネス"]);
+
 function isValidIsoDate(value: string | null | undefined): value is string {
   if (!value) return false;
 
@@ -272,24 +276,45 @@ export default async function PostDetailPage({
 
   const eventLocation = getEventLocation(post.region, applyUrl, postUrl);
   const organizerName = post.organizer.trim();
+  // 主催者URL専用プロパティは無いため、応募URL → 記事URL の順でフォールバックする。
+  const organizerUrl = applyUrl || postUrl;
+  const organizer = organizerName
+    ? { "@type": "Organization", name: organizerName, url: organizerUrl }
+    : undefined;
+  // コンテスト・イベント系カテゴリのみ主催者を performer として補う。
+  const performer = organizerName && EVENT_PERFORMER_CATEGORIES.has(post.category)
+    ? { "@type": "Organization", name: organizerName }
+    : undefined;
+  // 応募開始日プロパティは無いため validFrom は公開日(createdAt)で代用する。
+  const offerValidFrom = isValidIsoDate(post.createdAt) ? post.createdAt : undefined;
+  // 締切を過ぎていれば OutOfStock、それ以外（締切前・締切なし）は InStock。
+  const offerAvailability = post.deadline && daysLeft !== null && daysLeft < 0
+    ? "https://schema.org/OutOfStock"
+    : "https://schema.org/InStock";
+  // Offer は price が必須（無料=0 または数値）。参加費が数値化できない場合は
+  // offers 自体を出さず、「price 欠落」の警告を避ける。
+  const offerPrice = getOfferPrice(post.fee);
+  const hasOfferPrice = "price" in offerPrice;
   const eventJsonLd = isValidIsoDate(post.eventStartDate) && eventLocation
     ? {
         "@context": "https://schema.org",
         "@type": "Event",
         name: post.title,
         startDate: post.eventStartDate,
+        eventStatus: "https://schema.org/EventScheduled",
         location: eventLocation.location,
         eventAttendanceMode: eventLocation.eventAttendanceMode,
-        ...(organizerName
-          ? { organizer: { "@type": "Organization", name: organizerName } }
-          : {}),
-        ...(applyUrl
+        ...(organizer ? { organizer } : {}),
+        ...(performer ? { performer } : {}),
+        ...(applyUrl && hasOfferPrice
           ? {
               offers: {
                 "@type": "Offer",
                 url: applyUrl,
+                availability: offerAvailability,
+                ...(offerValidFrom ? { validFrom: offerValidFrom } : {}),
                 ...(isValidIsoDate(post.deadline) ? { validThrough: post.deadline } : {}),
-                ...getOfferPrice(post.fee),
+                ...offerPrice,
               },
             }
           : {}),
