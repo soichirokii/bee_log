@@ -53,5 +53,18 @@ from keyword_values
 where filter_value <> ''
 group by 1, 2;
 
+-- Traffic distribution across the JST week: day-of-week (0=Sun .. 6=Sat) by hour.
+-- Powers the "when are people active" heatmap. All-time, kept per event_type so
+-- the dashboard can pick which signal to plot.
+create or replace view public.events_hourly as
+select
+  extract(dow from (created_at at time zone 'Asia/Tokyo'))::int as dow,
+  extract(hour from (created_at at time zone 'Asia/Tokyo'))::int as hour,
+  event_type,
+  count(*)::bigint as event_count
+from public.events
+group by 1, 2, 3;
+
 grant select on public.events_daily to service_role;
 grant select on public.filter_apply_stats to service_role;
+grant select on public.events_hourly to service_role;

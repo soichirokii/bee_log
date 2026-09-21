@@ -31,6 +31,8 @@ export type FilterStat = {
 
 export type TagStat = { tag: string; viewCount: number };
 
+export type HeatCell = { dow: number; hour: number; count: number };
+
 const asNumber = (value: unknown) => Number(value ?? 0);
 
 export async function getDailyEvents(): Promise<DailyEvent[]> {
@@ -98,6 +100,28 @@ export async function getFilterStats(): Promise<FilterStat[]> {
     filterName: String(row.filter_name),
     filterValue: String(row.filter_value),
     applyCount: asNumber(row.apply_count),
+  }));
+}
+
+// Notion で「公開」チェックが付いた活動の総数（締切経過分も含む）。
+// getAllPublishedPosts は React cache 済みで、活動ランキング側の呼び出しと重複しない。
+export async function getPublishedCount(): Promise<number> {
+  const posts = await getAllPublishedPosts();
+  return posts.length;
+}
+
+export async function getHourlyHeatmap(): Promise<HeatCell[]> {
+  const supabase = getSupabase();
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("events_hourly")
+    .select("dow, hour, event_count")
+    .eq("event_type", "page_view");
+  if (error) return [];
+  return (data ?? []).map((row) => ({
+    dow: asNumber(row.dow),
+    hour: asNumber(row.hour),
+    count: asNumber(row.event_count),
   }));
 }
 
