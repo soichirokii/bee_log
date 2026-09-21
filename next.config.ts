@@ -1,9 +1,13 @@
 import type { NextConfig } from "next";
 
+// Next.js の開発モードは HMR で eval を使うため、dev のみ 'unsafe-eval' を許可する。
+// 本番ビルドは eval を使わないので、production では付与しない（CSP を厳格に保つ）。
+const isDev = process.env.NODE_ENV !== "production";
+
 const ContentSecurityPolicy = [
   "default-src 'self'",
   // インラインスクリプト（SW登録）と Vercel Analytics を許可
-  "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://va.vercel-scripts.com`,
   // Typekit・Google Fonts のスタイル許可（インライン style は Next.js が生成）
   "style-src 'self' 'unsafe-inline' https://use.typekit.net https://fonts.googleapis.com",
   // フォントファイル
